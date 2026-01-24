@@ -798,16 +798,24 @@ class TransDecoderPredict:
         """
         Remove overlapping ORFs, keeping higher priority ones
         
+        ORFs with homology support are always retained, even if they overlap.
+        This matches Perl's behavior: $gene_entry->{homology_count} || ! &has_sufficient_overlap()
+        
         Args:
             candidates: List of candidate ORFs (already sorted by priority)
             
         Returns:
-            List of non-overlapping ORFs
+            List of non-overlapping ORFs (plus all ORFs with homology)
         """
         MAX_PCT_OVERLAP = 10
         
         selected = []
         for candidate in candidates:
+            # Always include ORFs with homology support (Perl behavior)
+            if candidate['homology_count'] > 0:
+                selected.append(candidate)
+                continue
+            
             orf = candidate['orf']
             start = orf['start']
             end = orf['end']

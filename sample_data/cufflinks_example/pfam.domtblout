@@ -248,5 +248,5 @@ CUFF.38.1.p1         -            638 Zn_clus              PF00172.17    40   7.
 # Target file:     transcripts.fasta.transdecoder_dir/longest_orfs.pep
 # Option settings: hmmsearch --domtblout pfam.domtblout mini_Pfam-A.hmm transcripts.fasta.transdecoder_dir/longest_orfs.pep 
 # Current dir:     /home/unix/bhaas/projects/TD_port/PyTransDecoder/sample_data/cufflinks_example
-# Date:            Sat Jan 24 15:22:16 2026
+# Date:            Sat Jan 24 15:26:59 2026
 # [ok]
