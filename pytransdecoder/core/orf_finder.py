@@ -93,8 +93,8 @@ class ORFFinder:
             # Find all stop codons in this frame
             stops, real_stops = self._find_stops_in_frame(sequence, frame)
             
-            # Find all start codons in this frame
-            starts = self._find_starts_in_frame(sequence, frame)
+            # Find all start codons in this frame (passing real_stops to avoid starts at stop positions)
+            starts = self._find_starts_in_frame(sequence, frame, real_stops)
             
             # Build ORFs from start-stop pairs
             orfs.extend(
@@ -134,12 +134,23 @@ class ORFFinder:
         
         return stops, real_stops
     
-    def _find_starts_in_frame(self, sequence: str, frame: int) -> List[int]:
-        """Find all start codon positions in a specific frame"""
+    def _find_starts_in_frame(self, sequence: str, frame: int, real_stops: set) -> List[int]:
+        """
+        Find all start codon positions in a specific frame.
+        
+        Args:
+            sequence: DNA/RNA sequence
+            frame: Reading frame (0, 1, or 2)
+            real_stops: Set of positions that are actual stop codons (to avoid adding stops as starts)
+            
+        Returns:
+            List of start positions
+        """
         starts = []
         
         # Add implicit start at beginning for 5' partials
-        if self.allow_5prime_partial:
+        # But don't add it if it's already a stop codon (Perl's logic)
+        if self.allow_5prime_partial and frame not in real_stops:
             starts.append(frame)
         
         # Find explicit start codons
@@ -178,12 +189,15 @@ class ORFFinder:
         
         # Iterate through starts in order
         for start_pos in starts:
-            # Find the first valid stop after this start
-            # that hasn't been used yet and is in-frame
+            # Skip starts that come before or at the last used stop
+            # This prevents reusing the same stop codon
+            if start_pos <= last_used_stop:
+                continue
+            
+            # Find the first valid stop after this start (Perl's algorithm)
             valid_stop = None
             for stop_pos in stops:
                 if (stop_pos > start_pos and 
-                    stop_pos > last_used_stop and
                     (stop_pos - start_pos) % 3 == 0):
                     valid_stop = stop_pos
                     break  # Take first valid stop (replicates Perl's 'last')
