@@ -176,7 +176,36 @@ The Python version is **ready for production** with these caveats:
 2. ⚠️ Optional: Implement PWM-based start codon refinement
 3. ⚠️ Optional: Add R plotting integration for QC
 4. ✅ Performance benchmarking complete
-5. 📝 Document differences for users
+5. ✅ CLI compatibility with Perl version (argparse)
+6. 📝 Document differences for users
+
+## CLI Compatibility Enhancement
+
+**Date**: January 24, 2026 (Post bug-fix update)
+
+### Problem
+The original Python implementation used Click framework which automatically converts option names with underscores to dashes (`--retain_pfam_hits` → `--retain-pfam-hits`). This broke compatibility with existing Perl TransDecoder workflows that use underscore-style options.
+
+### Solution
+Replaced Click with argparse and explicitly support both formats:
+- Each option accepts both underscore and dash variants
+- Example: `--retain-pfam-hits` and `--retain_pfam_hits` both work
+- Uses `dest` parameter to ensure consistent internal variable names
+
+### Benefits
+1. ✅ **Drop-in replacement**: Existing scripts and Makefiles work without modification
+2. ✅ **Flexible**: Users can use either format
+3. ✅ **Cleaner dependencies**: Removed Click dependency, uses standard library argparse
+4. ✅ **Sample data tests**: All sample_data examples now work with Python version
+
+### Testing
+```bash
+# Both commands work identically:
+pytransdecoder predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout  # Perl style
+pytransdecoder predict -t transcripts.fasta --retain-pfam-hits pfam.domtblout  # Python style
+```
+
+All unit tests passing (9/9). Sample data examples working with both option formats.
 
 ## Conclusion
 

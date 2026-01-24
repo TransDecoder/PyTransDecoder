@@ -36,6 +36,18 @@ This creates a directory `transcripts.fasta.transdecoder_dir/` with:
 -v, --verbose                   Verbose output
 ```
 
+## CLI Compatibility
+
+PyTransDecoder's CLI accepts **both underscore and dash formats** for option names, ensuring compatibility with existing Perl TransDecoder workflows:
+
+```bash
+# Both of these work identically:
+pytransdecoder predict -t transcripts.fasta --retain-pfam-hits pfam.domtblout
+pytransdecoder predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
+```
+
+This means you can use existing scripts and Makefiles without modification.
+
 ## Supported Genetic Codes
 
 - universal/standard
@@ -134,5 +146,6 @@ diff ../TransDecoder/test.fasta.transdecoder_dir/longest_orfs.pep \
 
 - Python 3.8+
 - BioPython >= 1.81
-- Click >= 8.0
 - tqdm >= 4.65
+
+**Note**: Previous versions required Click, but we now use argparse for better CLI compatibility with the Perl version.
