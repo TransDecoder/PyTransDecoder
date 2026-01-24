@@ -148,4 +148,5 @@ diff ../TransDecoder/test.fasta.transdecoder_dir/longest_orfs.pep \
 - BioPython >= 1.81
 - tqdm >= 4.65
 
-**Note**: Previous versions required Click, but we now use argparse for better CLI compatibility with the Perl version.
+**Note**: Ported by Claude.io Sonnet 4.5 under guidance by bhaas. Jan 24, 2026.
+
