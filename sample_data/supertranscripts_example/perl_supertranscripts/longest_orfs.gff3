@@ -1,0 +1,1870 @@
+Calx	transdecoder	gene	1	8957	.	+	.	ID=GENE.Calx~~Calx.p1;Name="ORF type:complete (+)"
+Calx	transdecoder	mRNA	1	8957	.	+	.	ID=Calx.p1;Parent=GENE.Calx~~Calx.p1;Name="ORF type:complete (+)"
+Calx	transdecoder	five_prime_UTR	1	2128	.	+	.	ID=Calx.p1.utr5p1;Parent=Calx.p1
+Calx	transdecoder	exon	1	8957	.	+	.	ID=Calx.p1.exon1;Parent=Calx.p1
+Calx	transdecoder	CDS	2129	4102	.	+	0	ID=cds.Calx.p1;Parent=Calx.p1
+Calx	transdecoder	three_prime_UTR	4103	8957	.	+	.	ID=Calx.p1.utr3p1;Parent=Calx.p1
+
+Calx	transdecoder	gene	1	8957	.	-	.	ID=GENE.Calx~~Calx.p2;Name="ORF type:complete (-)"
+Calx	transdecoder	mRNA	1	8957	.	-	.	ID=Calx.p2;Parent=GENE.Calx~~Calx.p2;Name="ORF type:complete (-)"
+Calx	transdecoder	five_prime_UTR	6207	8957	.	-	.	ID=Calx.p2.utr5p1;Parent=Calx.p2
+Calx	transdecoder	exon	1	8957	.	-	.	ID=Calx.p2.exon1;Parent=Calx.p2
+Calx	transdecoder	CDS	5739	6206	.	-	0	ID=cds.Calx.p2;Parent=Calx.p2
+Calx	transdecoder	three_prime_UTR	1	5738	.	-	.	ID=Calx.p2.utr3p1;Parent=Calx.p2
+
+Calx	transdecoder	gene	1	8957	.	-	.	ID=GENE.Calx~~Calx.p3;Name="ORF type:complete (-)"
+Calx	transdecoder	mRNA	1	8957	.	-	.	ID=Calx.p3;Parent=GENE.Calx~~Calx.p3;Name="ORF type:complete (-)"
+Calx	transdecoder	five_prime_UTR	1075	8957	.	-	.	ID=Calx.p3.utr5p1;Parent=Calx.p3
+Calx	transdecoder	exon	1	8957	.	-	.	ID=Calx.p3.exon1;Parent=Calx.p3
+Calx	transdecoder	CDS	613	1074	.	-	0	ID=cds.Calx.p3;Parent=Calx.p3
+Calx	transdecoder	three_prime_UTR	1	612	.	-	.	ID=Calx.p3.utr3p1;Parent=Calx.p3
+
+Calx	transdecoder	gene	1	8957	.	-	.	ID=GENE.Calx~~Calx.p4;Name="ORF type:complete (-)"
+Calx	transdecoder	mRNA	1	8957	.	-	.	ID=Calx.p4;Parent=GENE.Calx~~Calx.p4;Name="ORF type:complete (-)"
+Calx	transdecoder	five_prime_UTR	4112	8957	.	-	.	ID=Calx.p4.utr5p1;Parent=Calx.p4
+Calx	transdecoder	exon	1	8957	.	-	.	ID=Calx.p4.exon1;Parent=Calx.p4
+Calx	transdecoder	CDS	3740	4111	.	-	0	ID=cds.Calx.p4;Parent=Calx.p4
+Calx	transdecoder	three_prime_UTR	1	3739	.	-	.	ID=Calx.p4.utr3p1;Parent=Calx.p4
+
+Calx	transdecoder	gene	1	8957	.	+	.	ID=GENE.Calx~~Calx.p5;Name="ORF type:complete (+)"
+Calx	transdecoder	mRNA	1	8957	.	+	.	ID=Calx.p5;Parent=GENE.Calx~~Calx.p5;Name="ORF type:complete (+)"
+Calx	transdecoder	five_prime_UTR	1	6077	.	+	.	ID=Calx.p5.utr5p1;Parent=Calx.p5
+Calx	transdecoder	exon	1	8957	.	+	.	ID=Calx.p5.exon1;Parent=Calx.p5
+Calx	transdecoder	CDS	6078	6440	.	+	0	ID=cds.Calx.p5;Parent=Calx.p5
+Calx	transdecoder	three_prime_UTR	6441	8957	.	+	.	ID=Calx.p5.utr3p1;Parent=Calx.p5
+
+Calx	transdecoder	gene	1	8957	.	-	.	ID=GENE.Calx~~Calx.p6;Name="ORF type:complete (-)"
+Calx	transdecoder	mRNA	1	8957	.	-	.	ID=Calx.p6;Parent=GENE.Calx~~Calx.p6;Name="ORF type:complete (-)"
+Calx	transdecoder	five_prime_UTR	2473	8957	.	-	.	ID=Calx.p6.utr5p1;Parent=Calx.p6
+Calx	transdecoder	exon	1	8957	.	-	.	ID=Calx.p6.exon1;Parent=Calx.p6
+Calx	transdecoder	CDS	2116	2472	.	-	0	ID=cds.Calx.p6;Parent=Calx.p6
+Calx	transdecoder	three_prime_UTR	1	2115	.	-	.	ID=Calx.p6.utr3p1;Parent=Calx.p6
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p1;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p1;Parent=GENE.CG7564~~CG7564.p1;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	6419	10442	.	-	.	ID=CG7564.p1.utr5p1;Parent=CG7564.p1
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p1.exon1;Parent=CG7564.p1
+CG7564	transdecoder	CDS	3416	6418	.	-	0	ID=cds.CG7564.p1;Parent=CG7564.p1
+CG7564	transdecoder	three_prime_UTR	1	3415	.	-	.	ID=CG7564.p1.utr3p1;Parent=CG7564.p1
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p2;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p2;Parent=GENE.CG7564~~CG7564.p2;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	8395	10442	.	-	.	ID=CG7564.p2.utr5p1;Parent=CG7564.p2
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p2.exon1;Parent=CG7564.p2
+CG7564	transdecoder	CDS	7039	8394	.	-	0	ID=cds.CG7564.p2;Parent=CG7564.p2
+CG7564	transdecoder	three_prime_UTR	1	7038	.	-	.	ID=CG7564.p2.utr3p1;Parent=CG7564.p2
+
+CG7564	transdecoder	gene	1	10442	.	+	.	ID=GENE.CG7564~~CG7564.p3;Name="ORF type:complete (+)"
+CG7564	transdecoder	mRNA	1	10442	.	+	.	ID=CG7564.p3;Parent=GENE.CG7564~~CG7564.p3;Name="ORF type:complete (+)"
+CG7564	transdecoder	five_prime_UTR	1	169	.	+	.	ID=CG7564.p3.utr5p1;Parent=CG7564.p3
+CG7564	transdecoder	exon	1	10442	.	+	.	ID=CG7564.p3.exon1;Parent=CG7564.p3
+CG7564	transdecoder	CDS	170	1432	.	+	0	ID=cds.CG7564.p3;Parent=CG7564.p3
+CG7564	transdecoder	three_prime_UTR	1433	10442	.	+	.	ID=CG7564.p3.utr3p1;Parent=CG7564.p3
+
+CG7564	transdecoder	gene	1	10442	.	+	.	ID=GENE.CG7564~~CG7564.p4;Name="ORF type:complete (+)"
+CG7564	transdecoder	mRNA	1	10442	.	+	.	ID=CG7564.p4;Parent=GENE.CG7564~~CG7564.p4;Name="ORF type:complete (+)"
+CG7564	transdecoder	five_prime_UTR	1	1034	.	+	.	ID=CG7564.p4.utr5p1;Parent=CG7564.p4
+CG7564	transdecoder	exon	1	10442	.	+	.	ID=CG7564.p4.exon1;Parent=CG7564.p4
+CG7564	transdecoder	CDS	1035	1499	.	+	0	ID=cds.CG7564.p4;Parent=CG7564.p4
+CG7564	transdecoder	three_prime_UTR	1500	10442	.	+	.	ID=CG7564.p4.utr3p1;Parent=CG7564.p4
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p5;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p5;Parent=GENE.CG7564~~CG7564.p5;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	1289	10442	.	-	.	ID=CG7564.p5.utr5p1;Parent=CG7564.p5
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p5.exon1;Parent=CG7564.p5
+CG7564	transdecoder	CDS	824	1288	.	-	0	ID=cds.CG7564.p5;Parent=CG7564.p5
+CG7564	transdecoder	three_prime_UTR	1	823	.	-	.	ID=CG7564.p5.utr3p1;Parent=CG7564.p5
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p6;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p6;Parent=GENE.CG7564~~CG7564.p6;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	566	10442	.	-	.	ID=CG7564.p6.utr5p1;Parent=CG7564.p6
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p6.exon1;Parent=CG7564.p6
+CG7564	transdecoder	CDS	146	565	.	-	0	ID=cds.CG7564.p6;Parent=CG7564.p6
+CG7564	transdecoder	three_prime_UTR	1	145	.	-	.	ID=CG7564.p6.utr3p1;Parent=CG7564.p6
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p7;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p7;Parent=GENE.CG7564~~CG7564.p7;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	9604	10442	.	-	.	ID=CG7564.p7.utr5p1;Parent=CG7564.p7
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p7.exon1;Parent=CG7564.p7
+CG7564	transdecoder	CDS	9238	9603	.	-	0	ID=cds.CG7564.p7;Parent=CG7564.p7
+CG7564	transdecoder	three_prime_UTR	1	9237	.	-	.	ID=CG7564.p7.utr3p1;Parent=CG7564.p7
+
+CG7564	transdecoder	gene	1	10442	.	-	.	ID=GENE.CG7564~~CG7564.p8;Name="ORF type:complete (-)"
+CG7564	transdecoder	mRNA	1	10442	.	-	.	ID=CG7564.p8;Parent=GENE.CG7564~~CG7564.p8;Name="ORF type:complete (-)"
+CG7564	transdecoder	five_prime_UTR	8876	10442	.	-	.	ID=CG7564.p8.utr5p1;Parent=CG7564.p8
+CG7564	transdecoder	exon	1	10442	.	-	.	ID=CG7564.p8.exon1;Parent=CG7564.p8
+CG7564	transdecoder	CDS	8561	8875	.	-	0	ID=cds.CG7564.p8;Parent=CG7564.p8
+CG7564	transdecoder	three_prime_UTR	1	8560	.	-	.	ID=CG7564.p8.utr3p1;Parent=CG7564.p8
+
+Aldh-III	transdecoder	gene	1	3708	.	+	.	ID=GENE.Aldh-III~~Aldh-III.p1;Name="ORF type:complete (+)"
+Aldh-III	transdecoder	mRNA	1	3708	.	+	.	ID=Aldh-III.p1;Parent=GENE.Aldh-III~~Aldh-III.p1;Name="ORF type:complete (+)"
+Aldh-III	transdecoder	five_prime_UTR	1	1553	.	+	.	ID=Aldh-III.p1.utr5p1;Parent=Aldh-III.p1
+Aldh-III	transdecoder	exon	1	3708	.	+	.	ID=Aldh-III.p1.exon1;Parent=Aldh-III.p1
+Aldh-III	transdecoder	CDS	1554	2759	.	+	0	ID=cds.Aldh-III.p1;Parent=Aldh-III.p1
+Aldh-III	transdecoder	three_prime_UTR	2760	3708	.	+	.	ID=Aldh-III.p1.utr3p1;Parent=Aldh-III.p1
+
+Aldh-III	transdecoder	gene	1	3708	.	+	.	ID=GENE.Aldh-III~~Aldh-III.p2;Name="ORF type:complete (+)"
+Aldh-III	transdecoder	mRNA	1	3708	.	+	.	ID=Aldh-III.p2;Parent=GENE.Aldh-III~~Aldh-III.p2;Name="ORF type:complete (+)"
+Aldh-III	transdecoder	five_prime_UTR	1	2961	.	+	.	ID=Aldh-III.p2.utr5p1;Parent=Aldh-III.p2
+Aldh-III	transdecoder	exon	1	3708	.	+	.	ID=Aldh-III.p2.exon1;Parent=Aldh-III.p2
+Aldh-III	transdecoder	CDS	2962	3291	.	+	0	ID=cds.Aldh-III.p2;Parent=Aldh-III.p2
+Aldh-III	transdecoder	three_prime_UTR	3292	3708	.	+	.	ID=Aldh-III.p2.utr3p1;Parent=Aldh-III.p2
+
+ogre	transdecoder	gene	1	3938	.	+	.	ID=GENE.ogre~~ogre.p1;Name="ORF type:complete (+)"
+ogre	transdecoder	mRNA	1	3938	.	+	.	ID=ogre.p1;Parent=GENE.ogre~~ogre.p1;Name="ORF type:complete (+)"
+ogre	transdecoder	five_prime_UTR	1	2040	.	+	.	ID=ogre.p1.utr5p1;Parent=ogre.p1
+ogre	transdecoder	exon	1	3938	.	+	.	ID=ogre.p1.exon1;Parent=ogre.p1
+ogre	transdecoder	CDS	2041	3129	.	+	0	ID=cds.ogre.p1;Parent=ogre.p1
+ogre	transdecoder	three_prime_UTR	3130	3938	.	+	.	ID=ogre.p1.utr3p1;Parent=ogre.p1
+
+ogre	transdecoder	gene	1	3938	.	-	.	ID=GENE.ogre~~ogre.p2;Name="ORF type:complete (-)"
+ogre	transdecoder	mRNA	1	3938	.	-	.	ID=ogre.p2;Parent=GENE.ogre~~ogre.p2;Name="ORF type:complete (-)"
+ogre	transdecoder	five_prime_UTR	1568	3938	.	-	.	ID=ogre.p2.utr5p1;Parent=ogre.p2
+ogre	transdecoder	exon	1	3938	.	-	.	ID=ogre.p2.exon1;Parent=ogre.p2
+ogre	transdecoder	CDS	1157	1567	.	-	0	ID=cds.ogre.p2;Parent=ogre.p2
+ogre	transdecoder	three_prime_UTR	1	1156	.	-	.	ID=ogre.p2.utr3p1;Parent=ogre.p2
+
+ogre	transdecoder	gene	1	3938	.	-	.	ID=GENE.ogre~~ogre.p3;Name="ORF type:complete (-)"
+ogre	transdecoder	mRNA	1	3938	.	-	.	ID=ogre.p3;Parent=GENE.ogre~~ogre.p3;Name="ORF type:complete (-)"
+ogre	transdecoder	five_prime_UTR	1662	3938	.	-	.	ID=ogre.p3.utr5p1;Parent=ogre.p3
+ogre	transdecoder	exon	1	3938	.	-	.	ID=ogre.p3.exon1;Parent=ogre.p3
+ogre	transdecoder	CDS	1323	1661	.	-	0	ID=cds.ogre.p3;Parent=ogre.p3
+ogre	transdecoder	three_prime_UTR	1	1322	.	-	.	ID=ogre.p3.utr3p1;Parent=ogre.p3
+
+ogre	transdecoder	gene	1	3938	.	+	.	ID=GENE.ogre~~ogre.p4;Name="ORF type:complete (+)"
+ogre	transdecoder	mRNA	1	3938	.	+	.	ID=ogre.p4;Parent=GENE.ogre~~ogre.p4;Name="ORF type:complete (+)"
+ogre	transdecoder	five_prime_UTR	1	173	.	+	.	ID=ogre.p4.utr5p1;Parent=ogre.p4
+ogre	transdecoder	exon	1	3938	.	+	.	ID=ogre.p4.exon1;Parent=ogre.p4
+ogre	transdecoder	CDS	174	473	.	+	0	ID=cds.ogre.p4;Parent=ogre.p4
+ogre	transdecoder	three_prime_UTR	474	3938	.	+	.	ID=ogre.p4.utr3p1;Parent=ogre.p4
+
+Irk2	transdecoder	gene	1	2495	.	+	.	ID=GENE.Irk2~~Irk2.p1;Name="ORF type:complete (+)"
+Irk2	transdecoder	mRNA	1	2495	.	+	.	ID=Irk2.p1;Parent=GENE.Irk2~~Irk2.p1;Name="ORF type:complete (+)"
+Irk2	transdecoder	five_prime_UTR	1	294	.	+	.	ID=Irk2.p1.utr5p1;Parent=Irk2.p1
+Irk2	transdecoder	exon	1	2495	.	+	.	ID=Irk2.p1.exon1;Parent=Irk2.p1
+Irk2	transdecoder	CDS	295	1908	.	+	0	ID=cds.Irk2.p1;Parent=Irk2.p1
+Irk2	transdecoder	three_prime_UTR	1909	2495	.	+	.	ID=Irk2.p1.utr3p1;Parent=Irk2.p1
+
+Klp10A	transdecoder	gene	1	5149	.	+	.	ID=GENE.Klp10A~~Klp10A.p1;Name="ORF type:complete (+)"
+Klp10A	transdecoder	mRNA	1	5149	.	+	.	ID=Klp10A.p1;Parent=GENE.Klp10A~~Klp10A.p1;Name="ORF type:complete (+)"
+Klp10A	transdecoder	five_prime_UTR	1	1113	.	+	.	ID=Klp10A.p1.utr5p1;Parent=Klp10A.p1
+Klp10A	transdecoder	exon	1	5149	.	+	.	ID=Klp10A.p1.exon1;Parent=Klp10A.p1
+Klp10A	transdecoder	CDS	1114	3531	.	+	0	ID=cds.Klp10A.p1;Parent=Klp10A.p1
+Klp10A	transdecoder	three_prime_UTR	3532	5149	.	+	.	ID=Klp10A.p1.utr3p1;Parent=Klp10A.p1
+
+Klp10A	transdecoder	gene	1	5149	.	-	.	ID=GENE.Klp10A~~Klp10A.p2;Name="ORF type:complete (-)"
+Klp10A	transdecoder	mRNA	1	5149	.	-	.	ID=Klp10A.p2;Parent=GENE.Klp10A~~Klp10A.p2;Name="ORF type:complete (-)"
+Klp10A	transdecoder	five_prime_UTR	3298	5149	.	-	.	ID=Klp10A.p2.utr5p1;Parent=Klp10A.p2
+Klp10A	transdecoder	exon	1	5149	.	-	.	ID=Klp10A.p2.exon1;Parent=Klp10A.p2
+Klp10A	transdecoder	CDS	2356	3297	.	-	0	ID=cds.Klp10A.p2;Parent=Klp10A.p2
+Klp10A	transdecoder	three_prime_UTR	1	2355	.	-	.	ID=Klp10A.p2.utr3p1;Parent=Klp10A.p2
+
+Klp10A	transdecoder	gene	1	5149	.	+	.	ID=GENE.Klp10A~~Klp10A.p3;Name="ORF type:complete (+)"
+Klp10A	transdecoder	mRNA	1	5149	.	+	.	ID=Klp10A.p3;Parent=GENE.Klp10A~~Klp10A.p3;Name="ORF type:complete (+)"
+Klp10A	transdecoder	five_prime_UTR	1	221	.	+	.	ID=Klp10A.p3.utr5p1;Parent=Klp10A.p3
+Klp10A	transdecoder	exon	1	5149	.	+	.	ID=Klp10A.p3.exon1;Parent=Klp10A.p3
+Klp10A	transdecoder	CDS	222	911	.	+	0	ID=cds.Klp10A.p3;Parent=Klp10A.p3
+Klp10A	transdecoder	three_prime_UTR	912	5149	.	+	.	ID=Klp10A.p3.utr3p1;Parent=Klp10A.p3
+
+Klp10A	transdecoder	gene	1	5149	.	-	.	ID=GENE.Klp10A~~Klp10A.p4;Name="ORF type:complete (-)"
+Klp10A	transdecoder	mRNA	1	5149	.	-	.	ID=Klp10A.p4;Parent=GENE.Klp10A~~Klp10A.p4;Name="ORF type:complete (-)"
+Klp10A	transdecoder	five_prime_UTR	2871	5149	.	-	.	ID=Klp10A.p4.utr5p1;Parent=Klp10A.p4
+Klp10A	transdecoder	exon	1	5149	.	-	.	ID=Klp10A.p4.exon1;Parent=Klp10A.p4
+Klp10A	transdecoder	CDS	2385	2870	.	-	0	ID=cds.Klp10A.p4;Parent=Klp10A.p4
+Klp10A	transdecoder	three_prime_UTR	1	2384	.	-	.	ID=Klp10A.p4.utr3p1;Parent=Klp10A.p4
+
+Klp10A	transdecoder	gene	1	5149	.	-	.	ID=GENE.Klp10A~~Klp10A.p5;Name="ORF type:3prime_partial (-)"
+Klp10A	transdecoder	mRNA	1	5149	.	-	.	ID=Klp10A.p5;Parent=GENE.Klp10A~~Klp10A.p5;Name="ORF type:3prime_partial (-)"
+Klp10A	transdecoder	five_prime_UTR	446	5149	.	-	.	ID=Klp10A.p5.utr5p1;Parent=Klp10A.p5
+Klp10A	transdecoder	exon	1	5149	.	-	.	ID=Klp10A.p5.exon1;Parent=Klp10A.p5
+Klp10A	transdecoder	CDS	2	445	.	-	0	ID=cds.Klp10A.p5;Parent=Klp10A.p5;3_prime_partial=true
+
+Klp10A	transdecoder	gene	1	5149	.	+	.	ID=GENE.Klp10A~~Klp10A.p6;Name="ORF type:complete (+)"
+Klp10A	transdecoder	mRNA	1	5149	.	+	.	ID=Klp10A.p6;Parent=GENE.Klp10A~~Klp10A.p6;Name="ORF type:complete (+)"
+Klp10A	transdecoder	five_prime_UTR	1	211	.	+	.	ID=Klp10A.p6.utr5p1;Parent=Klp10A.p6
+Klp10A	transdecoder	exon	1	5149	.	+	.	ID=Klp10A.p6.exon1;Parent=Klp10A.p6
+Klp10A	transdecoder	CDS	212	622	.	+	0	ID=cds.Klp10A.p6;Parent=Klp10A.p6
+Klp10A	transdecoder	three_prime_UTR	623	5149	.	+	.	ID=Klp10A.p6.utr3p1;Parent=Klp10A.p6
+
+Klp10A	transdecoder	gene	1	5149	.	-	.	ID=GENE.Klp10A~~Klp10A.p7;Name="ORF type:complete (-)"
+Klp10A	transdecoder	mRNA	1	5149	.	-	.	ID=Klp10A.p7;Parent=GENE.Klp10A~~Klp10A.p7;Name="ORF type:complete (-)"
+Klp10A	transdecoder	five_prime_UTR	1945	5149	.	-	.	ID=Klp10A.p7.utr5p1;Parent=Klp10A.p7
+Klp10A	transdecoder	exon	1	5149	.	-	.	ID=Klp10A.p7.exon1;Parent=Klp10A.p7
+Klp10A	transdecoder	CDS	1564	1944	.	-	0	ID=cds.Klp10A.p7;Parent=Klp10A.p7
+Klp10A	transdecoder	three_prime_UTR	1	1563	.	-	.	ID=Klp10A.p7.utr3p1;Parent=Klp10A.p7
+
+Klp10A	transdecoder	gene	1	5149	.	-	.	ID=GENE.Klp10A~~Klp10A.p8;Name="ORF type:complete (-)"
+Klp10A	transdecoder	mRNA	1	5149	.	-	.	ID=Klp10A.p8;Parent=GENE.Klp10A~~Klp10A.p8;Name="ORF type:complete (-)"
+Klp10A	transdecoder	five_prime_UTR	1434	5149	.	-	.	ID=Klp10A.p8.utr5p1;Parent=Klp10A.p8
+Klp10A	transdecoder	exon	1	5149	.	-	.	ID=Klp10A.p8.exon1;Parent=Klp10A.p8
+Klp10A	transdecoder	CDS	1098	1433	.	-	0	ID=cds.Klp10A.p8;Parent=Klp10A.p8
+Klp10A	transdecoder	three_prime_UTR	1	1097	.	-	.	ID=Klp10A.p8.utr3p1;Parent=Klp10A.p8
+
+Klp10A	transdecoder	gene	1	5149	.	+	.	ID=GENE.Klp10A~~Klp10A.p9;Name="ORF type:complete (+)"
+Klp10A	transdecoder	mRNA	1	5149	.	+	.	ID=Klp10A.p9;Parent=GENE.Klp10A~~Klp10A.p9;Name="ORF type:complete (+)"
+Klp10A	transdecoder	five_prime_UTR	1	2530	.	+	.	ID=Klp10A.p9.utr5p1;Parent=Klp10A.p9
+Klp10A	transdecoder	exon	1	5149	.	+	.	ID=Klp10A.p9.exon1;Parent=Klp10A.p9
+Klp10A	transdecoder	CDS	2531	2863	.	+	0	ID=cds.Klp10A.p9;Parent=Klp10A.p9
+Klp10A	transdecoder	three_prime_UTR	2864	5149	.	+	.	ID=Klp10A.p9.utr3p1;Parent=Klp10A.p9
+
+CG6091	transdecoder	gene	1	3440	.	+	.	ID=GENE.CG6091~~CG6091.p1;Name="ORF type:complete (+)"
+CG6091	transdecoder	mRNA	1	3440	.	+	.	ID=CG6091.p1;Parent=GENE.CG6091~~CG6091.p1;Name="ORF type:complete (+)"
+CG6091	transdecoder	five_prime_UTR	1	729	.	+	.	ID=CG6091.p1.utr5p1;Parent=CG6091.p1
+CG6091	transdecoder	exon	1	3440	.	+	.	ID=CG6091.p1.exon1;Parent=CG6091.p1
+CG6091	transdecoder	CDS	730	2436	.	+	0	ID=cds.CG6091.p1;Parent=CG6091.p1
+CG6091	transdecoder	three_prime_UTR	2437	3440	.	+	.	ID=CG6091.p1.utr3p1;Parent=CG6091.p1
+
+CG6091	transdecoder	gene	1	3440	.	-	.	ID=GENE.CG6091~~CG6091.p2;Name="ORF type:complete (-)"
+CG6091	transdecoder	mRNA	1	3440	.	-	.	ID=CG6091.p2;Parent=GENE.CG6091~~CG6091.p2;Name="ORF type:complete (-)"
+CG6091	transdecoder	five_prime_UTR	3029	3440	.	-	.	ID=CG6091.p2.utr5p1;Parent=CG6091.p2
+CG6091	transdecoder	exon	1	3440	.	-	.	ID=CG6091.p2.exon1;Parent=CG6091.p2
+CG6091	transdecoder	CDS	2612	3028	.	-	0	ID=cds.CG6091.p2;Parent=CG6091.p2
+CG6091	transdecoder	three_prime_UTR	1	2611	.	-	.	ID=CG6091.p2.utr3p1;Parent=CG6091.p2
+
+CG6091	transdecoder	gene	1	3440	.	-	.	ID=GENE.CG6091~~CG6091.p3;Name="ORF type:complete (-)"
+CG6091	transdecoder	mRNA	1	3440	.	-	.	ID=CG6091.p3;Parent=GENE.CG6091~~CG6091.p3;Name="ORF type:complete (-)"
+CG6091	transdecoder	five_prime_UTR	997	3440	.	-	.	ID=CG6091.p3.utr5p1;Parent=CG6091.p3
+CG6091	transdecoder	exon	1	3440	.	-	.	ID=CG6091.p3.exon1;Parent=CG6091.p3
+CG6091	transdecoder	CDS	598	996	.	-	0	ID=cds.CG6091.p3;Parent=CG6091.p3
+CG6091	transdecoder	three_prime_UTR	1	597	.	-	.	ID=CG6091.p3.utr3p1;Parent=CG6091.p3
+
+CG6091	transdecoder	gene	1	3440	.	-	.	ID=GENE.CG6091~~CG6091.p4;Name="ORF type:complete (-)"
+CG6091	transdecoder	mRNA	1	3440	.	-	.	ID=CG6091.p4;Parent=GENE.CG6091~~CG6091.p4;Name="ORF type:complete (-)"
+CG6091	transdecoder	five_prime_UTR	1576	3440	.	-	.	ID=CG6091.p4.utr5p1;Parent=CG6091.p4
+CG6091	transdecoder	exon	1	3440	.	-	.	ID=CG6091.p4.exon1;Parent=CG6091.p4
+CG6091	transdecoder	CDS	1240	1575	.	-	0	ID=cds.CG6091.p4;Parent=CG6091.p4
+CG6091	transdecoder	three_prime_UTR	1	1239	.	-	.	ID=CG6091.p4.utr3p1;Parent=CG6091.p4
+
+CG6091	transdecoder	gene	1	3440	.	+	.	ID=GENE.CG6091~~CG6091.p5;Name="ORF type:complete (+)"
+CG6091	transdecoder	mRNA	1	3440	.	+	.	ID=CG6091.p5;Parent=GENE.CG6091~~CG6091.p5;Name="ORF type:complete (+)"
+CG6091	transdecoder	five_prime_UTR	1	1567	.	+	.	ID=CG6091.p5.utr5p1;Parent=CG6091.p5
+CG6091	transdecoder	exon	1	3440	.	+	.	ID=CG6091.p5.exon1;Parent=CG6091.p5
+CG6091	transdecoder	CDS	1568	1873	.	+	0	ID=cds.CG6091.p5;Parent=CG6091.p5
+CG6091	transdecoder	three_prime_UTR	1874	3440	.	+	.	ID=CG6091.p5.utr3p1;Parent=CG6091.p5
+
+His4r	transdecoder	gene	1	794	.	+	.	ID=GENE.His4r~~His4r.p1;Name="ORF type:complete (+)"
+His4r	transdecoder	mRNA	1	794	.	+	.	ID=His4r.p1;Parent=GENE.His4r~~His4r.p1;Name="ORF type:complete (+)"
+His4r	transdecoder	five_prime_UTR	1	294	.	+	.	ID=His4r.p1.utr5p1;Parent=His4r.p1
+His4r	transdecoder	exon	1	794	.	+	.	ID=His4r.p1.exon1;Parent=His4r.p1
+His4r	transdecoder	CDS	295	606	.	+	0	ID=cds.His4r.p1;Parent=His4r.p1
+His4r	transdecoder	three_prime_UTR	607	794	.	+	.	ID=His4r.p1.utr3p1;Parent=His4r.p1
+
+l(1)G0193	transdecoder	gene	1	3384	.	+	.	ID=GENE.l(1)G0193~~l(1)G0193.p1;Name="ORF type:complete (+)"
+l(1)G0193	transdecoder	mRNA	1	3384	.	+	.	ID=l(1)G0193.p1;Parent=GENE.l(1)G0193~~l(1)G0193.p1;Name="ORF type:complete (+)"
+l(1)G0193	transdecoder	five_prime_UTR	1	1217	.	+	.	ID=l(1)G0193.p1.utr5p1;Parent=l(1)G0193.p1
+l(1)G0193	transdecoder	exon	1	3384	.	+	.	ID=l(1)G0193.p1.exon1;Parent=l(1)G0193.p1
+l(1)G0193	transdecoder	CDS	1218	3158	.	+	0	ID=cds.l(1)G0193.p1;Parent=l(1)G0193.p1
+l(1)G0193	transdecoder	three_prime_UTR	3159	3384	.	+	.	ID=l(1)G0193.p1.utr3p1;Parent=l(1)G0193.p1
+
+l(1)G0193	transdecoder	gene	1	3384	.	-	.	ID=GENE.l(1)G0193~~l(1)G0193.p2;Name="ORF type:complete (-)"
+l(1)G0193	transdecoder	mRNA	1	3384	.	-	.	ID=l(1)G0193.p2;Parent=GENE.l(1)G0193~~l(1)G0193.p2;Name="ORF type:complete (-)"
+l(1)G0193	transdecoder	five_prime_UTR	2748	3384	.	-	.	ID=l(1)G0193.p2.utr5p1;Parent=l(1)G0193.p2
+l(1)G0193	transdecoder	exon	1	3384	.	-	.	ID=l(1)G0193.p2.exon1;Parent=l(1)G0193.p2
+l(1)G0193	transdecoder	CDS	1986	2747	.	-	0	ID=cds.l(1)G0193.p2;Parent=l(1)G0193.p2
+l(1)G0193	transdecoder	three_prime_UTR	1	1985	.	-	.	ID=l(1)G0193.p2.utr3p1;Parent=l(1)G0193.p2
+
+l(1)G0193	transdecoder	gene	1	3384	.	+	.	ID=GENE.l(1)G0193~~l(1)G0193.p3;Name="ORF type:complete (+)"
+l(1)G0193	transdecoder	mRNA	1	3384	.	+	.	ID=l(1)G0193.p3;Parent=GENE.l(1)G0193~~l(1)G0193.p3;Name="ORF type:complete (+)"
+l(1)G0193	transdecoder	five_prime_UTR	1	231	.	+	.	ID=l(1)G0193.p3.utr5p1;Parent=l(1)G0193.p3
+l(1)G0193	transdecoder	exon	1	3384	.	+	.	ID=l(1)G0193.p3.exon1;Parent=l(1)G0193.p3
+l(1)G0193	transdecoder	CDS	232	837	.	+	0	ID=cds.l(1)G0193.p3;Parent=l(1)G0193.p3
+l(1)G0193	transdecoder	three_prime_UTR	838	3384	.	+	.	ID=l(1)G0193.p3.utr3p1;Parent=l(1)G0193.p3
+
+l(1)G0193	transdecoder	gene	1	3384	.	-	.	ID=GENE.l(1)G0193~~l(1)G0193.p4;Name="ORF type:complete (-)"
+l(1)G0193	transdecoder	mRNA	1	3384	.	-	.	ID=l(1)G0193.p4;Parent=GENE.l(1)G0193~~l(1)G0193.p4;Name="ORF type:complete (-)"
+l(1)G0193	transdecoder	five_prime_UTR	414	3384	.	-	.	ID=l(1)G0193.p4.utr5p1;Parent=l(1)G0193.p4
+l(1)G0193	transdecoder	exon	1	3384	.	-	.	ID=l(1)G0193.p4.exon1;Parent=l(1)G0193.p4
+l(1)G0193	transdecoder	CDS	51	413	.	-	0	ID=cds.l(1)G0193.p4;Parent=l(1)G0193.p4
+l(1)G0193	transdecoder	three_prime_UTR	1	50	.	-	.	ID=l(1)G0193.p4.utr3p1;Parent=l(1)G0193.p4
+
+CG8312	transdecoder	gene	1	4217	.	+	.	ID=GENE.CG8312~~CG8312.p1;Name="ORF type:complete (+)"
+CG8312	transdecoder	mRNA	1	4217	.	+	.	ID=CG8312.p1;Parent=GENE.CG8312~~CG8312.p1;Name="ORF type:complete (+)"
+CG8312	transdecoder	five_prime_UTR	1	1121	.	+	.	ID=CG8312.p1.utr5p1;Parent=CG8312.p1
+CG8312	transdecoder	exon	1	4217	.	+	.	ID=CG8312.p1.exon1;Parent=CG8312.p1
+CG8312	transdecoder	CDS	1122	3722	.	+	0	ID=cds.CG8312.p1;Parent=CG8312.p1
+CG8312	transdecoder	three_prime_UTR	3723	4217	.	+	.	ID=CG8312.p1.utr3p1;Parent=CG8312.p1
+
+CG8312	transdecoder	gene	1	4217	.	-	.	ID=GENE.CG8312~~CG8312.p2;Name="ORF type:complete (-)"
+CG8312	transdecoder	mRNA	1	4217	.	-	.	ID=CG8312.p2;Parent=GENE.CG8312~~CG8312.p2;Name="ORF type:complete (-)"
+CG8312	transdecoder	five_prime_UTR	2208	4217	.	-	.	ID=CG8312.p2.utr5p1;Parent=CG8312.p2
+CG8312	transdecoder	exon	1	4217	.	-	.	ID=CG8312.p2.exon1;Parent=CG8312.p2
+CG8312	transdecoder	CDS	1398	2207	.	-	0	ID=cds.CG8312.p2;Parent=CG8312.p2
+CG8312	transdecoder	three_prime_UTR	1	1397	.	-	.	ID=CG8312.p2.utr3p1;Parent=CG8312.p2
+
+CG8312	transdecoder	gene	1	4217	.	-	.	ID=GENE.CG8312~~CG8312.p3;Name="ORF type:complete (-)"
+CG8312	transdecoder	mRNA	1	4217	.	-	.	ID=CG8312.p3;Parent=GENE.CG8312~~CG8312.p3;Name="ORF type:complete (-)"
+CG8312	transdecoder	five_prime_UTR	3486	4217	.	-	.	ID=CG8312.p3.utr5p1;Parent=CG8312.p3
+CG8312	transdecoder	exon	1	4217	.	-	.	ID=CG8312.p3.exon1;Parent=CG8312.p3
+CG8312	transdecoder	CDS	3105	3485	.	-	0	ID=cds.CG8312.p3;Parent=CG8312.p3
+CG8312	transdecoder	three_prime_UTR	1	3104	.	-	.	ID=CG8312.p3.utr3p1;Parent=CG8312.p3
+
+CG8312	transdecoder	gene	1	4217	.	-	.	ID=GENE.CG8312~~CG8312.p4;Name="ORF type:complete (-)"
+CG8312	transdecoder	mRNA	1	4217	.	-	.	ID=CG8312.p4;Parent=GENE.CG8312~~CG8312.p4;Name="ORF type:complete (-)"
+CG8312	transdecoder	five_prime_UTR	3096	4217	.	-	.	ID=CG8312.p4.utr5p1;Parent=CG8312.p4
+CG8312	transdecoder	exon	1	4217	.	-	.	ID=CG8312.p4.exon1;Parent=CG8312.p4
+CG8312	transdecoder	CDS	2715	3095	.	-	0	ID=cds.CG8312.p4;Parent=CG8312.p4
+CG8312	transdecoder	three_prime_UTR	1	2714	.	-	.	ID=CG8312.p4.utr3p1;Parent=CG8312.p4
+
+CG8312	transdecoder	gene	1	4217	.	-	.	ID=GENE.CG8312~~CG8312.p5;Name="ORF type:complete (-)"
+CG8312	transdecoder	mRNA	1	4217	.	-	.	ID=CG8312.p5;Parent=GENE.CG8312~~CG8312.p5;Name="ORF type:complete (-)"
+CG8312	transdecoder	five_prime_UTR	651	4217	.	-	.	ID=CG8312.p5.utr5p1;Parent=CG8312.p5
+CG8312	transdecoder	exon	1	4217	.	-	.	ID=CG8312.p5.exon1;Parent=CG8312.p5
+CG8312	transdecoder	CDS	333	650	.	-	0	ID=cds.CG8312.p5;Parent=CG8312.p5
+CG8312	transdecoder	three_prime_UTR	1	332	.	-	.	ID=CG8312.p5.utr3p1;Parent=CG8312.p5
+
+Eno	transdecoder	gene	1	3716	.	-	.	ID=GENE.Eno~~Eno.p1;Name="ORF type:complete (-)"
+Eno	transdecoder	mRNA	1	3716	.	-	.	ID=Eno.p1;Parent=GENE.Eno~~Eno.p1;Name="ORF type:complete (-)"
+Eno	transdecoder	five_prime_UTR	3232	3716	.	-	.	ID=Eno.p1.utr5p1;Parent=Eno.p1
+Eno	transdecoder	exon	1	3716	.	-	.	ID=Eno.p1.exon1;Parent=Eno.p1
+Eno	transdecoder	CDS	1711	3231	.	-	0	ID=cds.Eno.p1;Parent=Eno.p1
+Eno	transdecoder	three_prime_UTR	1	1710	.	-	.	ID=Eno.p1.utr3p1;Parent=Eno.p1
+
+Eno	transdecoder	gene	1	3716	.	+	.	ID=GENE.Eno~~Eno.p2;Name="ORF type:complete (+)"
+Eno	transdecoder	mRNA	1	3716	.	+	.	ID=Eno.p2;Parent=GENE.Eno~~Eno.p2;Name="ORF type:complete (+)"
+Eno	transdecoder	five_prime_UTR	1	1764	.	+	.	ID=Eno.p2.utr5p1;Parent=Eno.p2
+Eno	transdecoder	exon	1	3716	.	+	.	ID=Eno.p2.exon1;Parent=Eno.p2
+Eno	transdecoder	CDS	1765	3144	.	+	0	ID=cds.Eno.p2;Parent=Eno.p2
+Eno	transdecoder	three_prime_UTR	3145	3716	.	+	.	ID=Eno.p2.utr3p1;Parent=Eno.p2
+
+Eno	transdecoder	gene	1	3716	.	-	.	ID=GENE.Eno~~Eno.p3;Name="ORF type:complete (-)"
+Eno	transdecoder	mRNA	1	3716	.	-	.	ID=Eno.p3;Parent=GENE.Eno~~Eno.p3;Name="ORF type:complete (-)"
+Eno	transdecoder	five_prime_UTR	2574	3716	.	-	.	ID=Eno.p3.utr5p1;Parent=Eno.p3
+Eno	transdecoder	exon	1	3716	.	-	.	ID=Eno.p3.exon1;Parent=Eno.p3
+Eno	transdecoder	CDS	2010	2573	.	-	0	ID=cds.Eno.p3;Parent=Eno.p3
+Eno	transdecoder	three_prime_UTR	1	2009	.	-	.	ID=Eno.p3.utr3p1;Parent=Eno.p3
+
+Eno	transdecoder	gene	1	3716	.	-	.	ID=GENE.Eno~~Eno.p4;Name="ORF type:complete (-)"
+Eno	transdecoder	mRNA	1	3716	.	-	.	ID=Eno.p4;Parent=GENE.Eno~~Eno.p4;Name="ORF type:complete (-)"
+Eno	transdecoder	five_prime_UTR	3084	3716	.	-	.	ID=Eno.p4.utr5p1;Parent=Eno.p4
+Eno	transdecoder	exon	1	3716	.	-	.	ID=Eno.p4.exon1;Parent=Eno.p4
+Eno	transdecoder	CDS	2595	3083	.	-	0	ID=cds.Eno.p4;Parent=Eno.p4
+Eno	transdecoder	three_prime_UTR	1	2594	.	-	.	ID=Eno.p4.utr3p1;Parent=Eno.p4
+
+Eno	transdecoder	gene	1	3716	.	+	.	ID=GENE.Eno~~Eno.p5;Name="ORF type:complete (+)"
+Eno	transdecoder	mRNA	1	3716	.	+	.	ID=Eno.p5;Parent=GENE.Eno~~Eno.p5;Name="ORF type:complete (+)"
+Eno	transdecoder	five_prime_UTR	1	380	.	+	.	ID=Eno.p5.utr5p1;Parent=Eno.p5
+Eno	transdecoder	exon	1	3716	.	+	.	ID=Eno.p5.exon1;Parent=Eno.p5
+Eno	transdecoder	CDS	381	776	.	+	0	ID=cds.Eno.p5;Parent=Eno.p5
+Eno	transdecoder	three_prime_UTR	777	3716	.	+	.	ID=Eno.p5.utr3p1;Parent=Eno.p5
+
+Eno	transdecoder	gene	1	3716	.	+	.	ID=GENE.Eno~~Eno.p6;Name="ORF type:complete (+)"
+Eno	transdecoder	mRNA	1	3716	.	+	.	ID=Eno.p6;Parent=GENE.Eno~~Eno.p6;Name="ORF type:complete (+)"
+Eno	transdecoder	five_prime_UTR	1	3038	.	+	.	ID=Eno.p6.utr5p1;Parent=Eno.p6
+Eno	transdecoder	exon	1	3716	.	+	.	ID=Eno.p6.exon1;Parent=Eno.p6
+Eno	transdecoder	CDS	3039	3359	.	+	0	ID=cds.Eno.p6;Parent=Eno.p6
+Eno	transdecoder	three_prime_UTR	3360	3716	.	+	.	ID=Eno.p6.utr3p1;Parent=Eno.p6
+
+IP3K1	transdecoder	gene	1	2096	.	+	.	ID=GENE.IP3K1~~IP3K1.p1;Name="ORF type:complete (+)"
+IP3K1	transdecoder	mRNA	1	2096	.	+	.	ID=IP3K1.p1;Parent=GENE.IP3K1~~IP3K1.p1;Name="ORF type:complete (+)"
+IP3K1	transdecoder	five_prime_UTR	1	400	.	+	.	ID=IP3K1.p1.utr5p1;Parent=IP3K1.p1
+IP3K1	transdecoder	exon	1	2096	.	+	.	ID=IP3K1.p1.exon1;Parent=IP3K1.p1
+IP3K1	transdecoder	CDS	401	1768	.	+	0	ID=cds.IP3K1.p1;Parent=IP3K1.p1
+IP3K1	transdecoder	three_prime_UTR	1769	2096	.	+	.	ID=IP3K1.p1.utr3p1;Parent=IP3K1.p1
+
+IP3K1	transdecoder	gene	1	2096	.	-	.	ID=GENE.IP3K1~~IP3K1.p2;Name="ORF type:3prime_partial (-)"
+IP3K1	transdecoder	mRNA	1	2096	.	-	.	ID=IP3K1.p2;Parent=GENE.IP3K1~~IP3K1.p2;Name="ORF type:3prime_partial (-)"
+IP3K1	transdecoder	five_prime_UTR	436	2096	.	-	.	ID=IP3K1.p2.utr5p1;Parent=IP3K1.p2
+IP3K1	transdecoder	exon	1	2096	.	-	.	ID=IP3K1.p2.exon1;Parent=IP3K1.p2
+IP3K1	transdecoder	CDS	1	435	.	-	0	ID=cds.IP3K1.p2;Parent=IP3K1.p2;3_prime_partial=true
+
+IP3K1	transdecoder	gene	1	2096	.	-	.	ID=GENE.IP3K1~~IP3K1.p3;Name="ORF type:complete (-)"
+IP3K1	transdecoder	mRNA	1	2096	.	-	.	ID=IP3K1.p3;Parent=GENE.IP3K1~~IP3K1.p3;Name="ORF type:complete (-)"
+IP3K1	transdecoder	five_prime_UTR	1555	2096	.	-	.	ID=IP3K1.p3.utr5p1;Parent=IP3K1.p3
+IP3K1	transdecoder	exon	1	2096	.	-	.	ID=IP3K1.p3.exon1;Parent=IP3K1.p3
+IP3K1	transdecoder	CDS	1219	1554	.	-	0	ID=cds.IP3K1.p3;Parent=IP3K1.p3
+IP3K1	transdecoder	three_prime_UTR	1	1218	.	-	.	ID=IP3K1.p3.utr3p1;Parent=IP3K1.p3
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p1;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p1;Parent=GENE.Cdep~~Cdep.p1;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	2677	.	+	.	ID=Cdep.p1.utr5p1;Parent=Cdep.p1
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p1.exon1;Parent=Cdep.p1
+Cdep	transdecoder	CDS	2678	14164	.	+	0	ID=cds.Cdep.p1;Parent=Cdep.p1
+Cdep	transdecoder	three_prime_UTR	14165	18661	.	+	.	ID=Cdep.p1.utr3p1;Parent=Cdep.p1
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p2;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p2;Parent=GENE.Cdep~~Cdep.p2;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	16332	.	+	.	ID=Cdep.p2.utr5p1;Parent=Cdep.p2
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p2.exon1;Parent=Cdep.p2
+Cdep	transdecoder	CDS	16333	18138	.	+	0	ID=cds.Cdep.p2;Parent=Cdep.p2
+Cdep	transdecoder	three_prime_UTR	18139	18661	.	+	.	ID=Cdep.p2.utr3p1;Parent=Cdep.p2
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p3;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p3;Parent=GENE.Cdep~~Cdep.p3;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	1010	.	+	.	ID=Cdep.p3.utr5p1;Parent=Cdep.p3
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p3.exon1;Parent=Cdep.p3
+Cdep	transdecoder	CDS	1011	2225	.	+	0	ID=cds.Cdep.p3;Parent=Cdep.p3
+Cdep	transdecoder	three_prime_UTR	2226	18661	.	+	.	ID=Cdep.p3.utr3p1;Parent=Cdep.p3
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p4;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p4;Parent=GENE.Cdep~~Cdep.p4;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	2646	.	+	.	ID=Cdep.p4.utr5p1;Parent=Cdep.p4
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p4.exon1;Parent=Cdep.p4
+Cdep	transdecoder	CDS	2647	3468	.	+	0	ID=cds.Cdep.p4;Parent=Cdep.p4
+Cdep	transdecoder	three_prime_UTR	3469	18661	.	+	.	ID=Cdep.p4.utr3p1;Parent=Cdep.p4
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p5;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p5;Parent=GENE.Cdep~~Cdep.p5;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	8344	18661	.	-	.	ID=Cdep.p5.utr5p1;Parent=Cdep.p5
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p5.exon1;Parent=Cdep.p5
+Cdep	transdecoder	CDS	7912	8343	.	-	0	ID=cds.Cdep.p5;Parent=Cdep.p5
+Cdep	transdecoder	three_prime_UTR	1	7911	.	-	.	ID=Cdep.p5.utr3p1;Parent=Cdep.p5
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p6;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p6;Parent=GENE.Cdep~~Cdep.p6;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	13829	18661	.	-	.	ID=Cdep.p6.utr5p1;Parent=Cdep.p6
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p6.exon1;Parent=Cdep.p6
+Cdep	transdecoder	CDS	13433	13828	.	-	0	ID=cds.Cdep.p6;Parent=Cdep.p6
+Cdep	transdecoder	three_prime_UTR	1	13432	.	-	.	ID=Cdep.p6.utr3p1;Parent=Cdep.p6
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p7;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p7;Parent=GENE.Cdep~~Cdep.p7;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	9217	18661	.	-	.	ID=Cdep.p7.utr5p1;Parent=Cdep.p7
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p7.exon1;Parent=Cdep.p7
+Cdep	transdecoder	CDS	8824	9216	.	-	0	ID=cds.Cdep.p7;Parent=Cdep.p7
+Cdep	transdecoder	three_prime_UTR	1	8823	.	-	.	ID=Cdep.p7.utr3p1;Parent=Cdep.p7
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p8;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p8;Parent=GENE.Cdep~~Cdep.p8;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	1812	.	+	.	ID=Cdep.p8.utr5p1;Parent=Cdep.p8
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p8.exon1;Parent=Cdep.p8
+Cdep	transdecoder	CDS	1813	2184	.	+	0	ID=cds.Cdep.p8;Parent=Cdep.p8
+Cdep	transdecoder	three_prime_UTR	2185	18661	.	+	.	ID=Cdep.p8.utr3p1;Parent=Cdep.p8
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p9;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p9;Parent=GENE.Cdep~~Cdep.p9;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	4466	.	+	.	ID=Cdep.p9.utr5p1;Parent=Cdep.p9
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p9.exon1;Parent=Cdep.p9
+Cdep	transdecoder	CDS	4467	4832	.	+	0	ID=cds.Cdep.p9;Parent=Cdep.p9
+Cdep	transdecoder	three_prime_UTR	4833	18661	.	+	.	ID=Cdep.p9.utr3p1;Parent=Cdep.p9
+
+Cdep	transdecoder	gene	1	18661	.	+	.	ID=GENE.Cdep~~Cdep.p10;Name="ORF type:complete (+)"
+Cdep	transdecoder	mRNA	1	18661	.	+	.	ID=Cdep.p10;Parent=GENE.Cdep~~Cdep.p10;Name="ORF type:complete (+)"
+Cdep	transdecoder	five_prime_UTR	1	5435	.	+	.	ID=Cdep.p10.utr5p1;Parent=Cdep.p10
+Cdep	transdecoder	exon	1	18661	.	+	.	ID=Cdep.p10.exon1;Parent=Cdep.p10
+Cdep	transdecoder	CDS	5436	5789	.	+	0	ID=cds.Cdep.p10;Parent=Cdep.p10
+Cdep	transdecoder	three_prime_UTR	5790	18661	.	+	.	ID=Cdep.p10.utr3p1;Parent=Cdep.p10
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p11;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p11;Parent=GENE.Cdep~~Cdep.p11;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	1956	18661	.	-	.	ID=Cdep.p11.utr5p1;Parent=Cdep.p11
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p11.exon1;Parent=Cdep.p11
+Cdep	transdecoder	CDS	1602	1955	.	-	0	ID=cds.Cdep.p11;Parent=Cdep.p11
+Cdep	transdecoder	three_prime_UTR	1	1601	.	-	.	ID=Cdep.p11.utr3p1;Parent=Cdep.p11
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p12;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p12;Parent=GENE.Cdep~~Cdep.p12;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	964	18661	.	-	.	ID=Cdep.p12.utr5p1;Parent=Cdep.p12
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p12.exon1;Parent=Cdep.p12
+Cdep	transdecoder	CDS	631	963	.	-	0	ID=cds.Cdep.p12;Parent=Cdep.p12
+Cdep	transdecoder	three_prime_UTR	1	630	.	-	.	ID=Cdep.p12.utr3p1;Parent=Cdep.p12
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p13;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p13;Parent=GENE.Cdep~~Cdep.p13;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	3331	18661	.	-	.	ID=Cdep.p13.utr5p1;Parent=Cdep.p13
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p13.exon1;Parent=Cdep.p13
+Cdep	transdecoder	CDS	3004	3330	.	-	0	ID=cds.Cdep.p13;Parent=Cdep.p13
+Cdep	transdecoder	three_prime_UTR	1	3003	.	-	.	ID=Cdep.p13.utr3p1;Parent=Cdep.p13
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p14;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p14;Parent=GENE.Cdep~~Cdep.p14;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	9604	18661	.	-	.	ID=Cdep.p14.utr5p1;Parent=Cdep.p14
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p14.exon1;Parent=Cdep.p14
+Cdep	transdecoder	CDS	9280	9603	.	-	0	ID=cds.Cdep.p14;Parent=Cdep.p14
+Cdep	transdecoder	three_prime_UTR	1	9279	.	-	.	ID=Cdep.p14.utr3p1;Parent=Cdep.p14
+
+Cdep	transdecoder	gene	1	18661	.	-	.	ID=GENE.Cdep~~Cdep.p15;Name="ORF type:complete (-)"
+Cdep	transdecoder	mRNA	1	18661	.	-	.	ID=Cdep.p15;Parent=GENE.Cdep~~Cdep.p15;Name="ORF type:complete (-)"
+Cdep	transdecoder	five_prime_UTR	8825	18661	.	-	.	ID=Cdep.p15.utr5p1;Parent=Cdep.p15
+Cdep	transdecoder	exon	1	18661	.	-	.	ID=Cdep.p15.exon1;Parent=Cdep.p15
+Cdep	transdecoder	CDS	8525	8824	.	-	0	ID=cds.Cdep.p15;Parent=Cdep.p15
+Cdep	transdecoder	three_prime_UTR	1	8524	.	-	.	ID=Cdep.p15.utr3p1;Parent=Cdep.p15
+
+CG13887	transdecoder	gene	1	1591	.	+	.	ID=GENE.CG13887~~CG13887.p1;Name="ORF type:complete (+)"
+CG13887	transdecoder	mRNA	1	1591	.	+	.	ID=CG13887.p1;Parent=GENE.CG13887~~CG13887.p1;Name="ORF type:complete (+)"
+CG13887	transdecoder	five_prime_UTR	1	259	.	+	.	ID=CG13887.p1.utr5p1;Parent=CG13887.p1
+CG13887	transdecoder	exon	1	1591	.	+	.	ID=CG13887.p1.exon1;Parent=CG13887.p1
+CG13887	transdecoder	CDS	260	814	.	+	0	ID=cds.CG13887.p1;Parent=CG13887.p1
+CG13887	transdecoder	three_prime_UTR	815	1591	.	+	.	ID=CG13887.p1.utr3p1;Parent=CG13887.p1
+
+CG33125	transdecoder	gene	1	3994	.	+	.	ID=GENE.CG33125~~CG33125.p1;Name="ORF type:complete (+)"
+CG33125	transdecoder	mRNA	1	3994	.	+	.	ID=CG33125.p1;Parent=GENE.CG33125~~CG33125.p1;Name="ORF type:complete (+)"
+CG33125	transdecoder	five_prime_UTR	1	122	.	+	.	ID=CG33125.p1.utr5p1;Parent=CG33125.p1
+CG33125	transdecoder	exon	1	3994	.	+	.	ID=CG33125.p1.exon1;Parent=CG33125.p1
+CG33125	transdecoder	CDS	123	3914	.	+	0	ID=cds.CG33125.p1;Parent=CG33125.p1
+CG33125	transdecoder	three_prime_UTR	3915	3994	.	+	.	ID=CG33125.p1.utr3p1;Parent=CG33125.p1
+
+CG33125	transdecoder	gene	1	3994	.	-	.	ID=GENE.CG33125~~CG33125.p2;Name="ORF type:complete (-)"
+CG33125	transdecoder	mRNA	1	3994	.	-	.	ID=CG33125.p2;Parent=GENE.CG33125~~CG33125.p2;Name="ORF type:complete (-)"
+CG33125	transdecoder	five_prime_UTR	1314	3994	.	-	.	ID=CG33125.p2.utr5p1;Parent=CG33125.p2
+CG33125	transdecoder	exon	1	3994	.	-	.	ID=CG33125.p2.exon1;Parent=CG33125.p2
+CG33125	transdecoder	CDS	963	1313	.	-	0	ID=cds.CG33125.p2;Parent=CG33125.p2
+CG33125	transdecoder	three_prime_UTR	1	962	.	-	.	ID=CG33125.p2.utr3p1;Parent=CG33125.p2
+
+CG33125	transdecoder	gene	1	3994	.	+	.	ID=GENE.CG33125~~CG33125.p3;Name="ORF type:complete (+)"
+CG33125	transdecoder	mRNA	1	3994	.	+	.	ID=CG33125.p3;Parent=GENE.CG33125~~CG33125.p3;Name="ORF type:complete (+)"
+CG33125	transdecoder	five_prime_UTR	1	936	.	+	.	ID=CG33125.p3.utr5p1;Parent=CG33125.p3
+CG33125	transdecoder	exon	1	3994	.	+	.	ID=CG33125.p3.exon1;Parent=CG33125.p3
+CG33125	transdecoder	CDS	937	1236	.	+	0	ID=cds.CG33125.p3;Parent=CG33125.p3
+CG33125	transdecoder	three_prime_UTR	1237	3994	.	+	.	ID=CG33125.p3.utr3p1;Parent=CG33125.p3
+
+Hsc70-1	transdecoder	gene	1	2717	.	+	.	ID=GENE.Hsc70-1~~Hsc70-1.p1;Name="ORF type:complete (+)"
+Hsc70-1	transdecoder	mRNA	1	2717	.	+	.	ID=Hsc70-1.p1;Parent=GENE.Hsc70-1~~Hsc70-1.p1;Name="ORF type:complete (+)"
+Hsc70-1	transdecoder	five_prime_UTR	1	925	.	+	.	ID=Hsc70-1.p1.utr5p1;Parent=Hsc70-1.p1
+Hsc70-1	transdecoder	exon	1	2717	.	+	.	ID=Hsc70-1.p1.exon1;Parent=Hsc70-1.p1
+Hsc70-1	transdecoder	CDS	926	2593	.	+	0	ID=cds.Hsc70-1.p1;Parent=Hsc70-1.p1
+Hsc70-1	transdecoder	three_prime_UTR	2594	2717	.	+	.	ID=Hsc70-1.p1.utr3p1;Parent=Hsc70-1.p1
+
+Hsc70-1	transdecoder	gene	1	2717	.	-	.	ID=GENE.Hsc70-1~~Hsc70-1.p2;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	mRNA	1	2717	.	-	.	ID=Hsc70-1.p2;Parent=GENE.Hsc70-1~~Hsc70-1.p2;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	five_prime_UTR	1415	2717	.	-	.	ID=Hsc70-1.p2.utr5p1;Parent=Hsc70-1.p2
+Hsc70-1	transdecoder	exon	1	2717	.	-	.	ID=Hsc70-1.p2.exon1;Parent=Hsc70-1.p2
+Hsc70-1	transdecoder	CDS	797	1414	.	-	0	ID=cds.Hsc70-1.p2;Parent=Hsc70-1.p2
+Hsc70-1	transdecoder	three_prime_UTR	1	796	.	-	.	ID=Hsc70-1.p2.utr3p1;Parent=Hsc70-1.p2
+
+Hsc70-1	transdecoder	gene	1	2717	.	-	.	ID=GENE.Hsc70-1~~Hsc70-1.p3;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	mRNA	1	2717	.	-	.	ID=Hsc70-1.p3;Parent=GENE.Hsc70-1~~Hsc70-1.p3;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	five_prime_UTR	2339	2717	.	-	.	ID=Hsc70-1.p3.utr5p1;Parent=Hsc70-1.p3
+Hsc70-1	transdecoder	exon	1	2717	.	-	.	ID=Hsc70-1.p3.exon1;Parent=Hsc70-1.p3
+Hsc70-1	transdecoder	CDS	1742	2338	.	-	0	ID=cds.Hsc70-1.p3;Parent=Hsc70-1.p3
+Hsc70-1	transdecoder	three_prime_UTR	1	1741	.	-	.	ID=Hsc70-1.p3.utr3p1;Parent=Hsc70-1.p3
+
+Hsc70-1	transdecoder	gene	1	2717	.	+	.	ID=GENE.Hsc70-1~~Hsc70-1.p4;Name="ORF type:complete (+)"
+Hsc70-1	transdecoder	mRNA	1	2717	.	+	.	ID=Hsc70-1.p4;Parent=GENE.Hsc70-1~~Hsc70-1.p4;Name="ORF type:complete (+)"
+Hsc70-1	transdecoder	five_prime_UTR	1	789	.	+	.	ID=Hsc70-1.p4.utr5p1;Parent=Hsc70-1.p4
+Hsc70-1	transdecoder	exon	1	2717	.	+	.	ID=Hsc70-1.p4.exon1;Parent=Hsc70-1.p4
+Hsc70-1	transdecoder	CDS	790	1227	.	+	0	ID=cds.Hsc70-1.p4;Parent=Hsc70-1.p4
+Hsc70-1	transdecoder	three_prime_UTR	1228	2717	.	+	.	ID=Hsc70-1.p4.utr3p1;Parent=Hsc70-1.p4
+
+Hsc70-1	transdecoder	gene	1	2717	.	-	.	ID=GENE.Hsc70-1~~Hsc70-1.p5;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	mRNA	1	2717	.	-	.	ID=Hsc70-1.p5;Parent=GENE.Hsc70-1~~Hsc70-1.p5;Name="ORF type:complete (-)"
+Hsc70-1	transdecoder	five_prime_UTR	1497	2717	.	-	.	ID=Hsc70-1.p5.utr5p1;Parent=Hsc70-1.p5
+Hsc70-1	transdecoder	exon	1	2717	.	-	.	ID=Hsc70-1.p5.exon1;Parent=Hsc70-1.p5
+Hsc70-1	transdecoder	CDS	1185	1496	.	-	0	ID=cds.Hsc70-1.p5;Parent=Hsc70-1.p5
+Hsc70-1	transdecoder	three_prime_UTR	1	1184	.	-	.	ID=Hsc70-1.p5.utr3p1;Parent=Hsc70-1.p5
+
+S-Lap3	transdecoder	gene	1	3013	.	+	.	ID=GENE.S-Lap3~~S-Lap3.p1;Name="ORF type:complete (+)"
+S-Lap3	transdecoder	mRNA	1	3013	.	+	.	ID=S-Lap3.p1;Parent=GENE.S-Lap3~~S-Lap3.p1;Name="ORF type:complete (+)"
+S-Lap3	transdecoder	five_prime_UTR	1	550	.	+	.	ID=S-Lap3.p1.utr5p1;Parent=S-Lap3.p1
+S-Lap3	transdecoder	exon	1	3013	.	+	.	ID=S-Lap3.p1.exon1;Parent=S-Lap3.p1
+S-Lap3	transdecoder	CDS	551	2158	.	+	0	ID=cds.S-Lap3.p1;Parent=S-Lap3.p1
+S-Lap3	transdecoder	three_prime_UTR	2159	3013	.	+	.	ID=S-Lap3.p1.utr3p1;Parent=S-Lap3.p1
+
+S-Lap3	transdecoder	gene	1	3013	.	-	.	ID=GENE.S-Lap3~~S-Lap3.p2;Name="ORF type:complete (-)"
+S-Lap3	transdecoder	mRNA	1	3013	.	-	.	ID=S-Lap3.p2;Parent=GENE.S-Lap3~~S-Lap3.p2;Name="ORF type:complete (-)"
+S-Lap3	transdecoder	five_prime_UTR	2112	3013	.	-	.	ID=S-Lap3.p2.utr5p1;Parent=S-Lap3.p2
+S-Lap3	transdecoder	exon	1	3013	.	-	.	ID=S-Lap3.p2.exon1;Parent=S-Lap3.p2
+S-Lap3	transdecoder	CDS	1692	2111	.	-	0	ID=cds.S-Lap3.p2;Parent=S-Lap3.p2
+S-Lap3	transdecoder	three_prime_UTR	1	1691	.	-	.	ID=S-Lap3.p2.utr3p1;Parent=S-Lap3.p2
+
+AdipoR	transdecoder	gene	1	2898	.	+	.	ID=GENE.AdipoR~~AdipoR.p1;Name="ORF type:complete (+)"
+AdipoR	transdecoder	mRNA	1	2898	.	+	.	ID=AdipoR.p1;Parent=GENE.AdipoR~~AdipoR.p1;Name="ORF type:complete (+)"
+AdipoR	transdecoder	five_prime_UTR	1	833	.	+	.	ID=AdipoR.p1.utr5p1;Parent=AdipoR.p1
+AdipoR	transdecoder	exon	1	2898	.	+	.	ID=AdipoR.p1.exon1;Parent=AdipoR.p1
+AdipoR	transdecoder	CDS	834	2168	.	+	0	ID=cds.AdipoR.p1;Parent=AdipoR.p1
+AdipoR	transdecoder	three_prime_UTR	2169	2898	.	+	.	ID=AdipoR.p1.utr3p1;Parent=AdipoR.p1
+
+AdipoR	transdecoder	gene	1	2898	.	-	.	ID=GENE.AdipoR~~AdipoR.p2;Name="ORF type:complete (-)"
+AdipoR	transdecoder	mRNA	1	2898	.	-	.	ID=AdipoR.p2;Parent=GENE.AdipoR~~AdipoR.p2;Name="ORF type:complete (-)"
+AdipoR	transdecoder	five_prime_UTR	1109	2898	.	-	.	ID=AdipoR.p2.utr5p1;Parent=AdipoR.p2
+AdipoR	transdecoder	exon	1	2898	.	-	.	ID=AdipoR.p2.exon1;Parent=AdipoR.p2
+AdipoR	transdecoder	CDS	656	1108	.	-	0	ID=cds.AdipoR.p2;Parent=AdipoR.p2
+AdipoR	transdecoder	three_prime_UTR	1	655	.	-	.	ID=AdipoR.p2.utr3p1;Parent=AdipoR.p2
+
+AdipoR	transdecoder	gene	1	2898	.	+	.	ID=GENE.AdipoR~~AdipoR.p3;Name="ORF type:complete (+)"
+AdipoR	transdecoder	mRNA	1	2898	.	+	.	ID=AdipoR.p3;Parent=GENE.AdipoR~~AdipoR.p3;Name="ORF type:complete (+)"
+AdipoR	transdecoder	five_prime_UTR	1	1233	.	+	.	ID=AdipoR.p3.utr5p1;Parent=AdipoR.p3
+AdipoR	transdecoder	exon	1	2898	.	+	.	ID=AdipoR.p3.exon1;Parent=AdipoR.p3
+AdipoR	transdecoder	CDS	1234	1587	.	+	0	ID=cds.AdipoR.p3;Parent=AdipoR.p3
+AdipoR	transdecoder	three_prime_UTR	1588	2898	.	+	.	ID=AdipoR.p3.utr3p1;Parent=AdipoR.p3
+
+AdipoR	transdecoder	gene	1	2898	.	-	.	ID=GENE.AdipoR~~AdipoR.p4;Name="ORF type:complete (-)"
+AdipoR	transdecoder	mRNA	1	2898	.	-	.	ID=AdipoR.p4;Parent=GENE.AdipoR~~AdipoR.p4;Name="ORF type:complete (-)"
+AdipoR	transdecoder	five_prime_UTR	427	2898	.	-	.	ID=AdipoR.p4.utr5p1;Parent=AdipoR.p4
+AdipoR	transdecoder	exon	1	2898	.	-	.	ID=AdipoR.p4.exon1;Parent=AdipoR.p4
+AdipoR	transdecoder	CDS	79	426	.	-	0	ID=cds.AdipoR.p4;Parent=AdipoR.p4
+AdipoR	transdecoder	three_prime_UTR	1	78	.	-	.	ID=AdipoR.p4.utr3p1;Parent=AdipoR.p4
+
+Dat	transdecoder	gene	1	1886	.	+	.	ID=GENE.Dat~~Dat.p1;Name="ORF type:complete (+)"
+Dat	transdecoder	mRNA	1	1886	.	+	.	ID=Dat.p1;Parent=GENE.Dat~~Dat.p1;Name="ORF type:complete (+)"
+Dat	transdecoder	five_prime_UTR	1	844	.	+	.	ID=Dat.p1.utr5p1;Parent=Dat.p1
+Dat	transdecoder	exon	1	1886	.	+	.	ID=Dat.p1.exon1;Parent=Dat.p1
+Dat	transdecoder	CDS	845	1672	.	+	0	ID=cds.Dat.p1;Parent=Dat.p1
+Dat	transdecoder	three_prime_UTR	1673	1886	.	+	.	ID=Dat.p1.utr3p1;Parent=Dat.p1
+
+Dat	transdecoder	gene	1	1886	.	-	.	ID=GENE.Dat~~Dat.p2;Name="ORF type:complete (-)"
+Dat	transdecoder	mRNA	1	1886	.	-	.	ID=Dat.p2;Parent=GENE.Dat~~Dat.p2;Name="ORF type:complete (-)"
+Dat	transdecoder	five_prime_UTR	990	1886	.	-	.	ID=Dat.p2.utr5p1;Parent=Dat.p2
+Dat	transdecoder	exon	1	1886	.	-	.	ID=Dat.p2.exon1;Parent=Dat.p2
+Dat	transdecoder	CDS	603	989	.	-	0	ID=cds.Dat.p2;Parent=Dat.p2
+Dat	transdecoder	three_prime_UTR	1	602	.	-	.	ID=Dat.p2.utr3p1;Parent=Dat.p2
+
+bdg	transdecoder	gene	1	5325	.	+	.	ID=GENE.bdg~~bdg.p1;Name="ORF type:complete (+)"
+bdg	transdecoder	mRNA	1	5325	.	+	.	ID=bdg.p1;Parent=GENE.bdg~~bdg.p1;Name="ORF type:complete (+)"
+bdg	transdecoder	five_prime_UTR	1	1186	.	+	.	ID=bdg.p1.utr5p1;Parent=bdg.p1
+bdg	transdecoder	exon	1	5325	.	+	.	ID=bdg.p1.exon1;Parent=bdg.p1
+bdg	transdecoder	CDS	1187	5182	.	+	0	ID=cds.bdg.p1;Parent=bdg.p1
+bdg	transdecoder	three_prime_UTR	5183	5325	.	+	.	ID=bdg.p1.utr3p1;Parent=bdg.p1
+
+ADD1	transdecoder	gene	1	6168	.	+	.	ID=GENE.ADD1~~ADD1.p1;Name="ORF type:complete (+)"
+ADD1	transdecoder	mRNA	1	6168	.	+	.	ID=ADD1.p1;Parent=GENE.ADD1~~ADD1.p1;Name="ORF type:complete (+)"
+ADD1	transdecoder	five_prime_UTR	1	295	.	+	.	ID=ADD1.p1.utr5p1;Parent=ADD1.p1
+ADD1	transdecoder	exon	1	6168	.	+	.	ID=ADD1.p1.exon1;Parent=ADD1.p1
+ADD1	transdecoder	CDS	296	3895	.	+	0	ID=cds.ADD1.p1;Parent=ADD1.p1
+ADD1	transdecoder	three_prime_UTR	3896	6168	.	+	.	ID=ADD1.p1.utr3p1;Parent=ADD1.p1
+
+ADD1	transdecoder	gene	1	6168	.	+	.	ID=GENE.ADD1~~ADD1.p2;Name="ORF type:complete (+)"
+ADD1	transdecoder	mRNA	1	6168	.	+	.	ID=ADD1.p2;Parent=GENE.ADD1~~ADD1.p2;Name="ORF type:complete (+)"
+ADD1	transdecoder	five_prime_UTR	1	4688	.	+	.	ID=ADD1.p2.utr5p1;Parent=ADD1.p2
+ADD1	transdecoder	exon	1	6168	.	+	.	ID=ADD1.p2.exon1;Parent=ADD1.p2
+ADD1	transdecoder	CDS	4689	6038	.	+	0	ID=cds.ADD1.p2;Parent=ADD1.p2
+ADD1	transdecoder	three_prime_UTR	6039	6168	.	+	.	ID=ADD1.p2.utr3p1;Parent=ADD1.p2
+
+ADD1	transdecoder	gene	1	6168	.	-	.	ID=GENE.ADD1~~ADD1.p3;Name="ORF type:complete (-)"
+ADD1	transdecoder	mRNA	1	6168	.	-	.	ID=ADD1.p3;Parent=GENE.ADD1~~ADD1.p3;Name="ORF type:complete (-)"
+ADD1	transdecoder	five_prime_UTR	5040	6168	.	-	.	ID=ADD1.p3.utr5p1;Parent=ADD1.p3
+ADD1	transdecoder	exon	1	6168	.	-	.	ID=ADD1.p3.exon1;Parent=ADD1.p3
+ADD1	transdecoder	CDS	4512	5039	.	-	0	ID=cds.ADD1.p3;Parent=ADD1.p3
+ADD1	transdecoder	three_prime_UTR	1	4511	.	-	.	ID=ADD1.p3.utr3p1;Parent=ADD1.p3
+
+ADD1	transdecoder	gene	1	6168	.	-	.	ID=GENE.ADD1~~ADD1.p4;Name="ORF type:complete (-)"
+ADD1	transdecoder	mRNA	1	6168	.	-	.	ID=ADD1.p4;Parent=GENE.ADD1~~ADD1.p4;Name="ORF type:complete (-)"
+ADD1	transdecoder	five_prime_UTR	2662	6168	.	-	.	ID=ADD1.p4.utr5p1;Parent=ADD1.p4
+ADD1	transdecoder	exon	1	6168	.	-	.	ID=ADD1.p4.exon1;Parent=ADD1.p4
+ADD1	transdecoder	CDS	2305	2661	.	-	0	ID=cds.ADD1.p4;Parent=ADD1.p4
+ADD1	transdecoder	three_prime_UTR	1	2304	.	-	.	ID=ADD1.p4.utr3p1;Parent=ADD1.p4
+
+ADD1	transdecoder	gene	1	6168	.	-	.	ID=GENE.ADD1~~ADD1.p5;Name="ORF type:complete (-)"
+ADD1	transdecoder	mRNA	1	6168	.	-	.	ID=ADD1.p5;Parent=GENE.ADD1~~ADD1.p5;Name="ORF type:complete (-)"
+ADD1	transdecoder	five_prime_UTR	3228	6168	.	-	.	ID=ADD1.p5.utr5p1;Parent=ADD1.p5
+ADD1	transdecoder	exon	1	6168	.	-	.	ID=ADD1.p5.exon1;Parent=ADD1.p5
+ADD1	transdecoder	CDS	2895	3227	.	-	0	ID=cds.ADD1.p5;Parent=ADD1.p5
+ADD1	transdecoder	three_prime_UTR	1	2894	.	-	.	ID=ADD1.p5.utr3p1;Parent=ADD1.p5
+
+ADD1	transdecoder	gene	1	6168	.	+	.	ID=GENE.ADD1~~ADD1.p6;Name="ORF type:complete (+)"
+ADD1	transdecoder	mRNA	1	6168	.	+	.	ID=ADD1.p6;Parent=GENE.ADD1~~ADD1.p6;Name="ORF type:complete (+)"
+ADD1	transdecoder	five_prime_UTR	1	5736	.	+	.	ID=ADD1.p6.utr5p1;Parent=ADD1.p6
+ADD1	transdecoder	exon	1	6168	.	+	.	ID=ADD1.p6.exon1;Parent=ADD1.p6
+ADD1	transdecoder	CDS	5737	6063	.	+	0	ID=cds.ADD1.p6;Parent=ADD1.p6
+ADD1	transdecoder	three_prime_UTR	6064	6168	.	+	.	ID=ADD1.p6.utr3p1;Parent=ADD1.p6
+
+Gale	transdecoder	gene	1	1756	.	+	.	ID=GENE.Gale~~Gale.p1;Name="ORF type:complete (+)"
+Gale	transdecoder	mRNA	1	1756	.	+	.	ID=Gale.p1;Parent=GENE.Gale~~Gale.p1;Name="ORF type:complete (+)"
+Gale	transdecoder	five_prime_UTR	1	497	.	+	.	ID=Gale.p1.utr5p1;Parent=Gale.p1
+Gale	transdecoder	exon	1	1756	.	+	.	ID=Gale.p1.exon1;Parent=Gale.p1
+Gale	transdecoder	CDS	498	1550	.	+	0	ID=cds.Gale.p1;Parent=Gale.p1
+Gale	transdecoder	three_prime_UTR	1551	1756	.	+	.	ID=Gale.p1.utr3p1;Parent=Gale.p1
+
+Gale	transdecoder	gene	1	1756	.	-	.	ID=GENE.Gale~~Gale.p2;Name="ORF type:complete (-)"
+Gale	transdecoder	mRNA	1	1756	.	-	.	ID=Gale.p2;Parent=GENE.Gale~~Gale.p2;Name="ORF type:complete (-)"
+Gale	transdecoder	five_prime_UTR	945	1756	.	-	.	ID=Gale.p2.utr5p1;Parent=Gale.p2
+Gale	transdecoder	exon	1	1756	.	-	.	ID=Gale.p2.exon1;Parent=Gale.p2
+Gale	transdecoder	CDS	483	944	.	-	0	ID=cds.Gale.p2;Parent=Gale.p2
+Gale	transdecoder	three_prime_UTR	1	482	.	-	.	ID=Gale.p2.utr3p1;Parent=Gale.p2
+
+CG6024	transdecoder	gene	1	5262	.	+	.	ID=GENE.CG6024~~CG6024.p1;Name="ORF type:complete (+)"
+CG6024	transdecoder	mRNA	1	5262	.	+	.	ID=CG6024.p1;Parent=GENE.CG6024~~CG6024.p1;Name="ORF type:complete (+)"
+CG6024	transdecoder	five_prime_UTR	1	737	.	+	.	ID=CG6024.p1.utr5p1;Parent=CG6024.p1
+CG6024	transdecoder	exon	1	5262	.	+	.	ID=CG6024.p1.exon1;Parent=CG6024.p1
+CG6024	transdecoder	CDS	738	1877	.	+	0	ID=cds.CG6024.p1;Parent=CG6024.p1
+CG6024	transdecoder	three_prime_UTR	1878	5262	.	+	.	ID=CG6024.p1.utr3p1;Parent=CG6024.p1
+
+CG6024	transdecoder	gene	1	5262	.	-	.	ID=GENE.CG6024~~CG6024.p2;Name="ORF type:complete (-)"
+CG6024	transdecoder	mRNA	1	5262	.	-	.	ID=CG6024.p2;Parent=GENE.CG6024~~CG6024.p2;Name="ORF type:complete (-)"
+CG6024	transdecoder	five_prime_UTR	1776	5262	.	-	.	ID=CG6024.p2.utr5p1;Parent=CG6024.p2
+CG6024	transdecoder	exon	1	5262	.	-	.	ID=CG6024.p2.exon1;Parent=CG6024.p2
+CG6024	transdecoder	CDS	1083	1775	.	-	0	ID=cds.CG6024.p2;Parent=CG6024.p2
+CG6024	transdecoder	three_prime_UTR	1	1082	.	-	.	ID=CG6024.p2.utr3p1;Parent=CG6024.p2
+
+CG6024	transdecoder	gene	1	5262	.	-	.	ID=GENE.CG6024~~CG6024.p3;Name="ORF type:complete (-)"
+CG6024	transdecoder	mRNA	1	5262	.	-	.	ID=CG6024.p3;Parent=GENE.CG6024~~CG6024.p3;Name="ORF type:complete (-)"
+CG6024	transdecoder	five_prime_UTR	1604	5262	.	-	.	ID=CG6024.p3.utr5p1;Parent=CG6024.p3
+CG6024	transdecoder	exon	1	5262	.	-	.	ID=CG6024.p3.exon1;Parent=CG6024.p3
+CG6024	transdecoder	CDS	1199	1603	.	-	0	ID=cds.CG6024.p3;Parent=CG6024.p3
+CG6024	transdecoder	three_prime_UTR	1	1198	.	-	.	ID=CG6024.p3.utr3p1;Parent=CG6024.p3
+
+CG6024	transdecoder	gene	1	5262	.	-	.	ID=GENE.CG6024~~CG6024.p4;Name="ORF type:complete (-)"
+CG6024	transdecoder	mRNA	1	5262	.	-	.	ID=CG6024.p4;Parent=GENE.CG6024~~CG6024.p4;Name="ORF type:complete (-)"
+CG6024	transdecoder	five_prime_UTR	959	5262	.	-	.	ID=CG6024.p4.utr5p1;Parent=CG6024.p4
+CG6024	transdecoder	exon	1	5262	.	-	.	ID=CG6024.p4.exon1;Parent=CG6024.p4
+CG6024	transdecoder	CDS	593	958	.	-	0	ID=cds.CG6024.p4;Parent=CG6024.p4
+CG6024	transdecoder	three_prime_UTR	1	592	.	-	.	ID=CG6024.p4.utr3p1;Parent=CG6024.p4
+
+Dgk	transdecoder	gene	1	6967	.	+	.	ID=GENE.Dgk~~Dgk.p1;Name="ORF type:complete (+)"
+Dgk	transdecoder	mRNA	1	6967	.	+	.	ID=Dgk.p1;Parent=GENE.Dgk~~Dgk.p1;Name="ORF type:complete (+)"
+Dgk	transdecoder	five_prime_UTR	1	1239	.	+	.	ID=Dgk.p1.utr5p1;Parent=Dgk.p1
+Dgk	transdecoder	exon	1	6967	.	+	.	ID=Dgk.p1.exon1;Parent=Dgk.p1
+Dgk	transdecoder	CDS	1240	4956	.	+	0	ID=cds.Dgk.p1;Parent=Dgk.p1
+Dgk	transdecoder	three_prime_UTR	4957	6967	.	+	.	ID=Dgk.p1.utr3p1;Parent=Dgk.p1
+
+Dgk	transdecoder	gene	1	6967	.	+	.	ID=GENE.Dgk~~Dgk.p2;Name="ORF type:complete (+)"
+Dgk	transdecoder	mRNA	1	6967	.	+	.	ID=Dgk.p2;Parent=GENE.Dgk~~Dgk.p2;Name="ORF type:complete (+)"
+Dgk	transdecoder	five_prime_UTR	1	2588	.	+	.	ID=Dgk.p2.utr5p1;Parent=Dgk.p2
+Dgk	transdecoder	exon	1	6967	.	+	.	ID=Dgk.p2.exon1;Parent=Dgk.p2
+Dgk	transdecoder	CDS	2589	3383	.	+	0	ID=cds.Dgk.p2;Parent=Dgk.p2
+Dgk	transdecoder	three_prime_UTR	3384	6967	.	+	.	ID=Dgk.p2.utr3p1;Parent=Dgk.p2
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p3;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p3;Parent=GENE.Dgk~~Dgk.p3;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	3648	6967	.	-	.	ID=Dgk.p3.utr5p1;Parent=Dgk.p3
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p3.exon1;Parent=Dgk.p3
+Dgk	transdecoder	CDS	2922	3647	.	-	0	ID=cds.Dgk.p3;Parent=Dgk.p3
+Dgk	transdecoder	three_prime_UTR	1	2921	.	-	.	ID=Dgk.p3.utr3p1;Parent=Dgk.p3
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p4;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p4;Parent=GENE.Dgk~~Dgk.p4;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	2079	6967	.	-	.	ID=Dgk.p4.utr5p1;Parent=Dgk.p4
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p4.exon1;Parent=Dgk.p4
+Dgk	transdecoder	CDS	1542	2078	.	-	0	ID=cds.Dgk.p4;Parent=Dgk.p4
+Dgk	transdecoder	three_prime_UTR	1	1541	.	-	.	ID=Dgk.p4.utr3p1;Parent=Dgk.p4
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p5;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p5;Parent=GENE.Dgk~~Dgk.p5;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	943	6967	.	-	.	ID=Dgk.p5.utr5p1;Parent=Dgk.p5
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p5.exon1;Parent=Dgk.p5
+Dgk	transdecoder	CDS	460	942	.	-	0	ID=cds.Dgk.p5;Parent=Dgk.p5
+Dgk	transdecoder	three_prime_UTR	1	459	.	-	.	ID=Dgk.p5.utr3p1;Parent=Dgk.p5
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p6;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p6;Parent=GENE.Dgk~~Dgk.p6;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	2602	6967	.	-	.	ID=Dgk.p6.utr5p1;Parent=Dgk.p6
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p6.exon1;Parent=Dgk.p6
+Dgk	transdecoder	CDS	2158	2601	.	-	0	ID=cds.Dgk.p6;Parent=Dgk.p6
+Dgk	transdecoder	three_prime_UTR	1	2157	.	-	.	ID=Dgk.p6.utr3p1;Parent=Dgk.p6
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p7;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p7;Parent=GENE.Dgk~~Dgk.p7;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	1741	6967	.	-	.	ID=Dgk.p7.utr5p1;Parent=Dgk.p7
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p7.exon1;Parent=Dgk.p7
+Dgk	transdecoder	CDS	1315	1740	.	-	0	ID=cds.Dgk.p7;Parent=Dgk.p7
+Dgk	transdecoder	three_prime_UTR	1	1314	.	-	.	ID=Dgk.p7.utr3p1;Parent=Dgk.p7
+
+Dgk	transdecoder	gene	1	6967	.	-	.	ID=GENE.Dgk~~Dgk.p8;Name="ORF type:complete (-)"
+Dgk	transdecoder	mRNA	1	6967	.	-	.	ID=Dgk.p8;Parent=GENE.Dgk~~Dgk.p8;Name="ORF type:complete (-)"
+Dgk	transdecoder	five_prime_UTR	5067	6967	.	-	.	ID=Dgk.p8.utr5p1;Parent=Dgk.p8
+Dgk	transdecoder	exon	1	6967	.	-	.	ID=Dgk.p8.exon1;Parent=Dgk.p8
+Dgk	transdecoder	CDS	4680	5066	.	-	0	ID=cds.Dgk.p8;Parent=Dgk.p8
+Dgk	transdecoder	three_prime_UTR	1	4679	.	-	.	ID=Dgk.p8.utr3p1;Parent=Dgk.p8
+
+Dgk	transdecoder	gene	1	6967	.	+	.	ID=GENE.Dgk~~Dgk.p9;Name="ORF type:complete (+)"
+Dgk	transdecoder	mRNA	1	6967	.	+	.	ID=Dgk.p9;Parent=GENE.Dgk~~Dgk.p9;Name="ORF type:complete (+)"
+Dgk	transdecoder	five_prime_UTR	1	442	.	+	.	ID=Dgk.p9.utr5p1;Parent=Dgk.p9
+Dgk	transdecoder	exon	1	6967	.	+	.	ID=Dgk.p9.exon1;Parent=Dgk.p9
+Dgk	transdecoder	CDS	443	808	.	+	0	ID=cds.Dgk.p9;Parent=Dgk.p9
+Dgk	transdecoder	three_prime_UTR	809	6967	.	+	.	ID=Dgk.p9.utr3p1;Parent=Dgk.p9
+
+Dgk	transdecoder	gene	1	6967	.	+	.	ID=GENE.Dgk~~Dgk.p10;Name="ORF type:complete (+)"
+Dgk	transdecoder	mRNA	1	6967	.	+	.	ID=Dgk.p10;Parent=GENE.Dgk~~Dgk.p10;Name="ORF type:complete (+)"
+Dgk	transdecoder	five_prime_UTR	1	4393	.	+	.	ID=Dgk.p10.utr5p1;Parent=Dgk.p10
+Dgk	transdecoder	exon	1	6967	.	+	.	ID=Dgk.p10.exon1;Parent=Dgk.p10
+Dgk	transdecoder	CDS	4394	4711	.	+	0	ID=cds.Dgk.p10;Parent=Dgk.p10
+Dgk	transdecoder	three_prime_UTR	4712	6967	.	+	.	ID=Dgk.p10.utr3p1;Parent=Dgk.p10
+
+CG31948	transdecoder	gene	1	1360	.	+	.	ID=GENE.CG31948~~CG31948.p1;Name="ORF type:complete (+)"
+CG31948	transdecoder	mRNA	1	1360	.	+	.	ID=CG31948.p1;Parent=GENE.CG31948~~CG31948.p1;Name="ORF type:complete (+)"
+CG31948	transdecoder	five_prime_UTR	1	98	.	+	.	ID=CG31948.p1.utr5p1;Parent=CG31948.p1
+CG31948	transdecoder	exon	1	1360	.	+	.	ID=CG31948.p1.exon1;Parent=CG31948.p1
+CG31948	transdecoder	CDS	99	1217	.	+	0	ID=cds.CG31948.p1;Parent=CG31948.p1
+CG31948	transdecoder	three_prime_UTR	1218	1360	.	+	.	ID=CG31948.p1.utr3p1;Parent=CG31948.p1
+
+CG3530	transdecoder	gene	1	3697	.	+	.	ID=GENE.CG3530~~CG3530.p1;Name="ORF type:complete (+)"
+CG3530	transdecoder	mRNA	1	3697	.	+	.	ID=CG3530.p1;Parent=GENE.CG3530~~CG3530.p1;Name="ORF type:complete (+)"
+CG3530	transdecoder	five_prime_UTR	1	1265	.	+	.	ID=CG3530.p1.utr5p1;Parent=CG3530.p1
+CG3530	transdecoder	exon	1	3697	.	+	.	ID=CG3530.p1.exon1;Parent=CG3530.p1
+CG3530	transdecoder	CDS	1266	3185	.	+	0	ID=cds.CG3530.p1;Parent=CG3530.p1
+CG3530	transdecoder	three_prime_UTR	3186	3697	.	+	.	ID=CG3530.p1.utr3p1;Parent=CG3530.p1
+
+CG3530	transdecoder	gene	1	3697	.	-	.	ID=GENE.CG3530~~CG3530.p2;Name="ORF type:complete (-)"
+CG3530	transdecoder	mRNA	1	3697	.	-	.	ID=CG3530.p2;Parent=GENE.CG3530~~CG3530.p2;Name="ORF type:complete (-)"
+CG3530	transdecoder	five_prime_UTR	2877	3697	.	-	.	ID=CG3530.p2.utr5p1;Parent=CG3530.p2
+CG3530	transdecoder	exon	1	3697	.	-	.	ID=CG3530.p2.exon1;Parent=CG3530.p2
+CG3530	transdecoder	CDS	2451	2876	.	-	0	ID=cds.CG3530.p2;Parent=CG3530.p2
+CG3530	transdecoder	three_prime_UTR	1	2450	.	-	.	ID=CG3530.p2.utr3p1;Parent=CG3530.p2
+
+CG3530	transdecoder	gene	1	3697	.	-	.	ID=GENE.CG3530~~CG3530.p3;Name="ORF type:3prime_partial (-)"
+CG3530	transdecoder	mRNA	1	3697	.	-	.	ID=CG3530.p3;Parent=GENE.CG3530~~CG3530.p3;Name="ORF type:3prime_partial (-)"
+CG3530	transdecoder	five_prime_UTR	354	3697	.	-	.	ID=CG3530.p3.utr5p1;Parent=CG3530.p3
+CG3530	transdecoder	exon	1	3697	.	-	.	ID=CG3530.p3.exon1;Parent=CG3530.p3
+CG3530	transdecoder	CDS	3	353	.	-	0	ID=cds.CG3530.p3;Parent=CG3530.p3;3_prime_partial=true
+
+CG3530	transdecoder	gene	1	3697	.	+	.	ID=GENE.CG3530~~CG3530.p4;Name="ORF type:complete (+)"
+CG3530	transdecoder	mRNA	1	3697	.	+	.	ID=CG3530.p4;Parent=GENE.CG3530~~CG3530.p4;Name="ORF type:complete (+)"
+CG3530	transdecoder	five_prime_UTR	1	264	.	+	.	ID=CG3530.p4.utr5p1;Parent=CG3530.p4
+CG3530	transdecoder	exon	1	3697	.	+	.	ID=CG3530.p4.exon1;Parent=CG3530.p4
+CG3530	transdecoder	CDS	265	570	.	+	0	ID=cds.CG3530.p4;Parent=CG3530.p4
+CG3530	transdecoder	three_prime_UTR	571	3697	.	+	.	ID=CG3530.p4.utr3p1;Parent=CG3530.p4
+
+Mgstl	transdecoder	gene	1	1182	.	-	.	ID=GENE.Mgstl~~Mgstl.p1;Name="ORF type:complete (-)"
+Mgstl	transdecoder	mRNA	1	1182	.	-	.	ID=Mgstl.p1;Parent=GENE.Mgstl~~Mgstl.p1;Name="ORF type:complete (-)"
+Mgstl	transdecoder	five_prime_UTR	1088	1182	.	-	.	ID=Mgstl.p1.utr5p1;Parent=Mgstl.p1
+Mgstl	transdecoder	exon	1	1182	.	-	.	ID=Mgstl.p1.exon1;Parent=Mgstl.p1
+Mgstl	transdecoder	CDS	542	1087	.	-	0	ID=cds.Mgstl.p1;Parent=Mgstl.p1
+Mgstl	transdecoder	three_prime_UTR	1	541	.	-	.	ID=Mgstl.p1.utr3p1;Parent=Mgstl.p1
+
+Mgstl	transdecoder	gene	1	1182	.	+	.	ID=GENE.Mgstl~~Mgstl.p2;Name="ORF type:complete (+)"
+Mgstl	transdecoder	mRNA	1	1182	.	+	.	ID=Mgstl.p2;Parent=GENE.Mgstl~~Mgstl.p2;Name="ORF type:complete (+)"
+Mgstl	transdecoder	five_prime_UTR	1	625	.	+	.	ID=Mgstl.p2.utr5p1;Parent=Mgstl.p2
+Mgstl	transdecoder	exon	1	1182	.	+	.	ID=Mgstl.p2.exon1;Parent=Mgstl.p2
+Mgstl	transdecoder	CDS	626	1081	.	+	0	ID=cds.Mgstl.p2;Parent=Mgstl.p2
+Mgstl	transdecoder	three_prime_UTR	1082	1182	.	+	.	ID=Mgstl.p2.utr3p1;Parent=Mgstl.p2
+
+CG10237	transdecoder	gene	1	2768	.	+	.	ID=GENE.CG10237~~CG10237.p1;Name="ORF type:complete (+)"
+CG10237	transdecoder	mRNA	1	2768	.	+	.	ID=CG10237.p1;Parent=GENE.CG10237~~CG10237.p1;Name="ORF type:complete (+)"
+CG10237	transdecoder	five_prime_UTR	1	1551	.	+	.	ID=CG10237.p1.utr5p1;Parent=CG10237.p1
+CG10237	transdecoder	exon	1	2768	.	+	.	ID=CG10237.p1.exon1;Parent=CG10237.p1
+CG10237	transdecoder	CDS	1552	2472	.	+	0	ID=cds.CG10237.p1;Parent=CG10237.p1
+CG10237	transdecoder	three_prime_UTR	2473	2768	.	+	.	ID=CG10237.p1.utr3p1;Parent=CG10237.p1
+
+CG10237	transdecoder	gene	1	2768	.	-	.	ID=GENE.CG10237~~CG10237.p2;Name="ORF type:complete (-)"
+CG10237	transdecoder	mRNA	1	2768	.	-	.	ID=CG10237.p2;Parent=GENE.CG10237~~CG10237.p2;Name="ORF type:complete (-)"
+CG10237	transdecoder	five_prime_UTR	2302	2768	.	-	.	ID=CG10237.p2.utr5p1;Parent=CG10237.p2
+CG10237	transdecoder	exon	1	2768	.	-	.	ID=CG10237.p2.exon1;Parent=CG10237.p2
+CG10237	transdecoder	CDS	1729	2301	.	-	0	ID=cds.CG10237.p2;Parent=CG10237.p2
+CG10237	transdecoder	three_prime_UTR	1	1728	.	-	.	ID=CG10237.p2.utr3p1;Parent=CG10237.p2
+
+CG12581	transdecoder	gene	1	5460	.	+	.	ID=GENE.CG12581~~CG12581.p1;Name="ORF type:complete (+)"
+CG12581	transdecoder	mRNA	1	5460	.	+	.	ID=CG12581.p1;Parent=GENE.CG12581~~CG12581.p1;Name="ORF type:complete (+)"
+CG12581	transdecoder	five_prime_UTR	1	760	.	+	.	ID=CG12581.p1.utr5p1;Parent=CG12581.p1
+CG12581	transdecoder	exon	1	5460	.	+	.	ID=CG12581.p1.exon1;Parent=CG12581.p1
+CG12581	transdecoder	CDS	761	2758	.	+	0	ID=cds.CG12581.p1;Parent=CG12581.p1
+CG12581	transdecoder	three_prime_UTR	2759	5460	.	+	.	ID=CG12581.p1.utr3p1;Parent=CG12581.p1
+
+CG12581	transdecoder	gene	1	5460	.	+	.	ID=GENE.CG12581~~CG12581.p2;Name="ORF type:complete (+)"
+CG12581	transdecoder	mRNA	1	5460	.	+	.	ID=CG12581.p2;Parent=GENE.CG12581~~CG12581.p2;Name="ORF type:complete (+)"
+CG12581	transdecoder	five_prime_UTR	1	786	.	+	.	ID=CG12581.p2.utr5p1;Parent=CG12581.p2
+CG12581	transdecoder	exon	1	5460	.	+	.	ID=CG12581.p2.exon1;Parent=CG12581.p2
+CG12581	transdecoder	CDS	787	1287	.	+	0	ID=cds.CG12581.p2;Parent=CG12581.p2
+CG12581	transdecoder	three_prime_UTR	1288	5460	.	+	.	ID=CG12581.p2.utr3p1;Parent=CG12581.p2
+
+CG12581	transdecoder	gene	1	5460	.	-	.	ID=GENE.CG12581~~CG12581.p3;Name="ORF type:complete (-)"
+CG12581	transdecoder	mRNA	1	5460	.	-	.	ID=CG12581.p3;Parent=GENE.CG12581~~CG12581.p3;Name="ORF type:complete (-)"
+CG12581	transdecoder	five_prime_UTR	2400	5460	.	-	.	ID=CG12581.p3.utr5p1;Parent=CG12581.p3
+CG12581	transdecoder	exon	1	5460	.	-	.	ID=CG12581.p3.exon1;Parent=CG12581.p3
+CG12581	transdecoder	CDS	2025	2399	.	-	0	ID=cds.CG12581.p3;Parent=CG12581.p3
+CG12581	transdecoder	three_prime_UTR	1	2024	.	-	.	ID=CG12581.p3.utr3p1;Parent=CG12581.p3
+
+CG12581	transdecoder	gene	1	5460	.	+	.	ID=GENE.CG12581~~CG12581.p4;Name="ORF type:complete (+)"
+CG12581	transdecoder	mRNA	1	5460	.	+	.	ID=CG12581.p4;Parent=GENE.CG12581~~CG12581.p4;Name="ORF type:complete (+)"
+CG12581	transdecoder	five_prime_UTR	1	390	.	+	.	ID=CG12581.p4.utr5p1;Parent=CG12581.p4
+CG12581	transdecoder	exon	1	5460	.	+	.	ID=CG12581.p4.exon1;Parent=CG12581.p4
+CG12581	transdecoder	CDS	391	732	.	+	0	ID=cds.CG12581.p4;Parent=CG12581.p4
+CG12581	transdecoder	three_prime_UTR	733	5460	.	+	.	ID=CG12581.p4.utr3p1;Parent=CG12581.p4
+
+CG12581	transdecoder	gene	1	5460	.	+	.	ID=GENE.CG12581~~CG12581.p5;Name="ORF type:complete (+)"
+CG12581	transdecoder	mRNA	1	5460	.	+	.	ID=CG12581.p5;Parent=GENE.CG12581~~CG12581.p5;Name="ORF type:complete (+)"
+CG12581	transdecoder	five_prime_UTR	1	172	.	+	.	ID=CG12581.p5.utr5p1;Parent=CG12581.p5
+CG12581	transdecoder	exon	1	5460	.	+	.	ID=CG12581.p5.exon1;Parent=CG12581.p5
+CG12581	transdecoder	CDS	173	508	.	+	0	ID=cds.CG12581.p5;Parent=CG12581.p5
+CG12581	transdecoder	three_prime_UTR	509	5460	.	+	.	ID=CG12581.p5.utr3p1;Parent=CG12581.p5
+
+Lip4	transdecoder	gene	1	2368	.	+	.	ID=GENE.Lip4~~Lip4.p1;Name="ORF type:complete (+)"
+Lip4	transdecoder	mRNA	1	2368	.	+	.	ID=Lip4.p1;Parent=GENE.Lip4~~Lip4.p1;Name="ORF type:complete (+)"
+Lip4	transdecoder	five_prime_UTR	1	693	.	+	.	ID=Lip4.p1.utr5p1;Parent=Lip4.p1
+Lip4	transdecoder	exon	1	2368	.	+	.	ID=Lip4.p1.exon1;Parent=Lip4.p1
+Lip4	transdecoder	CDS	694	1998	.	+	0	ID=cds.Lip4.p1;Parent=Lip4.p1
+Lip4	transdecoder	three_prime_UTR	1999	2368	.	+	.	ID=Lip4.p1.utr3p1;Parent=Lip4.p1
+
+Lip4	transdecoder	gene	1	2368	.	-	.	ID=GENE.Lip4~~Lip4.p2;Name="ORF type:complete (-)"
+Lip4	transdecoder	mRNA	1	2368	.	-	.	ID=Lip4.p2;Parent=GENE.Lip4~~Lip4.p2;Name="ORF type:complete (-)"
+Lip4	transdecoder	five_prime_UTR	1435	2368	.	-	.	ID=Lip4.p2.utr5p1;Parent=Lip4.p2
+Lip4	transdecoder	exon	1	2368	.	-	.	ID=Lip4.p2.exon1;Parent=Lip4.p2
+Lip4	transdecoder	CDS	1045	1434	.	-	0	ID=cds.Lip4.p2;Parent=Lip4.p2
+Lip4	transdecoder	three_prime_UTR	1	1044	.	-	.	ID=Lip4.p2.utr3p1;Parent=Lip4.p2
+
+hrg	transdecoder	gene	1	4585	.	+	.	ID=GENE.hrg~~hrg.p1;Name="ORF type:complete (+)"
+hrg	transdecoder	mRNA	1	4585	.	+	.	ID=hrg.p1;Parent=GENE.hrg~~hrg.p1;Name="ORF type:complete (+)"
+hrg	transdecoder	five_prime_UTR	1	1156	.	+	.	ID=hrg.p1.utr5p1;Parent=hrg.p1
+hrg	transdecoder	exon	1	4585	.	+	.	ID=hrg.p1.exon1;Parent=hrg.p1
+hrg	transdecoder	CDS	1157	3136	.	+	0	ID=cds.hrg.p1;Parent=hrg.p1
+hrg	transdecoder	three_prime_UTR	3137	4585	.	+	.	ID=hrg.p1.utr3p1;Parent=hrg.p1
+
+hrg	transdecoder	gene	1	4585	.	-	.	ID=GENE.hrg~~hrg.p2;Name="ORF type:complete (-)"
+hrg	transdecoder	mRNA	1	4585	.	-	.	ID=hrg.p2;Parent=GENE.hrg~~hrg.p2;Name="ORF type:complete (-)"
+hrg	transdecoder	five_prime_UTR	1104	4585	.	-	.	ID=hrg.p2.utr5p1;Parent=hrg.p2
+hrg	transdecoder	exon	1	4585	.	-	.	ID=hrg.p2.exon1;Parent=hrg.p2
+hrg	transdecoder	CDS	483	1103	.	-	0	ID=cds.hrg.p2;Parent=hrg.p2
+hrg	transdecoder	three_prime_UTR	1	482	.	-	.	ID=hrg.p2.utr3p1;Parent=hrg.p2
+
+hrg	transdecoder	gene	1	4585	.	-	.	ID=GENE.hrg~~hrg.p3;Name="ORF type:complete (-)"
+hrg	transdecoder	mRNA	1	4585	.	-	.	ID=hrg.p3;Parent=GENE.hrg~~hrg.p3;Name="ORF type:complete (-)"
+hrg	transdecoder	five_prime_UTR	2692	4585	.	-	.	ID=hrg.p3.utr5p1;Parent=hrg.p3
+hrg	transdecoder	exon	1	4585	.	-	.	ID=hrg.p3.exon1;Parent=hrg.p3
+hrg	transdecoder	CDS	2338	2691	.	-	0	ID=cds.hrg.p3;Parent=hrg.p3
+hrg	transdecoder	three_prime_UTR	1	2337	.	-	.	ID=hrg.p3.utr3p1;Parent=hrg.p3
+
+hrg	transdecoder	gene	1	4585	.	+	.	ID=GENE.hrg~~hrg.p4;Name="ORF type:complete (+)"
+hrg	transdecoder	mRNA	1	4585	.	+	.	ID=hrg.p4;Parent=GENE.hrg~~hrg.p4;Name="ORF type:complete (+)"
+hrg	transdecoder	five_prime_UTR	1	3373	.	+	.	ID=hrg.p4.utr5p1;Parent=hrg.p4
+hrg	transdecoder	exon	1	4585	.	+	.	ID=hrg.p4.exon1;Parent=hrg.p4
+hrg	transdecoder	CDS	3374	3700	.	+	0	ID=cds.hrg.p4;Parent=hrg.p4
+hrg	transdecoder	three_prime_UTR	3701	4585	.	+	.	ID=hrg.p4.utr3p1;Parent=hrg.p4
+
+hrg	transdecoder	gene	1	4585	.	-	.	ID=GENE.hrg~~hrg.p5;Name="ORF type:complete (-)"
+hrg	transdecoder	mRNA	1	4585	.	-	.	ID=hrg.p5;Parent=GENE.hrg~~hrg.p5;Name="ORF type:complete (-)"
+hrg	transdecoder	five_prime_UTR	733	4585	.	-	.	ID=hrg.p5.utr5p1;Parent=hrg.p5
+hrg	transdecoder	exon	1	4585	.	-	.	ID=hrg.p5.exon1;Parent=hrg.p5
+hrg	transdecoder	CDS	421	732	.	-	0	ID=cds.hrg.p5;Parent=hrg.p5
+hrg	transdecoder	three_prime_UTR	1	420	.	-	.	ID=hrg.p5.utr3p1;Parent=hrg.p5
+
+CG33970	transdecoder	gene	1	4056	.	+	.	ID=GENE.CG33970~~CG33970.p1;Name="ORF type:complete (+)"
+CG33970	transdecoder	mRNA	1	4056	.	+	.	ID=CG33970.p1;Parent=GENE.CG33970~~CG33970.p1;Name="ORF type:complete (+)"
+CG33970	transdecoder	five_prime_UTR	1	699	.	+	.	ID=CG33970.p1.utr5p1;Parent=CG33970.p1
+CG33970	transdecoder	exon	1	4056	.	+	.	ID=CG33970.p1.exon1;Parent=CG33970.p1
+CG33970	transdecoder	CDS	700	3033	.	+	0	ID=cds.CG33970.p1;Parent=CG33970.p1
+CG33970	transdecoder	three_prime_UTR	3034	4056	.	+	.	ID=CG33970.p1.utr3p1;Parent=CG33970.p1
+
+CG33970	transdecoder	gene	1	4056	.	+	.	ID=GENE.CG33970~~CG33970.p2;Name="ORF type:complete (+)"
+CG33970	transdecoder	mRNA	1	4056	.	+	.	ID=CG33970.p2;Parent=GENE.CG33970~~CG33970.p2;Name="ORF type:complete (+)"
+CG33970	transdecoder	five_prime_UTR	1	2678	.	+	.	ID=CG33970.p2.utr5p1;Parent=CG33970.p2
+CG33970	transdecoder	exon	1	4056	.	+	.	ID=CG33970.p2.exon1;Parent=CG33970.p2
+CG33970	transdecoder	CDS	2679	3074	.	+	0	ID=cds.CG33970.p2;Parent=CG33970.p2
+CG33970	transdecoder	three_prime_UTR	3075	4056	.	+	.	ID=CG33970.p2.utr3p1;Parent=CG33970.p2
+
+CG33970	transdecoder	gene	1	4056	.	+	.	ID=GENE.CG33970~~CG33970.p3;Name="ORF type:complete (+)"
+CG33970	transdecoder	mRNA	1	4056	.	+	.	ID=CG33970.p3;Parent=GENE.CG33970~~CG33970.p3;Name="ORF type:complete (+)"
+CG33970	transdecoder	five_prime_UTR	1	2776	.	+	.	ID=CG33970.p3.utr5p1;Parent=CG33970.p3
+CG33970	transdecoder	exon	1	4056	.	+	.	ID=CG33970.p3.exon1;Parent=CG33970.p3
+CG33970	transdecoder	CDS	2777	3145	.	+	0	ID=cds.CG33970.p3;Parent=CG33970.p3
+CG33970	transdecoder	three_prime_UTR	3146	4056	.	+	.	ID=CG33970.p3.utr3p1;Parent=CG33970.p3
+
+CG33970	transdecoder	gene	1	4056	.	+	.	ID=GENE.CG33970~~CG33970.p4;Name="ORF type:complete (+)"
+CG33970	transdecoder	mRNA	1	4056	.	+	.	ID=CG33970.p4;Parent=GENE.CG33970~~CG33970.p4;Name="ORF type:complete (+)"
+CG33970	transdecoder	five_prime_UTR	1	3577	.	+	.	ID=CG33970.p4.utr5p1;Parent=CG33970.p4
+CG33970	transdecoder	exon	1	4056	.	+	.	ID=CG33970.p4.exon1;Parent=CG33970.p4
+CG33970	transdecoder	CDS	3578	3895	.	+	0	ID=cds.CG33970.p4;Parent=CG33970.p4
+CG33970	transdecoder	three_prime_UTR	3896	4056	.	+	.	ID=CG33970.p4.utr3p1;Parent=CG33970.p4
+
+CG33970	transdecoder	gene	1	4056	.	-	.	ID=GENE.CG33970~~CG33970.p5;Name="ORF type:complete (-)"
+CG33970	transdecoder	mRNA	1	4056	.	-	.	ID=CG33970.p5;Parent=GENE.CG33970~~CG33970.p5;Name="ORF type:complete (-)"
+CG33970	transdecoder	five_prime_UTR	990	4056	.	-	.	ID=CG33970.p5.utr5p1;Parent=CG33970.p5
+CG33970	transdecoder	exon	1	4056	.	-	.	ID=CG33970.p5.exon1;Parent=CG33970.p5
+CG33970	transdecoder	CDS	675	989	.	-	0	ID=cds.CG33970.p5;Parent=CG33970.p5
+CG33970	transdecoder	three_prime_UTR	1	674	.	-	.	ID=CG33970.p5.utr3p1;Parent=CG33970.p5
+
+ATPsyn-d	transdecoder	gene	1	948	.	+	.	ID=GENE.ATPsyn-d~~ATPsyn-d.p1;Name="ORF type:complete (+)"
+ATPsyn-d	transdecoder	mRNA	1	948	.	+	.	ID=ATPsyn-d.p1;Parent=GENE.ATPsyn-d~~ATPsyn-d.p1;Name="ORF type:complete (+)"
+ATPsyn-d	transdecoder	five_prime_UTR	1	86	.	+	.	ID=ATPsyn-d.p1.utr5p1;Parent=ATPsyn-d.p1
+ATPsyn-d	transdecoder	exon	1	948	.	+	.	ID=ATPsyn-d.p1.exon1;Parent=ATPsyn-d.p1
+ATPsyn-d	transdecoder	CDS	87	623	.	+	0	ID=cds.ATPsyn-d.p1;Parent=ATPsyn-d.p1
+ATPsyn-d	transdecoder	three_prime_UTR	624	948	.	+	.	ID=ATPsyn-d.p1.utr3p1;Parent=ATPsyn-d.p1
+
+ATPsyn-d	transdecoder	gene	1	948	.	-	.	ID=GENE.ATPsyn-d~~ATPsyn-d.p2;Name="ORF type:complete (-)"
+ATPsyn-d	transdecoder	mRNA	1	948	.	-	.	ID=ATPsyn-d.p2;Parent=GENE.ATPsyn-d~~ATPsyn-d.p2;Name="ORF type:complete (-)"
+ATPsyn-d	transdecoder	five_prime_UTR	450	948	.	-	.	ID=ATPsyn-d.p2.utr5p1;Parent=ATPsyn-d.p2
+ATPsyn-d	transdecoder	exon	1	948	.	-	.	ID=ATPsyn-d.p2.exon1;Parent=ATPsyn-d.p2
+ATPsyn-d	transdecoder	CDS	51	449	.	-	0	ID=cds.ATPsyn-d.p2;Parent=ATPsyn-d.p2
+ATPsyn-d	transdecoder	three_prime_UTR	1	50	.	-	.	ID=ATPsyn-d.p2.utr3p1;Parent=ATPsyn-d.p2
+
+CG13284	transdecoder	gene	1	2816	.	+	.	ID=GENE.CG13284~~CG13284.p1;Name="ORF type:complete (+)"
+CG13284	transdecoder	mRNA	1	2816	.	+	.	ID=CG13284.p1;Parent=GENE.CG13284~~CG13284.p1;Name="ORF type:complete (+)"
+CG13284	transdecoder	five_prime_UTR	1	822	.	+	.	ID=CG13284.p1.utr5p1;Parent=CG13284.p1
+CG13284	transdecoder	exon	1	2816	.	+	.	ID=CG13284.p1.exon1;Parent=CG13284.p1
+CG13284	transdecoder	CDS	823	1839	.	+	0	ID=cds.CG13284.p1;Parent=CG13284.p1
+CG13284	transdecoder	three_prime_UTR	1840	2816	.	+	.	ID=CG13284.p1.utr3p1;Parent=CG13284.p1
+
+CG13284	transdecoder	gene	1	2816	.	-	.	ID=GENE.CG13284~~CG13284.p2;Name="ORF type:complete (-)"
+CG13284	transdecoder	mRNA	1	2816	.	-	.	ID=CG13284.p2;Parent=GENE.CG13284~~CG13284.p2;Name="ORF type:complete (-)"
+CG13284	transdecoder	five_prime_UTR	1714	2816	.	-	.	ID=CG13284.p2.utr5p1;Parent=CG13284.p2
+CG13284	transdecoder	exon	1	2816	.	-	.	ID=CG13284.p2.exon1;Parent=CG13284.p2
+CG13284	transdecoder	CDS	1324	1713	.	-	0	ID=cds.CG13284.p2;Parent=CG13284.p2
+CG13284	transdecoder	three_prime_UTR	1	1323	.	-	.	ID=CG13284.p2.utr3p1;Parent=CG13284.p2
+
+Sec16	transdecoder	gene	1	9705	.	+	.	ID=GENE.Sec16~~Sec16.p1;Name="ORF type:complete (+)"
+Sec16	transdecoder	mRNA	1	9705	.	+	.	ID=Sec16.p1;Parent=GENE.Sec16~~Sec16.p1;Name="ORF type:complete (+)"
+Sec16	transdecoder	five_prime_UTR	1	325	.	+	.	ID=Sec16.p1.utr5p1;Parent=Sec16.p1
+Sec16	transdecoder	exon	1	9705	.	+	.	ID=Sec16.p1.exon1;Parent=Sec16.p1
+Sec16	transdecoder	CDS	326	7306	.	+	0	ID=cds.Sec16.p1;Parent=Sec16.p1
+Sec16	transdecoder	three_prime_UTR	7307	9705	.	+	.	ID=Sec16.p1.utr3p1;Parent=Sec16.p1
+
+Sec16	transdecoder	gene	1	9705	.	+	.	ID=GENE.Sec16~~Sec16.p2;Name="ORF type:complete (+)"
+Sec16	transdecoder	mRNA	1	9705	.	+	.	ID=Sec16.p2;Parent=GENE.Sec16~~Sec16.p2;Name="ORF type:complete (+)"
+Sec16	transdecoder	five_prime_UTR	1	7784	.	+	.	ID=Sec16.p2.utr5p1;Parent=Sec16.p2
+Sec16	transdecoder	exon	1	9705	.	+	.	ID=Sec16.p2.exon1;Parent=Sec16.p2
+Sec16	transdecoder	CDS	7785	8621	.	+	0	ID=cds.Sec16.p2;Parent=Sec16.p2
+Sec16	transdecoder	three_prime_UTR	8622	9705	.	+	.	ID=Sec16.p2.utr3p1;Parent=Sec16.p2
+
+Sec16	transdecoder	gene	1	9705	.	+	.	ID=GENE.Sec16~~Sec16.p3;Name="ORF type:complete (+)"
+Sec16	transdecoder	mRNA	1	9705	.	+	.	ID=Sec16.p3;Parent=GENE.Sec16~~Sec16.p3;Name="ORF type:complete (+)"
+Sec16	transdecoder	five_prime_UTR	1	3684	.	+	.	ID=Sec16.p3.utr5p1;Parent=Sec16.p3
+Sec16	transdecoder	exon	1	9705	.	+	.	ID=Sec16.p3.exon1;Parent=Sec16.p3
+Sec16	transdecoder	CDS	3685	4248	.	+	0	ID=cds.Sec16.p3;Parent=Sec16.p3
+Sec16	transdecoder	three_prime_UTR	4249	9705	.	+	.	ID=Sec16.p3.utr3p1;Parent=Sec16.p3
+
+Sec16	transdecoder	gene	1	9705	.	-	.	ID=GENE.Sec16~~Sec16.p4;Name="ORF type:complete (-)"
+Sec16	transdecoder	mRNA	1	9705	.	-	.	ID=Sec16.p4;Parent=GENE.Sec16~~Sec16.p4;Name="ORF type:complete (-)"
+Sec16	transdecoder	five_prime_UTR	4142	9705	.	-	.	ID=Sec16.p4.utr5p1;Parent=Sec16.p4
+Sec16	transdecoder	exon	1	9705	.	-	.	ID=Sec16.p4.exon1;Parent=Sec16.p4
+Sec16	transdecoder	CDS	3632	4141	.	-	0	ID=cds.Sec16.p4;Parent=Sec16.p4
+Sec16	transdecoder	three_prime_UTR	1	3631	.	-	.	ID=Sec16.p4.utr3p1;Parent=Sec16.p4
+
+Sec16	transdecoder	gene	1	9705	.	-	.	ID=GENE.Sec16~~Sec16.p5;Name="ORF type:complete (-)"
+Sec16	transdecoder	mRNA	1	9705	.	-	.	ID=Sec16.p5;Parent=GENE.Sec16~~Sec16.p5;Name="ORF type:complete (-)"
+Sec16	transdecoder	five_prime_UTR	4192	9705	.	-	.	ID=Sec16.p5.utr5p1;Parent=Sec16.p5
+Sec16	transdecoder	exon	1	9705	.	-	.	ID=Sec16.p5.exon1;Parent=Sec16.p5
+Sec16	transdecoder	CDS	3757	4191	.	-	0	ID=cds.Sec16.p5;Parent=Sec16.p5
+Sec16	transdecoder	three_prime_UTR	1	3756	.	-	.	ID=Sec16.p5.utr3p1;Parent=Sec16.p5
+
+Sec16	transdecoder	gene	1	9705	.	-	.	ID=GENE.Sec16~~Sec16.p6;Name="ORF type:complete (-)"
+Sec16	transdecoder	mRNA	1	9705	.	-	.	ID=Sec16.p6;Parent=GENE.Sec16~~Sec16.p6;Name="ORF type:complete (-)"
+Sec16	transdecoder	five_prime_UTR	668	9705	.	-	.	ID=Sec16.p6.utr5p1;Parent=Sec16.p6
+Sec16	transdecoder	exon	1	9705	.	-	.	ID=Sec16.p6.exon1;Parent=Sec16.p6
+Sec16	transdecoder	CDS	257	667	.	-	0	ID=cds.Sec16.p6;Parent=Sec16.p6
+Sec16	transdecoder	three_prime_UTR	1	256	.	-	.	ID=Sec16.p6.utr3p1;Parent=Sec16.p6
+
+Sec16	transdecoder	gene	1	9705	.	+	.	ID=GENE.Sec16~~Sec16.p7;Name="ORF type:complete (+)"
+Sec16	transdecoder	mRNA	1	9705	.	+	.	ID=Sec16.p7;Parent=GENE.Sec16~~Sec16.p7;Name="ORF type:complete (+)"
+Sec16	transdecoder	five_prime_UTR	1	1775	.	+	.	ID=Sec16.p7.utr5p1;Parent=Sec16.p7
+Sec16	transdecoder	exon	1	9705	.	+	.	ID=Sec16.p7.exon1;Parent=Sec16.p7
+Sec16	transdecoder	CDS	1776	2144	.	+	0	ID=cds.Sec16.p7;Parent=Sec16.p7
+Sec16	transdecoder	three_prime_UTR	2145	9705	.	+	.	ID=Sec16.p7.utr3p1;Parent=Sec16.p7
+
+Sec16	transdecoder	gene	1	9705	.	+	.	ID=GENE.Sec16~~Sec16.p8;Name="ORF type:complete (+)"
+Sec16	transdecoder	mRNA	1	9705	.	+	.	ID=Sec16.p8;Parent=GENE.Sec16~~Sec16.p8;Name="ORF type:complete (+)"
+Sec16	transdecoder	five_prime_UTR	1	2888	.	+	.	ID=Sec16.p8.utr5p1;Parent=Sec16.p8
+Sec16	transdecoder	exon	1	9705	.	+	.	ID=Sec16.p8.exon1;Parent=Sec16.p8
+Sec16	transdecoder	CDS	2889	3230	.	+	0	ID=cds.Sec16.p8;Parent=Sec16.p8
+Sec16	transdecoder	three_prime_UTR	3231	9705	.	+	.	ID=Sec16.p8.utr3p1;Parent=Sec16.p8
+
+Sec16	transdecoder	gene	1	9705	.	-	.	ID=GENE.Sec16~~Sec16.p9;Name="ORF type:complete (-)"
+Sec16	transdecoder	mRNA	1	9705	.	-	.	ID=Sec16.p9;Parent=GENE.Sec16~~Sec16.p9;Name="ORF type:complete (-)"
+Sec16	transdecoder	five_prime_UTR	1543	9705	.	-	.	ID=Sec16.p9.utr5p1;Parent=Sec16.p9
+Sec16	transdecoder	exon	1	9705	.	-	.	ID=Sec16.p9.exon1;Parent=Sec16.p9
+Sec16	transdecoder	CDS	1201	1542	.	-	0	ID=cds.Sec16.p9;Parent=Sec16.p9
+Sec16	transdecoder	three_prime_UTR	1	1200	.	-	.	ID=Sec16.p9.utr3p1;Parent=Sec16.p9
+
+Sec16	transdecoder	gene	1	9705	.	-	.	ID=GENE.Sec16~~Sec16.p10;Name="ORF type:complete (-)"
+Sec16	transdecoder	mRNA	1	9705	.	-	.	ID=Sec16.p10;Parent=GENE.Sec16~~Sec16.p10;Name="ORF type:complete (-)"
+Sec16	transdecoder	five_prime_UTR	3455	9705	.	-	.	ID=Sec16.p10.utr5p1;Parent=Sec16.p10
+Sec16	transdecoder	exon	1	9705	.	-	.	ID=Sec16.p10.exon1;Parent=Sec16.p10
+Sec16	transdecoder	CDS	3134	3454	.	-	0	ID=cds.Sec16.p10;Parent=Sec16.p10
+Sec16	transdecoder	three_prime_UTR	1	3133	.	-	.	ID=Sec16.p10.utr3p1;Parent=Sec16.p10
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p1;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p1;Parent=GENE.Tm1~~Tm1.p1;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	1862	.	+	.	ID=Tm1.p1.utr5p1;Parent=Tm1.p1
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p1.exon1;Parent=Tm1.p1
+Tm1	transdecoder	CDS	1863	3662	.	+	0	ID=cds.Tm1.p1;Parent=Tm1.p1
+Tm1	transdecoder	three_prime_UTR	3663	9456	.	+	.	ID=Tm1.p1.utr3p1;Parent=Tm1.p1
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p2;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p2;Parent=GENE.Tm1~~Tm1.p2;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	5028	.	+	.	ID=Tm1.p2.utr5p1;Parent=Tm1.p2
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p2.exon1;Parent=Tm1.p2
+Tm1	transdecoder	CDS	5029	6084	.	+	0	ID=cds.Tm1.p2;Parent=Tm1.p2
+Tm1	transdecoder	three_prime_UTR	6085	9456	.	+	.	ID=Tm1.p2.utr3p1;Parent=Tm1.p2
+
+Tm1	transdecoder	gene	1	9456	.	-	.	ID=GENE.Tm1~~Tm1.p3;Name="ORF type:complete (-)"
+Tm1	transdecoder	mRNA	1	9456	.	-	.	ID=Tm1.p3;Parent=GENE.Tm1~~Tm1.p3;Name="ORF type:complete (-)"
+Tm1	transdecoder	five_prime_UTR	7017	9456	.	-	.	ID=Tm1.p3.utr5p1;Parent=Tm1.p3
+Tm1	transdecoder	exon	1	9456	.	-	.	ID=Tm1.p3.exon1;Parent=Tm1.p3
+Tm1	transdecoder	CDS	6159	7016	.	-	0	ID=cds.Tm1.p3;Parent=Tm1.p3
+Tm1	transdecoder	three_prime_UTR	1	6158	.	-	.	ID=Tm1.p3.utr3p1;Parent=Tm1.p3
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p4;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p4;Parent=GENE.Tm1~~Tm1.p4;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	6122	.	+	.	ID=Tm1.p4.utr5p1;Parent=Tm1.p4
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p4.exon1;Parent=Tm1.p4
+Tm1	transdecoder	CDS	6123	6938	.	+	0	ID=cds.Tm1.p4;Parent=Tm1.p4
+Tm1	transdecoder	three_prime_UTR	6939	9456	.	+	.	ID=Tm1.p4.utr3p1;Parent=Tm1.p4
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p5;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p5;Parent=GENE.Tm1~~Tm1.p5;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	6405	.	+	.	ID=Tm1.p5.utr5p1;Parent=Tm1.p5
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p5.exon1;Parent=Tm1.p5
+Tm1	transdecoder	CDS	6406	7020	.	+	0	ID=cds.Tm1.p5;Parent=Tm1.p5
+Tm1	transdecoder	three_prime_UTR	7021	9456	.	+	.	ID=Tm1.p5.utr3p1;Parent=Tm1.p5
+
+Tm1	transdecoder	gene	1	9456	.	-	.	ID=GENE.Tm1~~Tm1.p6;Name="ORF type:complete (-)"
+Tm1	transdecoder	mRNA	1	9456	.	-	.	ID=Tm1.p6;Parent=GENE.Tm1~~Tm1.p6;Name="ORF type:complete (-)"
+Tm1	transdecoder	five_prime_UTR	3188	9456	.	-	.	ID=Tm1.p6.utr5p1;Parent=Tm1.p6
+Tm1	transdecoder	exon	1	9456	.	-	.	ID=Tm1.p6.exon1;Parent=Tm1.p6
+Tm1	transdecoder	CDS	2738	3187	.	-	0	ID=cds.Tm1.p6;Parent=Tm1.p6
+Tm1	transdecoder	three_prime_UTR	1	2737	.	-	.	ID=Tm1.p6.utr3p1;Parent=Tm1.p6
+
+Tm1	transdecoder	gene	1	9456	.	-	.	ID=GENE.Tm1~~Tm1.p7;Name="ORF type:complete (-)"
+Tm1	transdecoder	mRNA	1	9456	.	-	.	ID=Tm1.p7;Parent=GENE.Tm1~~Tm1.p7;Name="ORF type:complete (-)"
+Tm1	transdecoder	five_prime_UTR	5206	9456	.	-	.	ID=Tm1.p7.utr5p1;Parent=Tm1.p7
+Tm1	transdecoder	exon	1	9456	.	-	.	ID=Tm1.p7.exon1;Parent=Tm1.p7
+Tm1	transdecoder	CDS	4774	5205	.	-	0	ID=cds.Tm1.p7;Parent=Tm1.p7
+Tm1	transdecoder	three_prime_UTR	1	4773	.	-	.	ID=Tm1.p7.utr3p1;Parent=Tm1.p7
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p8;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p8;Parent=GENE.Tm1~~Tm1.p8;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	2973	.	+	.	ID=Tm1.p8.utr5p1;Parent=Tm1.p8
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p8.exon1;Parent=Tm1.p8
+Tm1	transdecoder	CDS	2974	3357	.	+	0	ID=cds.Tm1.p8;Parent=Tm1.p8
+Tm1	transdecoder	three_prime_UTR	3358	9456	.	+	.	ID=Tm1.p8.utr3p1;Parent=Tm1.p8
+
+Tm1	transdecoder	gene	1	9456	.	-	.	ID=GENE.Tm1~~Tm1.p9;Name="ORF type:complete (-)"
+Tm1	transdecoder	mRNA	1	9456	.	-	.	ID=Tm1.p9;Parent=GENE.Tm1~~Tm1.p9;Name="ORF type:complete (-)"
+Tm1	transdecoder	five_prime_UTR	1042	9456	.	-	.	ID=Tm1.p9.utr5p1;Parent=Tm1.p9
+Tm1	transdecoder	exon	1	9456	.	-	.	ID=Tm1.p9.exon1;Parent=Tm1.p9
+Tm1	transdecoder	CDS	670	1041	.	-	0	ID=cds.Tm1.p9;Parent=Tm1.p9
+Tm1	transdecoder	three_prime_UTR	1	669	.	-	.	ID=Tm1.p9.utr3p1;Parent=Tm1.p9
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p10;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p10;Parent=GENE.Tm1~~Tm1.p10;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	733	.	+	.	ID=Tm1.p10.utr5p1;Parent=Tm1.p10
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p10.exon1;Parent=Tm1.p10
+Tm1	transdecoder	CDS	734	1093	.	+	0	ID=cds.Tm1.p10;Parent=Tm1.p10
+Tm1	transdecoder	three_prime_UTR	1094	9456	.	+	.	ID=Tm1.p10.utr3p1;Parent=Tm1.p10
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p11;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p11;Parent=GENE.Tm1~~Tm1.p11;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	1400	.	+	.	ID=Tm1.p11.utr5p1;Parent=Tm1.p11
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p11.exon1;Parent=Tm1.p11
+Tm1	transdecoder	CDS	1401	1751	.	+	0	ID=cds.Tm1.p11;Parent=Tm1.p11
+Tm1	transdecoder	three_prime_UTR	1752	9456	.	+	.	ID=Tm1.p11.utr3p1;Parent=Tm1.p11
+
+Tm1	transdecoder	gene	1	9456	.	-	.	ID=GENE.Tm1~~Tm1.p12;Name="ORF type:complete (-)"
+Tm1	transdecoder	mRNA	1	9456	.	-	.	ID=Tm1.p12;Parent=GENE.Tm1~~Tm1.p12;Name="ORF type:complete (-)"
+Tm1	transdecoder	five_prime_UTR	6098	9456	.	-	.	ID=Tm1.p12.utr5p1;Parent=Tm1.p12
+Tm1	transdecoder	exon	1	9456	.	-	.	ID=Tm1.p12.exon1;Parent=Tm1.p12
+Tm1	transdecoder	CDS	5759	6097	.	-	0	ID=cds.Tm1.p12;Parent=Tm1.p12
+Tm1	transdecoder	three_prime_UTR	1	5758	.	-	.	ID=Tm1.p12.utr3p1;Parent=Tm1.p12
+
+Tm1	transdecoder	gene	1	9456	.	+	.	ID=GENE.Tm1~~Tm1.p13;Name="ORF type:complete (+)"
+Tm1	transdecoder	mRNA	1	9456	.	+	.	ID=Tm1.p13;Parent=GENE.Tm1~~Tm1.p13;Name="ORF type:complete (+)"
+Tm1	transdecoder	five_prime_UTR	1	3776	.	+	.	ID=Tm1.p13.utr5p1;Parent=Tm1.p13
+Tm1	transdecoder	exon	1	9456	.	+	.	ID=Tm1.p13.exon1;Parent=Tm1.p13
+Tm1	transdecoder	CDS	3777	4079	.	+	0	ID=cds.Tm1.p13;Parent=Tm1.p13
+Tm1	transdecoder	three_prime_UTR	4080	9456	.	+	.	ID=Tm1.p13.utr3p1;Parent=Tm1.p13
+
+CG8136	transdecoder	gene	1	1619	.	+	.	ID=GENE.CG8136~~CG8136.p1;Name="ORF type:complete (+)"
+CG8136	transdecoder	mRNA	1	1619	.	+	.	ID=CG8136.p1;Parent=GENE.CG8136~~CG8136.p1;Name="ORF type:complete (+)"
+CG8136	transdecoder	five_prime_UTR	1	168	.	+	.	ID=CG8136.p1.utr5p1;Parent=CG8136.p1
+CG8136	transdecoder	exon	1	1619	.	+	.	ID=CG8136.p1.exon1;Parent=CG8136.p1
+CG8136	transdecoder	CDS	169	1494	.	+	0	ID=cds.CG8136.p1;Parent=CG8136.p1
+CG8136	transdecoder	three_prime_UTR	1495	1619	.	+	.	ID=CG8136.p1.utr3p1;Parent=CG8136.p1
+
+CG8136	transdecoder	gene	1	1619	.	+	.	ID=GENE.CG8136~~CG8136.p2;Name="ORF type:complete (+)"
+CG8136	transdecoder	mRNA	1	1619	.	+	.	ID=CG8136.p2;Parent=GENE.CG8136~~CG8136.p2;Name="ORF type:complete (+)"
+CG8136	transdecoder	five_prime_UTR	1	872	.	+	.	ID=CG8136.p2.utr5p1;Parent=CG8136.p2
+CG8136	transdecoder	exon	1	1619	.	+	.	ID=CG8136.p2.exon1;Parent=CG8136.p2
+CG8136	transdecoder	CDS	873	1181	.	+	0	ID=cds.CG8136.p2;Parent=CG8136.p2
+CG8136	transdecoder	three_prime_UTR	1182	1619	.	+	.	ID=CG8136.p2.utr3p1;Parent=CG8136.p2
+
+CG14995	transdecoder	gene	1	4080	.	+	.	ID=GENE.CG14995~~CG14995.p1;Name="ORF type:complete (+)"
+CG14995	transdecoder	mRNA	1	4080	.	+	.	ID=CG14995.p1;Parent=GENE.CG14995~~CG14995.p1;Name="ORF type:complete (+)"
+CG14995	transdecoder	five_prime_UTR	1	1853	.	+	.	ID=CG14995.p1.utr5p1;Parent=CG14995.p1
+CG14995	transdecoder	exon	1	4080	.	+	.	ID=CG14995.p1.exon1;Parent=CG14995.p1
+CG14995	transdecoder	CDS	1854	2552	.	+	0	ID=cds.CG14995.p1;Parent=CG14995.p1
+CG14995	transdecoder	three_prime_UTR	2553	4080	.	+	.	ID=CG14995.p1.utr3p1;Parent=CG14995.p1
+
+CG14995	transdecoder	gene	1	4080	.	+	.	ID=GENE.CG14995~~CG14995.p2;Name="ORF type:complete (+)"
+CG14995	transdecoder	mRNA	1	4080	.	+	.	ID=CG14995.p2;Parent=GENE.CG14995~~CG14995.p2;Name="ORF type:complete (+)"
+CG14995	transdecoder	five_prime_UTR	1	2796	.	+	.	ID=CG14995.p2.utr5p1;Parent=CG14995.p2
+CG14995	transdecoder	exon	1	4080	.	+	.	ID=CG14995.p2.exon1;Parent=CG14995.p2
+CG14995	transdecoder	CDS	2797	3414	.	+	0	ID=cds.CG14995.p2;Parent=CG14995.p2
+CG14995	transdecoder	three_prime_UTR	3415	4080	.	+	.	ID=CG14995.p2.utr3p1;Parent=CG14995.p2
+
+CG14995	transdecoder	gene	1	4080	.	-	.	ID=GENE.CG14995~~CG14995.p3;Name="ORF type:complete (-)"
+CG14995	transdecoder	mRNA	1	4080	.	-	.	ID=CG14995.p3;Parent=GENE.CG14995~~CG14995.p3;Name="ORF type:complete (-)"
+CG14995	transdecoder	five_prime_UTR	3221	4080	.	-	.	ID=CG14995.p3.utr5p1;Parent=CG14995.p3
+CG14995	transdecoder	exon	1	4080	.	-	.	ID=CG14995.p3.exon1;Parent=CG14995.p3
+CG14995	transdecoder	CDS	2693	3220	.	-	0	ID=cds.CG14995.p3;Parent=CG14995.p3
+CG14995	transdecoder	three_prime_UTR	1	2692	.	-	.	ID=CG14995.p3.utr3p1;Parent=CG14995.p3
+
+CG14995	transdecoder	gene	1	4080	.	+	.	ID=GENE.CG14995~~CG14995.p4;Name="ORF type:complete (+)"
+CG14995	transdecoder	mRNA	1	4080	.	+	.	ID=CG14995.p4;Parent=GENE.CG14995~~CG14995.p4;Name="ORF type:complete (+)"
+CG14995	transdecoder	five_prime_UTR	1	1950	.	+	.	ID=CG14995.p4.utr5p1;Parent=CG14995.p4
+CG14995	transdecoder	exon	1	4080	.	+	.	ID=CG14995.p4.exon1;Parent=CG14995.p4
+CG14995	transdecoder	CDS	1951	2475	.	+	0	ID=cds.CG14995.p4;Parent=CG14995.p4
+CG14995	transdecoder	three_prime_UTR	2476	4080	.	+	.	ID=CG14995.p4.utr3p1;Parent=CG14995.p4
+
+CG14995	transdecoder	gene	1	4080	.	-	.	ID=GENE.CG14995~~CG14995.p5;Name="ORF type:complete (-)"
+CG14995	transdecoder	mRNA	1	4080	.	-	.	ID=CG14995.p5;Parent=GENE.CG14995~~CG14995.p5;Name="ORF type:complete (-)"
+CG14995	transdecoder	five_prime_UTR	2087	4080	.	-	.	ID=CG14995.p5.utr5p1;Parent=CG14995.p5
+CG14995	transdecoder	exon	1	4080	.	-	.	ID=CG14995.p5.exon1;Parent=CG14995.p5
+CG14995	transdecoder	CDS	1709	2086	.	-	0	ID=cds.CG14995.p5;Parent=CG14995.p5
+CG14995	transdecoder	three_prime_UTR	1	1708	.	-	.	ID=CG14995.p5.utr3p1;Parent=CG14995.p5
+
+CG6424	transdecoder	gene	1	6243	.	+	.	ID=GENE.CG6424~~CG6424.p1;Name="ORF type:complete (+)"
+CG6424	transdecoder	mRNA	1	6243	.	+	.	ID=CG6424.p1;Parent=GENE.CG6424~~CG6424.p1;Name="ORF type:complete (+)"
+CG6424	transdecoder	five_prime_UTR	1	2701	.	+	.	ID=CG6424.p1.utr5p1;Parent=CG6424.p1
+CG6424	transdecoder	exon	1	6243	.	+	.	ID=CG6424.p1.exon1;Parent=CG6424.p1
+CG6424	transdecoder	CDS	2702	5098	.	+	0	ID=cds.CG6424.p1;Parent=CG6424.p1
+CG6424	transdecoder	three_prime_UTR	5099	6243	.	+	.	ID=CG6424.p1.utr3p1;Parent=CG6424.p1
+
+CG6424	transdecoder	gene	1	6243	.	-	.	ID=GENE.CG6424~~CG6424.p2;Name="ORF type:complete (-)"
+CG6424	transdecoder	mRNA	1	6243	.	-	.	ID=CG6424.p2;Parent=GENE.CG6424~~CG6424.p2;Name="ORF type:complete (-)"
+CG6424	transdecoder	five_prime_UTR	4418	6243	.	-	.	ID=CG6424.p2.utr5p1;Parent=CG6424.p2
+CG6424	transdecoder	exon	1	6243	.	-	.	ID=CG6424.p2.exon1;Parent=CG6424.p2
+CG6424	transdecoder	CDS	3023	4417	.	-	0	ID=cds.CG6424.p2;Parent=CG6424.p2
+CG6424	transdecoder	three_prime_UTR	1	3022	.	-	.	ID=CG6424.p2.utr3p1;Parent=CG6424.p2
+
+CG6424	transdecoder	gene	1	6243	.	-	.	ID=GENE.CG6424~~CG6424.p3;Name="ORF type:complete (-)"
+CG6424	transdecoder	mRNA	1	6243	.	-	.	ID=CG6424.p3;Parent=GENE.CG6424~~CG6424.p3;Name="ORF type:complete (-)"
+CG6424	transdecoder	five_prime_UTR	4060	6243	.	-	.	ID=CG6424.p3.utr5p1;Parent=CG6424.p3
+CG6424	transdecoder	exon	1	6243	.	-	.	ID=CG6424.p3.exon1;Parent=CG6424.p3
+CG6424	transdecoder	CDS	3610	4059	.	-	0	ID=cds.CG6424.p3;Parent=CG6424.p3
+CG6424	transdecoder	three_prime_UTR	1	3609	.	-	.	ID=CG6424.p3.utr3p1;Parent=CG6424.p3
+
+CG6424	transdecoder	gene	1	6243	.	-	.	ID=GENE.CG6424~~CG6424.p4;Name="ORF type:complete (-)"
+CG6424	transdecoder	mRNA	1	6243	.	-	.	ID=CG6424.p4;Parent=GENE.CG6424~~CG6424.p4;Name="ORF type:complete (-)"
+CG6424	transdecoder	five_prime_UTR	2083	6243	.	-	.	ID=CG6424.p4.utr5p1;Parent=CG6424.p4
+CG6424	transdecoder	exon	1	6243	.	-	.	ID=CG6424.p4.exon1;Parent=CG6424.p4
+CG6424	transdecoder	CDS	1633	2082	.	-	0	ID=cds.CG6424.p4;Parent=CG6424.p4
+CG6424	transdecoder	three_prime_UTR	1	1632	.	-	.	ID=CG6424.p4.utr3p1;Parent=CG6424.p4
+
+CG6424	transdecoder	gene	1	6243	.	-	.	ID=GENE.CG6424~~CG6424.p5;Name="ORF type:complete (-)"
+CG6424	transdecoder	mRNA	1	6243	.	-	.	ID=CG6424.p5;Parent=GENE.CG6424~~CG6424.p5;Name="ORF type:complete (-)"
+CG6424	transdecoder	five_prime_UTR	4942	6243	.	-	.	ID=CG6424.p5.utr5p1;Parent=CG6424.p5
+CG6424	transdecoder	exon	1	6243	.	-	.	ID=CG6424.p5.exon1;Parent=CG6424.p5
+CG6424	transdecoder	CDS	4564	4941	.	-	0	ID=cds.CG6424.p5;Parent=CG6424.p5
+CG6424	transdecoder	three_prime_UTR	1	4563	.	-	.	ID=CG6424.p5.utr3p1;Parent=CG6424.p5
+
+stas	transdecoder	gene	1	3146	.	+	.	ID=GENE.stas~~stas.p1;Name="ORF type:complete (+)"
+stas	transdecoder	mRNA	1	3146	.	+	.	ID=stas.p1;Parent=GENE.stas~~stas.p1;Name="ORF type:complete (+)"
+stas	transdecoder	five_prime_UTR	1	444	.	+	.	ID=stas.p1.utr5p1;Parent=stas.p1
+stas	transdecoder	exon	1	3146	.	+	.	ID=stas.p1.exon1;Parent=stas.p1
+stas	transdecoder	CDS	445	969	.	+	0	ID=cds.stas.p1;Parent=stas.p1
+stas	transdecoder	three_prime_UTR	970	3146	.	+	.	ID=stas.p1.utr3p1;Parent=stas.p1
+
+mge	transdecoder	gene	1	1487	.	+	.	ID=GENE.mge~~mge.p1;Name="ORF type:complete (+)"
+mge	transdecoder	mRNA	1	1487	.	+	.	ID=mge.p1;Parent=GENE.mge~~mge.p1;Name="ORF type:complete (+)"
+mge	transdecoder	five_prime_UTR	1	726	.	+	.	ID=mge.p1.utr5p1;Parent=mge.p1
+mge	transdecoder	exon	1	1487	.	+	.	ID=mge.p1.exon1;Parent=mge.p1
+mge	transdecoder	CDS	727	1116	.	+	0	ID=cds.mge.p1;Parent=mge.p1
+mge	transdecoder	three_prime_UTR	1117	1487	.	+	.	ID=mge.p1.utr3p1;Parent=mge.p1
+
+mge	transdecoder	gene	1	1487	.	-	.	ID=GENE.mge~~mge.p2;Name="ORF type:5prime_partial (-)"
+mge	transdecoder	mRNA	1	1487	.	-	.	ID=mge.p2;Parent=GENE.mge~~mge.p2;Name="ORF type:5prime_partial (-)"
+mge	transdecoder	exon	1	1487	.	-	.	ID=mge.p2.exon1;Parent=mge.p2
+mge	transdecoder	CDS	1131	1487	.	-	0	ID=cds.mge.p2;Parent=mge.p2;5_prime_partial=true
+mge	transdecoder	three_prime_UTR	1	1130	.	-	.	ID=mge.p2.utr3p1;Parent=mge.p2
+
+CG30438	transdecoder	gene	1	3315	.	+	.	ID=GENE.CG30438~~CG30438.p1;Name="ORF type:complete (+)"
+CG30438	transdecoder	mRNA	1	3315	.	+	.	ID=CG30438.p1;Parent=GENE.CG30438~~CG30438.p1;Name="ORF type:complete (+)"
+CG30438	transdecoder	five_prime_UTR	1	1193	.	+	.	ID=CG30438.p1.utr5p1;Parent=CG30438.p1
+CG30438	transdecoder	exon	1	3315	.	+	.	ID=CG30438.p1.exon1;Parent=CG30438.p1
+CG30438	transdecoder	CDS	1194	2768	.	+	0	ID=cds.CG30438.p1;Parent=CG30438.p1
+CG30438	transdecoder	three_prime_UTR	2769	3315	.	+	.	ID=CG30438.p1.utr3p1;Parent=CG30438.p1
+
+CG30438	transdecoder	gene	1	3315	.	-	.	ID=GENE.CG30438~~CG30438.p2;Name="ORF type:complete (-)"
+CG30438	transdecoder	mRNA	1	3315	.	-	.	ID=CG30438.p2;Parent=GENE.CG30438~~CG30438.p2;Name="ORF type:complete (-)"
+CG30438	transdecoder	five_prime_UTR	2145	3315	.	-	.	ID=CG30438.p2.utr5p1;Parent=CG30438.p2
+CG30438	transdecoder	exon	1	3315	.	-	.	ID=CG30438.p2.exon1;Parent=CG30438.p2
+CG30438	transdecoder	CDS	1617	2144	.	-	0	ID=cds.CG30438.p2;Parent=CG30438.p2
+CG30438	transdecoder	three_prime_UTR	1	1616	.	-	.	ID=CG30438.p2.utr3p1;Parent=CG30438.p2
+
+mGluR	transdecoder	gene	1	6349	.	+	.	ID=GENE.mGluR~~mGluR.p1;Name="ORF type:complete (+)"
+mGluR	transdecoder	mRNA	1	6349	.	+	.	ID=mGluR.p1;Parent=GENE.mGluR~~mGluR.p1;Name="ORF type:complete (+)"
+mGluR	transdecoder	five_prime_UTR	1	208	.	+	.	ID=mGluR.p1.utr5p1;Parent=mGluR.p1
+mGluR	transdecoder	exon	1	6349	.	+	.	ID=mGluR.p1.exon1;Parent=mGluR.p1
+mGluR	transdecoder	CDS	209	1810	.	+	0	ID=cds.mGluR.p1;Parent=mGluR.p1
+mGluR	transdecoder	three_prime_UTR	1811	6349	.	+	.	ID=mGluR.p1.utr3p1;Parent=mGluR.p1
+
+mGluR	transdecoder	gene	1	6349	.	+	.	ID=GENE.mGluR~~mGluR.p2;Name="ORF type:complete (+)"
+mGluR	transdecoder	mRNA	1	6349	.	+	.	ID=mGluR.p2;Parent=GENE.mGluR~~mGluR.p2;Name="ORF type:complete (+)"
+mGluR	transdecoder	five_prime_UTR	1	2016	.	+	.	ID=mGluR.p2.utr5p1;Parent=mGluR.p2
+mGluR	transdecoder	exon	1	6349	.	+	.	ID=mGluR.p2.exon1;Parent=mGluR.p2
+mGluR	transdecoder	CDS	2017	2877	.	+	0	ID=cds.mGluR.p2;Parent=mGluR.p2
+mGluR	transdecoder	three_prime_UTR	2878	6349	.	+	.	ID=mGluR.p2.utr3p1;Parent=mGluR.p2
+
+mGluR	transdecoder	gene	1	6349	.	+	.	ID=GENE.mGluR~~mGluR.p3;Name="ORF type:complete (+)"
+mGluR	transdecoder	mRNA	1	6349	.	+	.	ID=mGluR.p3;Parent=GENE.mGluR~~mGluR.p3;Name="ORF type:complete (+)"
+mGluR	transdecoder	five_prime_UTR	1	2857	.	+	.	ID=mGluR.p3.utr5p1;Parent=mGluR.p3
+mGluR	transdecoder	exon	1	6349	.	+	.	ID=mGluR.p3.exon1;Parent=mGluR.p3
+mGluR	transdecoder	CDS	2858	3529	.	+	0	ID=cds.mGluR.p3;Parent=mGluR.p3
+mGluR	transdecoder	three_prime_UTR	3530	6349	.	+	.	ID=mGluR.p3.utr3p1;Parent=mGluR.p3
+
+bic	transdecoder	gene	1	1545	.	+	.	ID=GENE.bic~~bic.p1;Name="ORF type:complete (+)"
+bic	transdecoder	mRNA	1	1545	.	+	.	ID=bic.p1;Parent=GENE.bic~~bic.p1;Name="ORF type:complete (+)"
+bic	transdecoder	five_prime_UTR	1	153	.	+	.	ID=bic.p1.utr5p1;Parent=bic.p1
+bic	transdecoder	exon	1	1545	.	+	.	ID=bic.p1.exon1;Parent=bic.p1
+bic	transdecoder	CDS	154	663	.	+	0	ID=cds.bic.p1;Parent=bic.p1
+bic	transdecoder	three_prime_UTR	664	1545	.	+	.	ID=bic.p1.utr3p1;Parent=bic.p1
+
+bic	transdecoder	gene	1	1545	.	+	.	ID=GENE.bic~~bic.p2;Name="ORF type:complete (+)"
+bic	transdecoder	mRNA	1	1545	.	+	.	ID=bic.p2;Parent=GENE.bic~~bic.p2;Name="ORF type:complete (+)"
+bic	transdecoder	five_prime_UTR	1	559	.	+	.	ID=bic.p2.utr5p1;Parent=bic.p2
+bic	transdecoder	exon	1	1545	.	+	.	ID=bic.p2.exon1;Parent=bic.p2
+bic	transdecoder	CDS	560	883	.	+	0	ID=cds.bic.p2;Parent=bic.p2
+bic	transdecoder	three_prime_UTR	884	1545	.	+	.	ID=bic.p2.utr3p1;Parent=bic.p2
+
+cdi	transdecoder	gene	1	6524	.	+	.	ID=GENE.cdi~~cdi.p1;Name="ORF type:complete (+)"
+cdi	transdecoder	mRNA	1	6524	.	+	.	ID=cdi.p1;Parent=GENE.cdi~~cdi.p1;Name="ORF type:complete (+)"
+cdi	transdecoder	five_prime_UTR	1	1099	.	+	.	ID=cdi.p1.utr5p1;Parent=cdi.p1
+cdi	transdecoder	exon	1	6524	.	+	.	ID=cdi.p1.exon1;Parent=cdi.p1
+cdi	transdecoder	CDS	1100	3931	.	+	0	ID=cds.cdi.p1;Parent=cdi.p1
+cdi	transdecoder	three_prime_UTR	3932	6524	.	+	.	ID=cdi.p1.utr3p1;Parent=cdi.p1
+
+cdi	transdecoder	gene	1	6524	.	+	.	ID=GENE.cdi~~cdi.p2;Name="ORF type:complete (+)"
+cdi	transdecoder	mRNA	1	6524	.	+	.	ID=cdi.p2;Parent=GENE.cdi~~cdi.p2;Name="ORF type:complete (+)"
+cdi	transdecoder	five_prime_UTR	1	4166	.	+	.	ID=cdi.p2.utr5p1;Parent=cdi.p2
+cdi	transdecoder	exon	1	6524	.	+	.	ID=cdi.p2.exon1;Parent=cdi.p2
+cdi	transdecoder	CDS	4167	4790	.	+	0	ID=cds.cdi.p2;Parent=cdi.p2
+cdi	transdecoder	three_prime_UTR	4791	6524	.	+	.	ID=cdi.p2.utr3p1;Parent=cdi.p2
+
+cdi	transdecoder	gene	1	6524	.	-	.	ID=GENE.cdi~~cdi.p3;Name="ORF type:complete (-)"
+cdi	transdecoder	mRNA	1	6524	.	-	.	ID=cdi.p3;Parent=GENE.cdi~~cdi.p3;Name="ORF type:complete (-)"
+cdi	transdecoder	five_prime_UTR	4878	6524	.	-	.	ID=cdi.p3.utr5p1;Parent=cdi.p3
+cdi	transdecoder	exon	1	6524	.	-	.	ID=cdi.p3.exon1;Parent=cdi.p3
+cdi	transdecoder	CDS	4359	4877	.	-	0	ID=cds.cdi.p3;Parent=cdi.p3
+cdi	transdecoder	three_prime_UTR	1	4358	.	-	.	ID=cdi.p3.utr3p1;Parent=cdi.p3
+
+cdi	transdecoder	gene	1	6524	.	-	.	ID=GENE.cdi~~cdi.p4;Name="ORF type:complete (-)"
+cdi	transdecoder	mRNA	1	6524	.	-	.	ID=cdi.p4;Parent=GENE.cdi~~cdi.p4;Name="ORF type:complete (-)"
+cdi	transdecoder	five_prime_UTR	3553	6524	.	-	.	ID=cdi.p4.utr5p1;Parent=cdi.p4
+cdi	transdecoder	exon	1	6524	.	-	.	ID=cdi.p4.exon1;Parent=cdi.p4
+cdi	transdecoder	CDS	3109	3552	.	-	0	ID=cds.cdi.p4;Parent=cdi.p4
+cdi	transdecoder	three_prime_UTR	1	3108	.	-	.	ID=cdi.p4.utr3p1;Parent=cdi.p4
+
+cdi	transdecoder	gene	1	6524	.	+	.	ID=GENE.cdi~~cdi.p5;Name="ORF type:complete (+)"
+cdi	transdecoder	mRNA	1	6524	.	+	.	ID=cdi.p5;Parent=GENE.cdi~~cdi.p5;Name="ORF type:complete (+)"
+cdi	transdecoder	five_prime_UTR	1	1995	.	+	.	ID=cdi.p5.utr5p1;Parent=cdi.p5
+cdi	transdecoder	exon	1	6524	.	+	.	ID=cdi.p5.exon1;Parent=cdi.p5
+cdi	transdecoder	CDS	1996	2415	.	+	0	ID=cds.cdi.p5;Parent=cdi.p5
+cdi	transdecoder	three_prime_UTR	2416	6524	.	+	.	ID=cdi.p5.utr3p1;Parent=cdi.p5
+
+CG32082	transdecoder	gene	1	5245	.	+	.	ID=GENE.CG32082~~CG32082.p1;Name="ORF type:complete (+)"
+CG32082	transdecoder	mRNA	1	5245	.	+	.	ID=CG32082.p1;Parent=GENE.CG32082~~CG32082.p1;Name="ORF type:complete (+)"
+CG32082	transdecoder	five_prime_UTR	1	879	.	+	.	ID=CG32082.p1.utr5p1;Parent=CG32082.p1
+CG32082	transdecoder	exon	1	5245	.	+	.	ID=CG32082.p1.exon1;Parent=CG32082.p1
+CG32082	transdecoder	CDS	880	4110	.	+	0	ID=cds.CG32082.p1;Parent=CG32082.p1
+CG32082	transdecoder	three_prime_UTR	4111	5245	.	+	.	ID=CG32082.p1.utr3p1;Parent=CG32082.p1
+
+CG32082	transdecoder	gene	1	5245	.	-	.	ID=GENE.CG32082~~CG32082.p2;Name="ORF type:complete (-)"
+CG32082	transdecoder	mRNA	1	5245	.	-	.	ID=CG32082.p2;Parent=GENE.CG32082~~CG32082.p2;Name="ORF type:complete (-)"
+CG32082	transdecoder	five_prime_UTR	2348	5245	.	-	.	ID=CG32082.p2.utr5p1;Parent=CG32082.p2
+CG32082	transdecoder	exon	1	5245	.	-	.	ID=CG32082.p2.exon1;Parent=CG32082.p2
+CG32082	transdecoder	CDS	1916	2347	.	-	0	ID=cds.CG32082.p2;Parent=CG32082.p2
+CG32082	transdecoder	three_prime_UTR	1	1915	.	-	.	ID=CG32082.p2.utr3p1;Parent=CG32082.p2
+
+CG32082	transdecoder	gene	1	5245	.	-	.	ID=GENE.CG32082~~CG32082.p3;Name="ORF type:complete (-)"
+CG32082	transdecoder	mRNA	1	5245	.	-	.	ID=CG32082.p3;Parent=GENE.CG32082~~CG32082.p3;Name="ORF type:complete (-)"
+CG32082	transdecoder	five_prime_UTR	3436	5245	.	-	.	ID=CG32082.p3.utr5p1;Parent=CG32082.p3
+CG32082	transdecoder	exon	1	5245	.	-	.	ID=CG32082.p3.exon1;Parent=CG32082.p3
+CG32082	transdecoder	CDS	3010	3435	.	-	0	ID=cds.CG32082.p3;Parent=CG32082.p3
+CG32082	transdecoder	three_prime_UTR	1	3009	.	-	.	ID=CG32082.p3.utr3p1;Parent=CG32082.p3
+
+CG32082	transdecoder	gene	1	5245	.	-	.	ID=GENE.CG32082~~CG32082.p4;Name="ORF type:complete (-)"
+CG32082	transdecoder	mRNA	1	5245	.	-	.	ID=CG32082.p4;Parent=GENE.CG32082~~CG32082.p4;Name="ORF type:complete (-)"
+CG32082	transdecoder	five_prime_UTR	3826	5245	.	-	.	ID=CG32082.p4.utr5p1;Parent=CG32082.p4
+CG32082	transdecoder	exon	1	5245	.	-	.	ID=CG32082.p4.exon1;Parent=CG32082.p4
+CG32082	transdecoder	CDS	3442	3825	.	-	0	ID=cds.CG32082.p4;Parent=CG32082.p4
+CG32082	transdecoder	three_prime_UTR	1	3441	.	-	.	ID=CG32082.p4.utr3p1;Parent=CG32082.p4
+
+CG32082	transdecoder	gene	1	5245	.	-	.	ID=GENE.CG32082~~CG32082.p5;Name="ORF type:complete (-)"
+CG32082	transdecoder	mRNA	1	5245	.	-	.	ID=CG32082.p5;Parent=GENE.CG32082~~CG32082.p5;Name="ORF type:complete (-)"
+CG32082	transdecoder	five_prime_UTR	568	5245	.	-	.	ID=CG32082.p5.utr5p1;Parent=CG32082.p5
+CG32082	transdecoder	exon	1	5245	.	-	.	ID=CG32082.p5.exon1;Parent=CG32082.p5
+CG32082	transdecoder	CDS	193	567	.	-	0	ID=cds.CG32082.p5;Parent=CG32082.p5
+CG32082	transdecoder	three_prime_UTR	1	192	.	-	.	ID=CG32082.p5.utr3p1;Parent=CG32082.p5
+
+CG32082	transdecoder	gene	1	5245	.	-	.	ID=GENE.CG32082~~CG32082.p6;Name="ORF type:complete (-)"
+CG32082	transdecoder	mRNA	1	5245	.	-	.	ID=CG32082.p6;Parent=GENE.CG32082~~CG32082.p6;Name="ORF type:complete (-)"
+CG32082	transdecoder	five_prime_UTR	930	5245	.	-	.	ID=CG32082.p6.utr5p1;Parent=CG32082.p6
+CG32082	transdecoder	exon	1	5245	.	-	.	ID=CG32082.p6.exon1;Parent=CG32082.p6
+CG32082	transdecoder	CDS	609	929	.	-	0	ID=cds.CG32082.p6;Parent=CG32082.p6
+CG32082	transdecoder	three_prime_UTR	1	608	.	-	.	ID=CG32082.p6.utr3p1;Parent=CG32082.p6
+
+Npl4	transdecoder	gene	1	2474	.	+	.	ID=GENE.Npl4~~Npl4.p1;Name="ORF type:complete (+)"
+Npl4	transdecoder	mRNA	1	2474	.	+	.	ID=Npl4.p1;Parent=GENE.Npl4~~Npl4.p1;Name="ORF type:complete (+)"
+Npl4	transdecoder	five_prime_UTR	1	323	.	+	.	ID=Npl4.p1.utr5p1;Parent=Npl4.p1
+Npl4	transdecoder	exon	1	2474	.	+	.	ID=Npl4.p1.exon1;Parent=Npl4.p1
+Npl4	transdecoder	CDS	324	2198	.	+	0	ID=cds.Npl4.p1;Parent=Npl4.p1
+Npl4	transdecoder	three_prime_UTR	2199	2474	.	+	.	ID=Npl4.p1.utr3p1;Parent=Npl4.p1
+
+Npl4	transdecoder	gene	1	2474	.	-	.	ID=GENE.Npl4~~Npl4.p2;Name="ORF type:complete (-)"
+Npl4	transdecoder	mRNA	1	2474	.	-	.	ID=Npl4.p2;Parent=GENE.Npl4~~Npl4.p2;Name="ORF type:complete (-)"
+Npl4	transdecoder	five_prime_UTR	1395	2474	.	-	.	ID=Npl4.p2.utr5p1;Parent=Npl4.p2
+Npl4	transdecoder	exon	1	2474	.	-	.	ID=Npl4.p2.exon1;Parent=Npl4.p2
+Npl4	transdecoder	CDS	567	1394	.	-	0	ID=cds.Npl4.p2;Parent=Npl4.p2
+Npl4	transdecoder	three_prime_UTR	1	566	.	-	.	ID=Npl4.p2.utr3p1;Parent=Npl4.p2
+
+Npl4	transdecoder	gene	1	2474	.	+	.	ID=GENE.Npl4~~Npl4.p3;Name="ORF type:complete (+)"
+Npl4	transdecoder	mRNA	1	2474	.	+	.	ID=Npl4.p3;Parent=GENE.Npl4~~Npl4.p3;Name="ORF type:complete (+)"
+Npl4	transdecoder	five_prime_UTR	1	1554	.	+	.	ID=Npl4.p3.utr5p1;Parent=Npl4.p3
+Npl4	transdecoder	exon	1	2474	.	+	.	ID=Npl4.p3.exon1;Parent=Npl4.p3
+Npl4	transdecoder	CDS	1555	2166	.	+	0	ID=cds.Npl4.p3;Parent=Npl4.p3
+Npl4	transdecoder	three_prime_UTR	2167	2474	.	+	.	ID=Npl4.p3.utr3p1;Parent=Npl4.p3
+
+CG6145	transdecoder	gene	1	3270	.	+	.	ID=GENE.CG6145~~CG6145.p1;Name="ORF type:complete (+)"
+CG6145	transdecoder	mRNA	1	3270	.	+	.	ID=CG6145.p1;Parent=GENE.CG6145~~CG6145.p1;Name="ORF type:complete (+)"
+CG6145	transdecoder	five_prime_UTR	1	1442	.	+	.	ID=CG6145.p1.utr5p1;Parent=CG6145.p1
+CG6145	transdecoder	exon	1	3270	.	+	.	ID=CG6145.p1.exon1;Parent=CG6145.p1
+CG6145	transdecoder	CDS	1443	2879	.	+	0	ID=cds.CG6145.p1;Parent=CG6145.p1
+CG6145	transdecoder	three_prime_UTR	2880	3270	.	+	.	ID=CG6145.p1.utr3p1;Parent=CG6145.p1
+
+CG6145	transdecoder	gene	1	3270	.	+	.	ID=GENE.CG6145~~CG6145.p2;Name="ORF type:complete (+)"
+CG6145	transdecoder	mRNA	1	3270	.	+	.	ID=CG6145.p2;Parent=GENE.CG6145~~CG6145.p2;Name="ORF type:complete (+)"
+CG6145	transdecoder	five_prime_UTR	1	369	.	+	.	ID=CG6145.p2.utr5p1;Parent=CG6145.p2
+CG6145	transdecoder	exon	1	3270	.	+	.	ID=CG6145.p2.exon1;Parent=CG6145.p2
+CG6145	transdecoder	CDS	370	798	.	+	0	ID=cds.CG6145.p2;Parent=CG6145.p2
+CG6145	transdecoder	three_prime_UTR	799	3270	.	+	.	ID=CG6145.p2.utr3p1;Parent=CG6145.p2
+
+CG6145	transdecoder	gene	1	3270	.	-	.	ID=GENE.CG6145~~CG6145.p3;Name="ORF type:complete (-)"
+CG6145	transdecoder	mRNA	1	3270	.	-	.	ID=CG6145.p3;Parent=GENE.CG6145~~CG6145.p3;Name="ORF type:complete (-)"
+CG6145	transdecoder	five_prime_UTR	2502	3270	.	-	.	ID=CG6145.p3.utr5p1;Parent=CG6145.p3
+CG6145	transdecoder	exon	1	3270	.	-	.	ID=CG6145.p3.exon1;Parent=CG6145.p3
+CG6145	transdecoder	CDS	2145	2501	.	-	0	ID=cds.CG6145.p3;Parent=CG6145.p3
+CG6145	transdecoder	three_prime_UTR	1	2144	.	-	.	ID=CG6145.p3.utr3p1;Parent=CG6145.p3
+
+CG6145	transdecoder	gene	1	3270	.	+	.	ID=GENE.CG6145~~CG6145.p4;Name="ORF type:complete (+)"
+CG6145	transdecoder	mRNA	1	3270	.	+	.	ID=CG6145.p4;Parent=GENE.CG6145~~CG6145.p4;Name="ORF type:complete (+)"
+CG6145	transdecoder	five_prime_UTR	1	830	.	+	.	ID=CG6145.p4.utr5p1;Parent=CG6145.p4
+CG6145	transdecoder	exon	1	3270	.	+	.	ID=CG6145.p4.exon1;Parent=CG6145.p4
+CG6145	transdecoder	CDS	831	1166	.	+	0	ID=cds.CG6145.p4;Parent=CG6145.p4
+CG6145	transdecoder	three_prime_UTR	1167	3270	.	+	.	ID=CG6145.p4.utr3p1;Parent=CG6145.p4
+
+CG6145	transdecoder	gene	1	3270	.	-	.	ID=GENE.CG6145~~CG6145.p5;Name="ORF type:complete (-)"
+CG6145	transdecoder	mRNA	1	3270	.	-	.	ID=CG6145.p5;Parent=GENE.CG6145~~CG6145.p5;Name="ORF type:complete (-)"
+CG6145	transdecoder	five_prime_UTR	807	3270	.	-	.	ID=CG6145.p5.utr5p1;Parent=CG6145.p5
+CG6145	transdecoder	exon	1	3270	.	-	.	ID=CG6145.p5.exon1;Parent=CG6145.p5
+CG6145	transdecoder	CDS	489	806	.	-	0	ID=cds.CG6145.p5;Parent=CG6145.p5
+CG6145	transdecoder	three_prime_UTR	1	488	.	-	.	ID=CG6145.p5.utr3p1;Parent=CG6145.p5
+
+CG6145	transdecoder	gene	1	3270	.	-	.	ID=GENE.CG6145~~CG6145.p6;Name="ORF type:complete (-)"
+CG6145	transdecoder	mRNA	1	3270	.	-	.	ID=CG6145.p6;Parent=GENE.CG6145~~CG6145.p6;Name="ORF type:complete (-)"
+CG6145	transdecoder	five_prime_UTR	2564	3270	.	-	.	ID=CG6145.p6.utr5p1;Parent=CG6145.p6
+CG6145	transdecoder	exon	1	3270	.	-	.	ID=CG6145.p6.exon1;Parent=CG6145.p6
+CG6145	transdecoder	CDS	2258	2563	.	-	0	ID=cds.CG6145.p6;Parent=CG6145.p6
+CG6145	transdecoder	three_prime_UTR	1	2257	.	-	.	ID=CG6145.p6.utr3p1;Parent=CG6145.p6
+
+CG6145	transdecoder	gene	1	3270	.	-	.	ID=GENE.CG6145~~CG6145.p7;Name="ORF type:complete (-)"
+CG6145	transdecoder	mRNA	1	3270	.	-	.	ID=CG6145.p7;Parent=GENE.CG6145~~CG6145.p7;Name="ORF type:complete (-)"
+CG6145	transdecoder	five_prime_UTR	1272	3270	.	-	.	ID=CG6145.p7.utr5p1;Parent=CG6145.p7
+CG6145	transdecoder	exon	1	3270	.	-	.	ID=CG6145.p7.exon1;Parent=CG6145.p7
+CG6145	transdecoder	CDS	972	1271	.	-	0	ID=cds.CG6145.p7;Parent=CG6145.p7
+CG6145	transdecoder	three_prime_UTR	1	971	.	-	.	ID=CG6145.p7.utr3p1;Parent=CG6145.p7
+
+nmo	transdecoder	gene	1	6944	.	+	.	ID=GENE.nmo~~nmo.p1;Name="ORF type:complete (+)"
+nmo	transdecoder	mRNA	1	6944	.	+	.	ID=nmo.p1;Parent=GENE.nmo~~nmo.p1;Name="ORF type:complete (+)"
+nmo	transdecoder	five_prime_UTR	1	1053	.	+	.	ID=nmo.p1.utr5p1;Parent=nmo.p1
+nmo	transdecoder	exon	1	6944	.	+	.	ID=nmo.p1.exon1;Parent=nmo.p1
+nmo	transdecoder	CDS	1054	2298	.	+	0	ID=cds.nmo.p1;Parent=nmo.p1
+nmo	transdecoder	three_prime_UTR	2299	6944	.	+	.	ID=nmo.p1.utr3p1;Parent=nmo.p1
+
+nmo	transdecoder	gene	1	6944	.	-	.	ID=GENE.nmo~~nmo.p2;Name="ORF type:complete (-)"
+nmo	transdecoder	mRNA	1	6944	.	-	.	ID=nmo.p2;Parent=GENE.nmo~~nmo.p2;Name="ORF type:complete (-)"
+nmo	transdecoder	five_prime_UTR	2032	6944	.	-	.	ID=nmo.p2.utr5p1;Parent=nmo.p2
+nmo	transdecoder	exon	1	6944	.	-	.	ID=nmo.p2.exon1;Parent=nmo.p2
+nmo	transdecoder	CDS	1369	2031	.	-	0	ID=cds.nmo.p2;Parent=nmo.p2
+nmo	transdecoder	three_prime_UTR	1	1368	.	-	.	ID=nmo.p2.utr3p1;Parent=nmo.p2
+
+nmo	transdecoder	gene	1	6944	.	+	.	ID=GENE.nmo~~nmo.p3;Name="ORF type:5prime_partial (+)"
+nmo	transdecoder	mRNA	1	6944	.	+	.	ID=nmo.p3;Parent=GENE.nmo~~nmo.p3;Name="ORF type:5prime_partial (+)"
+nmo	transdecoder	exon	1	6944	.	+	.	ID=nmo.p3.exon1;Parent=nmo.p3
+nmo	transdecoder	CDS	1	318	.	+	0	ID=cds.nmo.p3;Parent=nmo.p3;5_prime_partial=true
+nmo	transdecoder	three_prime_UTR	319	6944	.	+	.	ID=nmo.p3.utr3p1;Parent=nmo.p3
+
+Myo61F	transdecoder	gene	1	3954	.	+	.	ID=GENE.Myo61F~~Myo61F.p1;Name="ORF type:complete (+)"
+Myo61F	transdecoder	mRNA	1	3954	.	+	.	ID=Myo61F.p1;Parent=GENE.Myo61F~~Myo61F.p1;Name="ORF type:complete (+)"
+Myo61F	transdecoder	five_prime_UTR	1	671	.	+	.	ID=Myo61F.p1.utr5p1;Parent=Myo61F.p1
+Myo61F	transdecoder	exon	1	3954	.	+	.	ID=Myo61F.p1.exon1;Parent=Myo61F.p1
+Myo61F	transdecoder	CDS	672	3752	.	+	0	ID=cds.Myo61F.p1;Parent=Myo61F.p1
+Myo61F	transdecoder	three_prime_UTR	3753	3954	.	+	.	ID=Myo61F.p1.utr3p1;Parent=Myo61F.p1
+
+Myo61F	transdecoder	gene	1	3954	.	-	.	ID=GENE.Myo61F~~Myo61F.p2;Name="ORF type:complete (-)"
+Myo61F	transdecoder	mRNA	1	3954	.	-	.	ID=Myo61F.p2;Parent=GENE.Myo61F~~Myo61F.p2;Name="ORF type:complete (-)"
+Myo61F	transdecoder	five_prime_UTR	3066	3954	.	-	.	ID=Myo61F.p2.utr5p1;Parent=Myo61F.p2
+Myo61F	transdecoder	exon	1	3954	.	-	.	ID=Myo61F.p2.exon1;Parent=Myo61F.p2
+Myo61F	transdecoder	CDS	2703	3065	.	-	0	ID=cds.Myo61F.p2;Parent=Myo61F.p2
+Myo61F	transdecoder	three_prime_UTR	1	2702	.	-	.	ID=Myo61F.p2.utr3p1;Parent=Myo61F.p2
+
+Myo61F	transdecoder	gene	1	3954	.	+	.	ID=GENE.Myo61F~~Myo61F.p3;Name="ORF type:complete (+)"
+Myo61F	transdecoder	mRNA	1	3954	.	+	.	ID=Myo61F.p3;Parent=GENE.Myo61F~~Myo61F.p3;Name="ORF type:complete (+)"
+Myo61F	transdecoder	five_prime_UTR	1	159	.	+	.	ID=Myo61F.p3.utr5p1;Parent=Myo61F.p3
+Myo61F	transdecoder	exon	1	3954	.	+	.	ID=Myo61F.p3.exon1;Parent=Myo61F.p3
+Myo61F	transdecoder	CDS	160	486	.	+	0	ID=cds.Myo61F.p3;Parent=Myo61F.p3
+Myo61F	transdecoder	three_prime_UTR	487	3954	.	+	.	ID=Myo61F.p3.utr3p1;Parent=Myo61F.p3
+
+Myo61F	transdecoder	gene	1	3954	.	-	.	ID=GENE.Myo61F~~Myo61F.p4;Name="ORF type:complete (-)"
+Myo61F	transdecoder	mRNA	1	3954	.	-	.	ID=Myo61F.p4;Parent=GENE.Myo61F~~Myo61F.p4;Name="ORF type:complete (-)"
+Myo61F	transdecoder	five_prime_UTR	1688	3954	.	-	.	ID=Myo61F.p4.utr5p1;Parent=Myo61F.p4
+Myo61F	transdecoder	exon	1	3954	.	-	.	ID=Myo61F.p4.exon1;Parent=Myo61F.p4
+Myo61F	transdecoder	CDS	1361	1687	.	-	0	ID=cds.Myo61F.p4;Parent=Myo61F.p4
+Myo61F	transdecoder	three_prime_UTR	1	1360	.	-	.	ID=Myo61F.p4.utr3p1;Parent=Myo61F.p4
+
+Myo61F	transdecoder	gene	1	3954	.	-	.	ID=GENE.Myo61F~~Myo61F.p5;Name="ORF type:complete (-)"
+Myo61F	transdecoder	mRNA	1	3954	.	-	.	ID=Myo61F.p5;Parent=GENE.Myo61F~~Myo61F.p5;Name="ORF type:complete (-)"
+Myo61F	transdecoder	five_prime_UTR	1217	3954	.	-	.	ID=Myo61F.p5.utr5p1;Parent=Myo61F.p5
+Myo61F	transdecoder	exon	1	3954	.	-	.	ID=Myo61F.p5.exon1;Parent=Myo61F.p5
+Myo61F	transdecoder	CDS	893	1216	.	-	0	ID=cds.Myo61F.p5;Parent=Myo61F.p5
+Myo61F	transdecoder	three_prime_UTR	1	892	.	-	.	ID=Myo61F.p5.utr3p1;Parent=Myo61F.p5
+
+Myo61F	transdecoder	gene	1	3954	.	-	.	ID=GENE.Myo61F~~Myo61F.p6;Name="ORF type:complete (-)"
+Myo61F	transdecoder	mRNA	1	3954	.	-	.	ID=Myo61F.p6;Parent=GENE.Myo61F~~Myo61F.p6;Name="ORF type:complete (-)"
+Myo61F	transdecoder	five_prime_UTR	3740	3954	.	-	.	ID=Myo61F.p6.utr5p1;Parent=Myo61F.p6
+Myo61F	transdecoder	exon	1	3954	.	-	.	ID=Myo61F.p6.exon1;Parent=Myo61F.p6
+Myo61F	transdecoder	CDS	3431	3739	.	-	0	ID=cds.Myo61F.p6;Parent=Myo61F.p6
+Myo61F	transdecoder	three_prime_UTR	1	3430	.	-	.	ID=Myo61F.p6.utr3p1;Parent=Myo61F.p6
+
+sqd	transdecoder	gene	1	7742	.	+	.	ID=GENE.sqd~~sqd.p1;Name="ORF type:complete (+)"
+sqd	transdecoder	mRNA	1	7742	.	+	.	ID=sqd.p1;Parent=GENE.sqd~~sqd.p1;Name="ORF type:complete (+)"
+sqd	transdecoder	five_prime_UTR	1	1094	.	+	.	ID=sqd.p1.utr5p1;Parent=sqd.p1
+sqd	transdecoder	exon	1	7742	.	+	.	ID=sqd.p1.exon1;Parent=sqd.p1
+sqd	transdecoder	CDS	1095	1562	.	+	0	ID=cds.sqd.p1;Parent=sqd.p1
+sqd	transdecoder	three_prime_UTR	1563	7742	.	+	.	ID=sqd.p1.utr3p1;Parent=sqd.p1
+
+sqd	transdecoder	gene	1	7742	.	+	.	ID=GENE.sqd~~sqd.p2;Name="ORF type:complete (+)"
+sqd	transdecoder	mRNA	1	7742	.	+	.	ID=sqd.p2;Parent=GENE.sqd~~sqd.p2;Name="ORF type:complete (+)"
+sqd	transdecoder	five_prime_UTR	1	6976	.	+	.	ID=sqd.p2.utr5p1;Parent=sqd.p2
+sqd	transdecoder	exon	1	7742	.	+	.	ID=sqd.p2.exon1;Parent=sqd.p2
+sqd	transdecoder	CDS	6977	7399	.	+	0	ID=cds.sqd.p2;Parent=sqd.p2
+sqd	transdecoder	three_prime_UTR	7400	7742	.	+	.	ID=sqd.p2.utr3p1;Parent=sqd.p2
+
+sqd	transdecoder	gene	1	7742	.	+	.	ID=GENE.sqd~~sqd.p3;Name="ORF type:complete (+)"
+sqd	transdecoder	mRNA	1	7742	.	+	.	ID=sqd.p3;Parent=GENE.sqd~~sqd.p3;Name="ORF type:complete (+)"
+sqd	transdecoder	five_prime_UTR	1	4491	.	+	.	ID=sqd.p3.utr5p1;Parent=sqd.p3
+sqd	transdecoder	exon	1	7742	.	+	.	ID=sqd.p3.exon1;Parent=sqd.p3
+sqd	transdecoder	CDS	4492	4899	.	+	0	ID=cds.sqd.p3;Parent=sqd.p3
+sqd	transdecoder	three_prime_UTR	4900	7742	.	+	.	ID=sqd.p3.utr3p1;Parent=sqd.p3
+
+sqd	transdecoder	gene	1	7742	.	+	.	ID=GENE.sqd~~sqd.p4;Name="ORF type:complete (+)"
+sqd	transdecoder	mRNA	1	7742	.	+	.	ID=sqd.p4;Parent=GENE.sqd~~sqd.p4;Name="ORF type:complete (+)"
+sqd	transdecoder	five_prime_UTR	1	469	.	+	.	ID=sqd.p4.utr5p1;Parent=sqd.p4
+sqd	transdecoder	exon	1	7742	.	+	.	ID=sqd.p4.exon1;Parent=sqd.p4
+sqd	transdecoder	CDS	470	802	.	+	0	ID=cds.sqd.p4;Parent=sqd.p4
+sqd	transdecoder	three_prime_UTR	803	7742	.	+	.	ID=sqd.p4.utr3p1;Parent=sqd.p4
+
+sqd	transdecoder	gene	1	7742	.	+	.	ID=GENE.sqd~~sqd.p5;Name="ORF type:complete (+)"
+sqd	transdecoder	mRNA	1	7742	.	+	.	ID=sqd.p5;Parent=GENE.sqd~~sqd.p5;Name="ORF type:complete (+)"
+sqd	transdecoder	five_prime_UTR	1	2367	.	+	.	ID=sqd.p5.utr5p1;Parent=sqd.p5
+sqd	transdecoder	exon	1	7742	.	+	.	ID=sqd.p5.exon1;Parent=sqd.p5
+sqd	transdecoder	CDS	2368	2670	.	+	0	ID=cds.sqd.p5;Parent=sqd.p5
+sqd	transdecoder	three_prime_UTR	2671	7742	.	+	.	ID=sqd.p5.utr3p1;Parent=sqd.p5
+
+regucalcin	transdecoder	gene	1	1706	.	+	.	ID=GENE.regucalcin~~regucalcin.p1;Name="ORF type:complete (+)"
+regucalcin	transdecoder	mRNA	1	1706	.	+	.	ID=regucalcin.p1;Parent=GENE.regucalcin~~regucalcin.p1;Name="ORF type:complete (+)"
+regucalcin	transdecoder	five_prime_UTR	1	391	.	+	.	ID=regucalcin.p1.utr5p1;Parent=regucalcin.p1
+regucalcin	transdecoder	exon	1	1706	.	+	.	ID=regucalcin.p1.exon1;Parent=regucalcin.p1
+regucalcin	transdecoder	CDS	392	1303	.	+	0	ID=cds.regucalcin.p1;Parent=regucalcin.p1
+regucalcin	transdecoder	three_prime_UTR	1304	1706	.	+	.	ID=regucalcin.p1.utr3p1;Parent=regucalcin.p1
+
+regucalcin	transdecoder	gene	1	1706	.	-	.	ID=GENE.regucalcin~~regucalcin.p2;Name="ORF type:complete (-)"
+regucalcin	transdecoder	mRNA	1	1706	.	-	.	ID=regucalcin.p2;Parent=GENE.regucalcin~~regucalcin.p2;Name="ORF type:complete (-)"
+regucalcin	transdecoder	five_prime_UTR	1022	1706	.	-	.	ID=regucalcin.p2.utr5p1;Parent=regucalcin.p2
+regucalcin	transdecoder	exon	1	1706	.	-	.	ID=regucalcin.p2.exon1;Parent=regucalcin.p2
+regucalcin	transdecoder	CDS	389	1021	.	-	0	ID=cds.regucalcin.p2;Parent=regucalcin.p2
+regucalcin	transdecoder	three_prime_UTR	1	388	.	-	.	ID=regucalcin.p2.utr3p1;Parent=regucalcin.p2
+
+ctp	transdecoder	gene	1	4643	.	+	.	ID=GENE.ctp~~ctp.p1;Name="ORF type:complete (+)"
+ctp	transdecoder	mRNA	1	4643	.	+	.	ID=ctp.p1;Parent=GENE.ctp~~ctp.p1;Name="ORF type:complete (+)"
+ctp	transdecoder	five_prime_UTR	1	1107	.	+	.	ID=ctp.p1.utr5p1;Parent=ctp.p1
+ctp	transdecoder	exon	1	4643	.	+	.	ID=ctp.p1.exon1;Parent=ctp.p1
+ctp	transdecoder	CDS	1108	1602	.	+	0	ID=cds.ctp.p1;Parent=ctp.p1
+ctp	transdecoder	three_prime_UTR	1603	4643	.	+	.	ID=ctp.p1.utr3p1;Parent=ctp.p1
+
+CG6852	transdecoder	gene	1	695	.	+	.	ID=GENE.CG6852~~CG6852.p1;Name="ORF type:complete (+)"
+CG6852	transdecoder	mRNA	1	695	.	+	.	ID=CG6852.p1;Parent=GENE.CG6852~~CG6852.p1;Name="ORF type:complete (+)"
+CG6852	transdecoder	five_prime_UTR	1	169	.	+	.	ID=CG6852.p1.utr5p1;Parent=CG6852.p1
+CG6852	transdecoder	exon	1	695	.	+	.	ID=CG6852.p1.exon1;Parent=CG6852.p1
+CG6852	transdecoder	CDS	170	610	.	+	0	ID=cds.CG6852.p1;Parent=CG6852.p1
+CG6852	transdecoder	three_prime_UTR	611	695	.	+	.	ID=CG6852.p1.utr3p1;Parent=CG6852.p1
+
+l(3)05822	transdecoder	gene	1	3530	.	+	.	ID=GENE.l(3)05822~~l(3)05822.p1;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	mRNA	1	3530	.	+	.	ID=l(3)05822.p1;Parent=GENE.l(3)05822~~l(3)05822.p1;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	five_prime_UTR	1	1014	.	+	.	ID=l(3)05822.p1.utr5p1;Parent=l(3)05822.p1
+l(3)05822	transdecoder	exon	1	3530	.	+	.	ID=l(3)05822.p1.exon1;Parent=l(3)05822.p1
+l(3)05822	transdecoder	CDS	1015	2817	.	+	0	ID=cds.l(3)05822.p1;Parent=l(3)05822.p1
+l(3)05822	transdecoder	three_prime_UTR	2818	3530	.	+	.	ID=l(3)05822.p1.utr3p1;Parent=l(3)05822.p1
+
+l(3)05822	transdecoder	gene	1	3530	.	-	.	ID=GENE.l(3)05822~~l(3)05822.p2;Name="ORF type:complete (-)"
+l(3)05822	transdecoder	mRNA	1	3530	.	-	.	ID=l(3)05822.p2;Parent=GENE.l(3)05822~~l(3)05822.p2;Name="ORF type:complete (-)"
+l(3)05822	transdecoder	five_prime_UTR	1918	3530	.	-	.	ID=l(3)05822.p2.utr5p1;Parent=l(3)05822.p2
+l(3)05822	transdecoder	exon	1	3530	.	-	.	ID=l(3)05822.p2.exon1;Parent=l(3)05822.p2
+l(3)05822	transdecoder	CDS	1054	1917	.	-	0	ID=cds.l(3)05822.p2;Parent=l(3)05822.p2
+l(3)05822	transdecoder	three_prime_UTR	1	1053	.	-	.	ID=l(3)05822.p2.utr3p1;Parent=l(3)05822.p2
+
+l(3)05822	transdecoder	gene	1	3530	.	+	.	ID=GENE.l(3)05822~~l(3)05822.p3;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	mRNA	1	3530	.	+	.	ID=l(3)05822.p3;Parent=GENE.l(3)05822~~l(3)05822.p3;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	five_prime_UTR	1	1591	.	+	.	ID=l(3)05822.p3.utr5p1;Parent=l(3)05822.p3
+l(3)05822	transdecoder	exon	1	3530	.	+	.	ID=l(3)05822.p3.exon1;Parent=l(3)05822.p3
+l(3)05822	transdecoder	CDS	1592	2305	.	+	0	ID=cds.l(3)05822.p3;Parent=l(3)05822.p3
+l(3)05822	transdecoder	three_prime_UTR	2306	3530	.	+	.	ID=l(3)05822.p3.utr3p1;Parent=l(3)05822.p3
+
+l(3)05822	transdecoder	gene	1	3530	.	+	.	ID=GENE.l(3)05822~~l(3)05822.p4;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	mRNA	1	3530	.	+	.	ID=l(3)05822.p4;Parent=GENE.l(3)05822~~l(3)05822.p4;Name="ORF type:complete (+)"
+l(3)05822	transdecoder	five_prime_UTR	1	2401	.	+	.	ID=l(3)05822.p4.utr5p1;Parent=l(3)05822.p4
+l(3)05822	transdecoder	exon	1	3530	.	+	.	ID=l(3)05822.p4.exon1;Parent=l(3)05822.p4
+l(3)05822	transdecoder	CDS	2402	2827	.	+	0	ID=cds.l(3)05822.p4;Parent=l(3)05822.p4
+l(3)05822	transdecoder	three_prime_UTR	2828	3530	.	+	.	ID=l(3)05822.p4.utr3p1;Parent=l(3)05822.p4
+
+gukh	transdecoder	gene	1	7696	.	+	.	ID=GENE.gukh~~gukh.p1;Name="ORF type:complete (+)"
+gukh	transdecoder	mRNA	1	7696	.	+	.	ID=gukh.p1;Parent=GENE.gukh~~gukh.p1;Name="ORF type:complete (+)"
+gukh	transdecoder	five_prime_UTR	1	480	.	+	.	ID=gukh.p1.utr5p1;Parent=gukh.p1
+gukh	transdecoder	exon	1	7696	.	+	.	ID=gukh.p1.exon1;Parent=gukh.p1
+gukh	transdecoder	CDS	481	5847	.	+	0	ID=cds.gukh.p1;Parent=gukh.p1
+gukh	transdecoder	three_prime_UTR	5848	7696	.	+	.	ID=gukh.p1.utr3p1;Parent=gukh.p1
+
+gukh	transdecoder	gene	1	7696	.	+	.	ID=GENE.gukh~~gukh.p2;Name="ORF type:complete (+)"
+gukh	transdecoder	mRNA	1	7696	.	+	.	ID=gukh.p2;Parent=GENE.gukh~~gukh.p2;Name="ORF type:complete (+)"
+gukh	transdecoder	five_prime_UTR	1	6528	.	+	.	ID=gukh.p2.utr5p1;Parent=gukh.p2
+gukh	transdecoder	exon	1	7696	.	+	.	ID=gukh.p2.exon1;Parent=gukh.p2
+gukh	transdecoder	CDS	6529	7281	.	+	0	ID=cds.gukh.p2;Parent=gukh.p2
+gukh	transdecoder	three_prime_UTR	7282	7696	.	+	.	ID=gukh.p2.utr3p1;Parent=gukh.p2
+
+gukh	transdecoder	gene	1	7696	.	-	.	ID=GENE.gukh~~gukh.p3;Name="ORF type:complete (-)"
+gukh	transdecoder	mRNA	1	7696	.	-	.	ID=gukh.p3;Parent=GENE.gukh~~gukh.p3;Name="ORF type:complete (-)"
+gukh	transdecoder	five_prime_UTR	5565	7696	.	-	.	ID=gukh.p3.utr5p1;Parent=gukh.p3
+gukh	transdecoder	exon	1	7696	.	-	.	ID=gukh.p3.exon1;Parent=gukh.p3
+gukh	transdecoder	CDS	4938	5564	.	-	0	ID=cds.gukh.p3;Parent=gukh.p3
+gukh	transdecoder	three_prime_UTR	1	4937	.	-	.	ID=gukh.p3.utr3p1;Parent=gukh.p3
+
+gukh	transdecoder	gene	1	7696	.	-	.	ID=GENE.gukh~~gukh.p4;Name="ORF type:complete (-)"
+gukh	transdecoder	mRNA	1	7696	.	-	.	ID=gukh.p4;Parent=GENE.gukh~~gukh.p4;Name="ORF type:complete (-)"
+gukh	transdecoder	five_prime_UTR	4430	7696	.	-	.	ID=gukh.p4.utr5p1;Parent=gukh.p4
+gukh	transdecoder	exon	1	7696	.	-	.	ID=gukh.p4.exon1;Parent=gukh.p4
+gukh	transdecoder	CDS	3887	4429	.	-	0	ID=cds.gukh.p4;Parent=gukh.p4
+gukh	transdecoder	three_prime_UTR	1	3886	.	-	.	ID=gukh.p4.utr3p1;Parent=gukh.p4
+
+gukh	transdecoder	gene	1	7696	.	-	.	ID=GENE.gukh~~gukh.p5;Name="ORF type:complete (-)"
+gukh	transdecoder	mRNA	1	7696	.	-	.	ID=gukh.p5;Parent=GENE.gukh~~gukh.p5;Name="ORF type:complete (-)"
+gukh	transdecoder	five_prime_UTR	3032	7696	.	-	.	ID=gukh.p5.utr5p1;Parent=gukh.p5
+gukh	transdecoder	exon	1	7696	.	-	.	ID=gukh.p5.exon1;Parent=gukh.p5
+gukh	transdecoder	CDS	2729	3031	.	-	0	ID=cds.gukh.p5;Parent=gukh.p5
+gukh	transdecoder	three_prime_UTR	1	2728	.	-	.	ID=gukh.p5.utr3p1;Parent=gukh.p5
+
+gukh	transdecoder	gene	1	7696	.	-	.	ID=GENE.gukh~~gukh.p6;Name="ORF type:complete (-)"
+gukh	transdecoder	mRNA	1	7696	.	-	.	ID=gukh.p6;Parent=GENE.gukh~~gukh.p6;Name="ORF type:complete (-)"
+gukh	transdecoder	five_prime_UTR	2736	7696	.	-	.	ID=gukh.p6.utr5p1;Parent=gukh.p6
+gukh	transdecoder	exon	1	7696	.	-	.	ID=gukh.p6.exon1;Parent=gukh.p6
+gukh	transdecoder	CDS	2436	2735	.	-	0	ID=cds.gukh.p6;Parent=gukh.p6
+gukh	transdecoder	three_prime_UTR	1	2435	.	-	.	ID=gukh.p6.utr3p1;Parent=gukh.p6
+
+Cnx99A	transdecoder	gene	1	2794	.	+	.	ID=GENE.Cnx99A~~Cnx99A.p1;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	mRNA	1	2794	.	+	.	ID=Cnx99A.p1;Parent=GENE.Cnx99A~~Cnx99A.p1;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	five_prime_UTR	1	269	.	+	.	ID=Cnx99A.p1.utr5p1;Parent=Cnx99A.p1
+Cnx99A	transdecoder	exon	1	2794	.	+	.	ID=Cnx99A.p1.exon1;Parent=Cnx99A.p1
+Cnx99A	transdecoder	CDS	270	2213	.	+	0	ID=cds.Cnx99A.p1;Parent=Cnx99A.p1
+Cnx99A	transdecoder	three_prime_UTR	2214	2794	.	+	.	ID=Cnx99A.p1.utr3p1;Parent=Cnx99A.p1
+
+Cnx99A	transdecoder	gene	1	2794	.	-	.	ID=GENE.Cnx99A~~Cnx99A.p2;Name="ORF type:complete (-)"
+Cnx99A	transdecoder	mRNA	1	2794	.	-	.	ID=Cnx99A.p2;Parent=GENE.Cnx99A~~Cnx99A.p2;Name="ORF type:complete (-)"
+Cnx99A	transdecoder	five_prime_UTR	1412	2794	.	-	.	ID=Cnx99A.p2.utr5p1;Parent=Cnx99A.p2
+Cnx99A	transdecoder	exon	1	2794	.	-	.	ID=Cnx99A.p2.exon1;Parent=Cnx99A.p2
+Cnx99A	transdecoder	CDS	1001	1411	.	-	0	ID=cds.Cnx99A.p2;Parent=Cnx99A.p2
+Cnx99A	transdecoder	three_prime_UTR	1	1000	.	-	.	ID=Cnx99A.p2.utr3p1;Parent=Cnx99A.p2
+
+Cnx99A	transdecoder	gene	1	2794	.	+	.	ID=GENE.Cnx99A~~Cnx99A.p3;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	mRNA	1	2794	.	+	.	ID=Cnx99A.p3;Parent=GENE.Cnx99A~~Cnx99A.p3;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	five_prime_UTR	1	2112	.	+	.	ID=Cnx99A.p3.utr5p1;Parent=Cnx99A.p3
+Cnx99A	transdecoder	exon	1	2794	.	+	.	ID=Cnx99A.p3.exon1;Parent=Cnx99A.p3
+Cnx99A	transdecoder	CDS	2113	2487	.	+	0	ID=cds.Cnx99A.p3;Parent=Cnx99A.p3
+Cnx99A	transdecoder	three_prime_UTR	2488	2794	.	+	.	ID=Cnx99A.p3.utr3p1;Parent=Cnx99A.p3
+
+Cnx99A	transdecoder	gene	1	2794	.	-	.	ID=GENE.Cnx99A~~Cnx99A.p4;Name="ORF type:complete (-)"
+Cnx99A	transdecoder	mRNA	1	2794	.	-	.	ID=Cnx99A.p4;Parent=GENE.Cnx99A~~Cnx99A.p4;Name="ORF type:complete (-)"
+Cnx99A	transdecoder	five_prime_UTR	2469	2794	.	-	.	ID=Cnx99A.p4.utr5p1;Parent=Cnx99A.p4
+Cnx99A	transdecoder	exon	1	2794	.	-	.	ID=Cnx99A.p4.exon1;Parent=Cnx99A.p4
+Cnx99A	transdecoder	CDS	2109	2468	.	-	0	ID=cds.Cnx99A.p4;Parent=Cnx99A.p4
+Cnx99A	transdecoder	three_prime_UTR	1	2108	.	-	.	ID=Cnx99A.p4.utr3p1;Parent=Cnx99A.p4
+
+Cnx99A	transdecoder	gene	1	2794	.	+	.	ID=GENE.Cnx99A~~Cnx99A.p5;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	mRNA	1	2794	.	+	.	ID=Cnx99A.p5;Parent=GENE.Cnx99A~~Cnx99A.p5;Name="ORF type:complete (+)"
+Cnx99A	transdecoder	five_prime_UTR	1	351	.	+	.	ID=Cnx99A.p5.utr5p1;Parent=Cnx99A.p5
+Cnx99A	transdecoder	exon	1	2794	.	+	.	ID=Cnx99A.p5.exon1;Parent=Cnx99A.p5
+Cnx99A	transdecoder	CDS	352	678	.	+	0	ID=cds.Cnx99A.p5;Parent=Cnx99A.p5
+Cnx99A	transdecoder	three_prime_UTR	679	2794	.	+	.	ID=Cnx99A.p5.utr3p1;Parent=Cnx99A.p5
+
+RpL15	transdecoder	gene	1	1017	.	+	.	ID=GENE.RpL15~~RpL15.p1;Name="ORF type:complete (+)"
+RpL15	transdecoder	mRNA	1	1017	.	+	.	ID=RpL15.p1;Parent=GENE.RpL15~~RpL15.p1;Name="ORF type:complete (+)"
+RpL15	transdecoder	five_prime_UTR	1	354	.	+	.	ID=RpL15.p1.utr5p1;Parent=RpL15.p1
+RpL15	transdecoder	exon	1	1017	.	+	.	ID=RpL15.p1.exon1;Parent=RpL15.p1
+RpL15	transdecoder	CDS	355	969	.	+	0	ID=cds.RpL15.p1;Parent=RpL15.p1
+RpL15	transdecoder	three_prime_UTR	970	1017	.	+	.	ID=RpL15.p1.utr3p1;Parent=RpL15.p1
+
+kto	transdecoder	gene	1	7775	.	+	.	ID=GENE.kto~~kto.p1;Name="ORF type:complete (+)"
+kto	transdecoder	mRNA	1	7775	.	+	.	ID=kto.p1;Parent=GENE.kto~~kto.p1;Name="ORF type:complete (+)"
+kto	transdecoder	five_prime_UTR	1	61	.	+	.	ID=kto.p1.utr5p1;Parent=kto.p1
+kto	transdecoder	exon	1	7775	.	+	.	ID=kto.p1.exon1;Parent=kto.p1
+kto	transdecoder	CDS	62	6064	.	+	0	ID=cds.kto.p1;Parent=kto.p1
+kto	transdecoder	three_prime_UTR	6065	7775	.	+	.	ID=kto.p1.utr3p1;Parent=kto.p1
+
+kto	transdecoder	gene	1	7775	.	+	.	ID=GENE.kto~~kto.p2;Name="ORF type:complete (+)"
+kto	transdecoder	mRNA	1	7775	.	+	.	ID=kto.p2;Parent=GENE.kto~~kto.p2;Name="ORF type:complete (+)"
+kto	transdecoder	five_prime_UTR	1	6088	.	+	.	ID=kto.p2.utr5p1;Parent=kto.p2
+kto	transdecoder	exon	1	7775	.	+	.	ID=kto.p2.exon1;Parent=kto.p2
+kto	transdecoder	CDS	6089	7693	.	+	0	ID=cds.kto.p2;Parent=kto.p2
+kto	transdecoder	three_prime_UTR	7694	7775	.	+	.	ID=kto.p2.utr3p1;Parent=kto.p2
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p3;Name="ORF type:5prime_partial (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p3;Parent=GENE.kto~~kto.p3;Name="ORF type:5prime_partial (-)"
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p3.exon1;Parent=kto.p3
+kto	transdecoder	CDS	6455	7774	.	-	0	ID=cds.kto.p3;Parent=kto.p3;5_prime_partial=true
+kto	transdecoder	three_prime_UTR	1	6454	.	-	.	ID=kto.p3.utr3p1;Parent=kto.p3
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p4;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p4;Parent=GENE.kto~~kto.p4;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	2825	7775	.	-	.	ID=kto.p4.utr5p1;Parent=kto.p4
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p4.exon1;Parent=kto.p4
+kto	transdecoder	CDS	2279	2824	.	-	0	ID=cds.kto.p4;Parent=kto.p4
+kto	transdecoder	three_prime_UTR	1	2278	.	-	.	ID=kto.p4.utr3p1;Parent=kto.p4
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p5;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p5;Parent=GENE.kto~~kto.p5;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	4444	7775	.	-	.	ID=kto.p5.utr5p1;Parent=kto.p5
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p5.exon1;Parent=kto.p5
+kto	transdecoder	CDS	3961	4443	.	-	0	ID=cds.kto.p5;Parent=kto.p5
+kto	transdecoder	three_prime_UTR	1	3960	.	-	.	ID=kto.p5.utr3p1;Parent=kto.p5
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p6;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p6;Parent=GENE.kto~~kto.p6;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	4151	7775	.	-	.	ID=kto.p6.utr5p1;Parent=kto.p6
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p6.exon1;Parent=kto.p6
+kto	transdecoder	CDS	3728	4150	.	-	0	ID=cds.kto.p6;Parent=kto.p6
+kto	transdecoder	three_prime_UTR	1	3727	.	-	.	ID=kto.p6.utr3p1;Parent=kto.p6
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p7;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p7;Parent=GENE.kto~~kto.p7;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	851	7775	.	-	.	ID=kto.p7.utr5p1;Parent=kto.p7
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p7.exon1;Parent=kto.p7
+kto	transdecoder	CDS	434	850	.	-	0	ID=cds.kto.p7;Parent=kto.p7
+kto	transdecoder	three_prime_UTR	1	433	.	-	.	ID=kto.p7.utr3p1;Parent=kto.p7
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p8;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p8;Parent=GENE.kto~~kto.p8;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	529	7775	.	-	.	ID=kto.p8.utr5p1;Parent=kto.p8
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p8.exon1;Parent=kto.p8
+kto	transdecoder	CDS	124	528	.	-	0	ID=cds.kto.p8;Parent=kto.p8
+kto	transdecoder	three_prime_UTR	1	123	.	-	.	ID=kto.p8.utr3p1;Parent=kto.p8
+
+kto	transdecoder	gene	1	7775	.	-	.	ID=GENE.kto~~kto.p9;Name="ORF type:complete (-)"
+kto	transdecoder	mRNA	1	7775	.	-	.	ID=kto.p9;Parent=GENE.kto~~kto.p9;Name="ORF type:complete (-)"
+kto	transdecoder	five_prime_UTR	2530	7775	.	-	.	ID=kto.p9.utr5p1;Parent=kto.p9
+kto	transdecoder	exon	1	7775	.	-	.	ID=kto.p9.exon1;Parent=kto.p9
+kto	transdecoder	CDS	2170	2529	.	-	0	ID=cds.kto.p9;Parent=kto.p9
+kto	transdecoder	three_prime_UTR	1	2169	.	-	.	ID=kto.p9.utr3p1;Parent=kto.p9
+
+Est-6	transdecoder	gene	1	1835	.	+	.	ID=GENE.Est-6~~Est-6.p1;Name="ORF type:complete (+)"
+Est-6	transdecoder	mRNA	1	1835	.	+	.	ID=Est-6.p1;Parent=GENE.Est-6~~Est-6.p1;Name="ORF type:complete (+)"
+Est-6	transdecoder	five_prime_UTR	1	40	.	+	.	ID=Est-6.p1.utr5p1;Parent=Est-6.p1
+Est-6	transdecoder	exon	1	1835	.	+	.	ID=Est-6.p1.exon1;Parent=Est-6.p1
+Est-6	transdecoder	CDS	41	1675	.	+	0	ID=cds.Est-6.p1;Parent=Est-6.p1
+Est-6	transdecoder	three_prime_UTR	1676	1835	.	+	.	ID=Est-6.p1.utr3p1;Parent=Est-6.p1
+
+Est-6	transdecoder	gene	1	1835	.	-	.	ID=GENE.Est-6~~Est-6.p2;Name="ORF type:complete (-)"
+Est-6	transdecoder	mRNA	1	1835	.	-	.	ID=Est-6.p2;Parent=GENE.Est-6~~Est-6.p2;Name="ORF type:complete (-)"
+Est-6	transdecoder	five_prime_UTR	689	1835	.	-	.	ID=Est-6.p2.utr5p1;Parent=Est-6.p2
+Est-6	transdecoder	exon	1	1835	.	-	.	ID=Est-6.p2.exon1;Parent=Est-6.p2
+Est-6	transdecoder	CDS	356	688	.	-	0	ID=cds.Est-6.p2;Parent=Est-6.p2
+Est-6	transdecoder	three_prime_UTR	1	355	.	-	.	ID=Est-6.p2.utr3p1;Parent=Est-6.p2
+
+eff	transdecoder	gene	1	2373	.	+	.	ID=GENE.eff~~eff.p1;Name="ORF type:complete (+)"
+eff	transdecoder	mRNA	1	2373	.	+	.	ID=eff.p1;Parent=GENE.eff~~eff.p1;Name="ORF type:complete (+)"
+eff	transdecoder	five_prime_UTR	1	849	.	+	.	ID=eff.p1.utr5p1;Parent=eff.p1
+eff	transdecoder	exon	1	2373	.	+	.	ID=eff.p1.exon1;Parent=eff.p1
+eff	transdecoder	CDS	850	1293	.	+	0	ID=cds.eff.p1;Parent=eff.p1
+eff	transdecoder	three_prime_UTR	1294	2373	.	+	.	ID=eff.p1.utr3p1;Parent=eff.p1
+
+eff	transdecoder	gene	1	2373	.	+	.	ID=GENE.eff~~eff.p2;Name="ORF type:complete (+)"
+eff	transdecoder	mRNA	1	2373	.	+	.	ID=eff.p2;Parent=GENE.eff~~eff.p2;Name="ORF type:complete (+)"
+eff	transdecoder	five_prime_UTR	1	1462	.	+	.	ID=eff.p2.utr5p1;Parent=eff.p2
+eff	transdecoder	exon	1	2373	.	+	.	ID=eff.p2.exon1;Parent=eff.p2
+eff	transdecoder	CDS	1463	1843	.	+	0	ID=cds.eff.p2;Parent=eff.p2
+eff	transdecoder	three_prime_UTR	1844	2373	.	+	.	ID=eff.p2.utr3p1;Parent=eff.p2
+
+CG10082	transdecoder	gene	1	4424	.	+	.	ID=GENE.CG10082~~CG10082.p1;Name="ORF type:complete (+)"
+CG10082	transdecoder	mRNA	1	4424	.	+	.	ID=CG10082.p1;Parent=GENE.CG10082~~CG10082.p1;Name="ORF type:complete (+)"
+CG10082	transdecoder	five_prime_UTR	1	1544	.	+	.	ID=CG10082.p1.utr5p1;Parent=CG10082.p1
+CG10082	transdecoder	exon	1	4424	.	+	.	ID=CG10082.p1.exon1;Parent=CG10082.p1
+CG10082	transdecoder	CDS	1545	3563	.	+	0	ID=cds.CG10082.p1;Parent=CG10082.p1
+CG10082	transdecoder	three_prime_UTR	3564	4424	.	+	.	ID=CG10082.p1.utr3p1;Parent=CG10082.p1
+
+CG10082	transdecoder	gene	1	4424	.	+	.	ID=GENE.CG10082~~CG10082.p2;Name="ORF type:complete (+)"
+CG10082	transdecoder	mRNA	1	4424	.	+	.	ID=CG10082.p2;Parent=GENE.CG10082~~CG10082.p2;Name="ORF type:complete (+)"
+CG10082	transdecoder	five_prime_UTR	1	429	.	+	.	ID=CG10082.p2.utr5p1;Parent=CG10082.p2
+CG10082	transdecoder	exon	1	4424	.	+	.	ID=CG10082.p2.exon1;Parent=CG10082.p2
+CG10082	transdecoder	CDS	430	1146	.	+	0	ID=cds.CG10082.p2;Parent=CG10082.p2
+CG10082	transdecoder	three_prime_UTR	1147	4424	.	+	.	ID=CG10082.p2.utr3p1;Parent=CG10082.p2
+
+CG10082	transdecoder	gene	1	4424	.	+	.	ID=GENE.CG10082~~CG10082.p3;Name="ORF type:complete (+)"
+CG10082	transdecoder	mRNA	1	4424	.	+	.	ID=CG10082.p3;Parent=GENE.CG10082~~CG10082.p3;Name="ORF type:complete (+)"
+CG10082	transdecoder	five_prime_UTR	1	3117	.	+	.	ID=CG10082.p3.utr5p1;Parent=CG10082.p3
+CG10082	transdecoder	exon	1	4424	.	+	.	ID=CG10082.p3.exon1;Parent=CG10082.p3
+CG10082	transdecoder	CDS	3118	3654	.	+	0	ID=cds.CG10082.p3;Parent=CG10082.p3
+CG10082	transdecoder	three_prime_UTR	3655	4424	.	+	.	ID=CG10082.p3.utr3p1;Parent=CG10082.p3
+
+CG10082	transdecoder	gene	1	4424	.	-	.	ID=GENE.CG10082~~CG10082.p4;Name="ORF type:complete (-)"
+CG10082	transdecoder	mRNA	1	4424	.	-	.	ID=CG10082.p4;Parent=GENE.CG10082~~CG10082.p4;Name="ORF type:complete (-)"
+CG10082	transdecoder	five_prime_UTR	459	4424	.	-	.	ID=CG10082.p4.utr5p1;Parent=CG10082.p4
+CG10082	transdecoder	exon	1	4424	.	-	.	ID=CG10082.p4.exon1;Parent=CG10082.p4
+CG10082	transdecoder	CDS	114	458	.	-	0	ID=cds.CG10082.p4;Parent=CG10082.p4
+CG10082	transdecoder	three_prime_UTR	1	113	.	-	.	ID=CG10082.p4.utr3p1;Parent=CG10082.p4
+
+CG10082	transdecoder	gene	1	4424	.	-	.	ID=GENE.CG10082~~CG10082.p5;Name="ORF type:complete (-)"
+CG10082	transdecoder	mRNA	1	4424	.	-	.	ID=CG10082.p5;Parent=GENE.CG10082~~CG10082.p5;Name="ORF type:complete (-)"
+CG10082	transdecoder	five_prime_UTR	704	4424	.	-	.	ID=CG10082.p5.utr5p1;Parent=CG10082.p5
+CG10082	transdecoder	exon	1	4424	.	-	.	ID=CG10082.p5.exon1;Parent=CG10082.p5
+CG10082	transdecoder	CDS	362	703	.	-	0	ID=cds.CG10082.p5;Parent=CG10082.p5
+CG10082	transdecoder	three_prime_UTR	1	361	.	-	.	ID=CG10082.p5.utr3p1;Parent=CG10082.p5
+
+CG10082	transdecoder	gene	1	4424	.	-	.	ID=GENE.CG10082~~CG10082.p6;Name="ORF type:complete (-)"
+CG10082	transdecoder	mRNA	1	4424	.	-	.	ID=CG10082.p6;Parent=GENE.CG10082~~CG10082.p6;Name="ORF type:complete (-)"
+CG10082	transdecoder	five_prime_UTR	3449	4424	.	-	.	ID=CG10082.p6.utr5p1;Parent=CG10082.p6
+CG10082	transdecoder	exon	1	4424	.	-	.	ID=CG10082.p6.exon1;Parent=CG10082.p6
+CG10082	transdecoder	CDS	3128	3448	.	-	0	ID=cds.CG10082.p6;Parent=CG10082.p6
+CG10082	transdecoder	three_prime_UTR	1	3127	.	-	.	ID=CG10082.p6.utr3p1;Parent=CG10082.p6
+
+CanB2	transdecoder	gene	1	2059	.	+	.	ID=GENE.CanB2~~CanB2.p1;Name="ORF type:complete (+)"
+CanB2	transdecoder	mRNA	1	2059	.	+	.	ID=CanB2.p1;Parent=GENE.CanB2~~CanB2.p1;Name="ORF type:complete (+)"
+CanB2	transdecoder	five_prime_UTR	1	255	.	+	.	ID=CanB2.p1.utr5p1;Parent=CanB2.p1
+CanB2	transdecoder	exon	1	2059	.	+	.	ID=CanB2.p1.exon1;Parent=CanB2.p1
+CanB2	transdecoder	CDS	256	768	.	+	0	ID=cds.CanB2.p1;Parent=CanB2.p1
+CanB2	transdecoder	three_prime_UTR	769	2059	.	+	.	ID=CanB2.p1.utr3p1;Parent=CanB2.p1
+
+CanB2	transdecoder	gene	1	2059	.	-	.	ID=GENE.CanB2~~CanB2.p2;Name="ORF type:complete (-)"
+CanB2	transdecoder	mRNA	1	2059	.	-	.	ID=CanB2.p2;Parent=GENE.CanB2~~CanB2.p2;Name="ORF type:complete (-)"
+CanB2	transdecoder	five_prime_UTR	549	2059	.	-	.	ID=CanB2.p2.utr5p1;Parent=CanB2.p2
+CanB2	transdecoder	exon	1	2059	.	-	.	ID=CanB2.p2.exon1;Parent=CanB2.p2
+CanB2	transdecoder	CDS	213	548	.	-	0	ID=cds.CanB2.p2;Parent=CanB2.p2
+CanB2	transdecoder	three_prime_UTR	1	212	.	-	.	ID=CanB2.p2.utr3p1;Parent=CanB2.p2
+
+eIF5B	transdecoder	gene	1	4408	.	+	.	ID=GENE.eIF5B~~eIF5B.p1;Name="ORF type:complete (+)"
+eIF5B	transdecoder	mRNA	1	4408	.	+	.	ID=eIF5B.p1;Parent=GENE.eIF5B~~eIF5B.p1;Name="ORF type:complete (+)"
+eIF5B	transdecoder	five_prime_UTR	1	656	.	+	.	ID=eIF5B.p1.utr5p1;Parent=eIF5B.p1
+eIF5B	transdecoder	exon	1	4408	.	+	.	ID=eIF5B.p1.exon1;Parent=eIF5B.p1
+eIF5B	transdecoder	CDS	657	4091	.	+	0	ID=cds.eIF5B.p1;Parent=eIF5B.p1
+eIF5B	transdecoder	three_prime_UTR	4092	4408	.	+	.	ID=eIF5B.p1.utr3p1;Parent=eIF5B.p1
+
+eIF5B	transdecoder	gene	1	4408	.	-	.	ID=GENE.eIF5B~~eIF5B.p2;Name="ORF type:complete (-)"
+eIF5B	transdecoder	mRNA	1	4408	.	-	.	ID=eIF5B.p2;Parent=GENE.eIF5B~~eIF5B.p2;Name="ORF type:complete (-)"
+eIF5B	transdecoder	five_prime_UTR	3621	4408	.	-	.	ID=eIF5B.p2.utr5p1;Parent=eIF5B.p2
+eIF5B	transdecoder	exon	1	4408	.	-	.	ID=eIF5B.p2.exon1;Parent=eIF5B.p2
+eIF5B	transdecoder	CDS	2847	3620	.	-	0	ID=cds.eIF5B.p2;Parent=eIF5B.p2
+eIF5B	transdecoder	three_prime_UTR	1	2846	.	-	.	ID=eIF5B.p2.utr3p1;Parent=eIF5B.p2
+
+eIF5B	transdecoder	gene	1	4408	.	-	.	ID=GENE.eIF5B~~eIF5B.p3;Name="ORF type:complete (-)"
+eIF5B	transdecoder	mRNA	1	4408	.	-	.	ID=eIF5B.p3;Parent=GENE.eIF5B~~eIF5B.p3;Name="ORF type:complete (-)"
+eIF5B	transdecoder	five_prime_UTR	1577	4408	.	-	.	ID=eIF5B.p3.utr5p1;Parent=eIF5B.p3
+eIF5B	transdecoder	exon	1	4408	.	-	.	ID=eIF5B.p3.exon1;Parent=eIF5B.p3
+eIF5B	transdecoder	CDS	1115	1576	.	-	0	ID=cds.eIF5B.p3;Parent=eIF5B.p3
+eIF5B	transdecoder	three_prime_UTR	1	1114	.	-	.	ID=eIF5B.p3.utr3p1;Parent=eIF5B.p3
+
+eIF5B	transdecoder	gene	1	4408	.	+	.	ID=GENE.eIF5B~~eIF5B.p4;Name="ORF type:complete (+)"
+eIF5B	transdecoder	mRNA	1	4408	.	+	.	ID=eIF5B.p4;Parent=GENE.eIF5B~~eIF5B.p4;Name="ORF type:complete (+)"
+eIF5B	transdecoder	five_prime_UTR	1	2671	.	+	.	ID=eIF5B.p4.utr5p1;Parent=eIF5B.p4
+eIF5B	transdecoder	exon	1	4408	.	+	.	ID=eIF5B.p4.exon1;Parent=eIF5B.p4
+eIF5B	transdecoder	CDS	2672	3109	.	+	0	ID=cds.eIF5B.p4;Parent=eIF5B.p4
+eIF5B	transdecoder	three_prime_UTR	3110	4408	.	+	.	ID=eIF5B.p4.utr3p1;Parent=eIF5B.p4
+
+trc	transdecoder	gene	1	2814	.	+	.	ID=GENE.trc~~trc.p1;Name="ORF type:complete (+)"
+trc	transdecoder	mRNA	1	2814	.	+	.	ID=trc.p1;Parent=GENE.trc~~trc.p1;Name="ORF type:complete (+)"
+trc	transdecoder	five_prime_UTR	1	211	.	+	.	ID=trc.p1.utr5p1;Parent=trc.p1
+trc	transdecoder	exon	1	2814	.	+	.	ID=trc.p1.exon1;Parent=trc.p1
+trc	transdecoder	CDS	212	1603	.	+	0	ID=cds.trc.p1;Parent=trc.p1
+trc	transdecoder	three_prime_UTR	1604	2814	.	+	.	ID=trc.p1.utr3p1;Parent=trc.p1
+
+trc	transdecoder	gene	1	2814	.	-	.	ID=GENE.trc~~trc.p2;Name="ORF type:complete (-)"
+trc	transdecoder	mRNA	1	2814	.	-	.	ID=trc.p2;Parent=GENE.trc~~trc.p2;Name="ORF type:complete (-)"
+trc	transdecoder	five_prime_UTR	662	2814	.	-	.	ID=trc.p2.utr5p1;Parent=trc.p2
+trc	transdecoder	exon	1	2814	.	-	.	ID=trc.p2.exon1;Parent=trc.p2
+trc	transdecoder	CDS	50	661	.	-	0	ID=cds.trc.p2;Parent=trc.p2
+trc	transdecoder	three_prime_UTR	1	49	.	-	.	ID=trc.p2.utr3p1;Parent=trc.p2
+
+Galk	transdecoder	gene	1	3143	.	+	.	ID=GENE.Galk~~Galk.p1;Name="ORF type:complete (+)"
+Galk	transdecoder	mRNA	1	3143	.	+	.	ID=Galk.p1;Parent=GENE.Galk~~Galk.p1;Name="ORF type:complete (+)"
+Galk	transdecoder	five_prime_UTR	1	595	.	+	.	ID=Galk.p1.utr5p1;Parent=Galk.p1
+Galk	transdecoder	exon	1	3143	.	+	.	ID=Galk.p1.exon1;Parent=Galk.p1
+Galk	transdecoder	CDS	596	2068	.	+	0	ID=cds.Galk.p1;Parent=Galk.p1
+Galk	transdecoder	three_prime_UTR	2069	3143	.	+	.	ID=Galk.p1.utr3p1;Parent=Galk.p1
+
+Galk	transdecoder	gene	1	3143	.	-	.	ID=GENE.Galk~~Galk.p2;Name="ORF type:complete (-)"
+Galk	transdecoder	mRNA	1	3143	.	-	.	ID=Galk.p2;Parent=GENE.Galk~~Galk.p2;Name="ORF type:complete (-)"
+Galk	transdecoder	five_prime_UTR	2633	3143	.	-	.	ID=Galk.p2.utr5p1;Parent=Galk.p2
+Galk	transdecoder	exon	1	3143	.	-	.	ID=Galk.p2.exon1;Parent=Galk.p2
+Galk	transdecoder	CDS	2252	2632	.	-	0	ID=cds.Galk.p2;Parent=Galk.p2
+Galk	transdecoder	three_prime_UTR	1	2251	.	-	.	ID=Galk.p2.utr3p1;Parent=Galk.p2
+

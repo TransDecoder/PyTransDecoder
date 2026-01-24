@@ -212,17 +212,18 @@ class ORFFinder:
             is_real_stop = valid_stop in real_stops
             
             # Extract ORF sequence
-            # Only include stop codon (3 extra bases) if it's a real stop
-            if is_real_stop:
-                orf_end = min(valid_stop + 3, len(sequence))
-            else:
-                # Implicit stop: don't include extra bases
-                orf_end = valid_stop
+            # Always include 3 extra bases after stop position (matching Perl's substr logic)
+            # Perl: substr ($seq, $start_pos, ($stop_pos - $start_pos + 3))
+            # This is done for both real and implicit stops
+            orf_end = min(valid_stop + 3, len(sequence))
             
             orf_seq = sequence[start_pos:orf_end]
             
-            # Skip if too short
-            if len(orf_seq) < self.min_nt_length:
+            # Length check based on COORDINATES, not extracted sequence length
+            # Perl calculates: int((abs($start-$stop)+1)/3) where start/stop include the +3
+            # This ensures ORFs that extend past sequence end still meet length requirements
+            coord_length = (valid_stop + 3) - start_pos
+            if coord_length < self.min_nt_length:
                 continue
             
             # Translate
@@ -259,14 +260,12 @@ class ORFFinder:
             # For reverse strand, transform back to original sequence coordinates
             # Perl uses: revcomp_coord($pos, $seq_length) = $seq_length - $pos + 1
             # Perl: start_pos_adj = start_pos + 1, stop_pos_adj = stop_pos + 1 + 2
-            # where stop_pos_adj is the 1-based position of the LAST base of the stop codon
+            # Perl ALWAYS adds +3 to stop position, even for implicit stops
+            # This affects both coordinate reporting and length calculations
             if strand == '-':
                 # Transform coordinates back to original sequence
                 start_adj = start_pos + 1  # 1-based position of start
-                if is_real_stop:
-                    end_adj = valid_stop + 3  # 1-based position of last base of stop codon
-                else:
-                    end_adj = valid_stop  # 1-based position of last base (no stop codon)
+                end_adj = valid_stop + 3  # Always add +3 (matching Perl)
                 
                 # Transform to original sequence coordinates
                 orf_start = original_length - start_adj + 1
@@ -274,10 +273,7 @@ class ORFFinder:
             else:
                 # Forward strand: convert to 1-based
                 orf_start = start_pos + 1  # 1-based position of start
-                if is_real_stop:
-                    orf_end_coord = valid_stop + 3  # 1-based position of last base of stop codon
-                else:
-                    orf_end_coord = valid_stop  # 1-based position of last base (no stop codon)
+                orf_end_coord = valid_stop + 3  # Always add +3 (matching Perl)
             
             # Create ORF object
             orf = ORF(

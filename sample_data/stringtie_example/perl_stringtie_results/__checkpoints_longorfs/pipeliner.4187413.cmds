@@ -1,0 +1,1 @@
+/home/unix/bhaas/projects/TD_port/TransDecoder/util/compute_base_probs.pl stringtie_merged.transcripts.fasta 0 > /home/unix/bhaas/projects/TD_port/PyTransDecoder/sample_data/stringtie_example/stringtie_merged.transcripts.fasta.transdecoder_dir/base_freqs.dat

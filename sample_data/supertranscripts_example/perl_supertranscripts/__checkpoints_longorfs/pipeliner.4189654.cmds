@@ -1,0 +1,1 @@
+/home/unix/bhaas/projects/TD_port/TransDecoder/util/compute_base_probs.pl supertranscripts.fasta 0 > /home/unix/bhaas/projects/TD_port/PyTransDecoder/sample_data/supertranscripts_example/supertranscripts.fasta.transdecoder_dir/base_freqs.dat
