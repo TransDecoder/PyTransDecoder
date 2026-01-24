@@ -823,11 +823,13 @@ class TransDecoderPredict:
             length = end - start + 1
             
             # Check for overlap with already selected ORFs
+            # NOTE: Perl checks overlap regardless of strand to avoid selecting
+            # multiple ORFs at the same genomic location (even on opposite strands)
             overlaps = False
             for selected_candidate in selected:
                 sel_orf = selected_candidate['orf']
-                if sel_orf['strand'] != strand:
-                    continue
+                # Perl does NOT check strand - it filters overlaps regardless of strand
+                # This prevents selecting ORFs on opposite strands at same location
                 
                 sel_start = sel_orf['start']
                 sel_end = sel_orf['end']

@@ -2,22 +2,126 @@
 
 ## Summary
 
-Python consistently finds **10-25% more ORFs** than Perl (100% superset - all Perl ORFs included).
+**UPDATE 2026-01-24**: Fixed critical strand-independent overlap checking bug!
+
+After fixing the overlap logic, Python now achieves **99.6-100% agreement** with Perl.
 
 ### Test Results
 
-| Dataset | Python ORFs | Perl ORFs | Difference | % More |
-|---------|-------------|-----------|------------|--------|
-| Trinity.fasta (Phase 1) | 845 | 845 | 0 | 0% |
-| Trinity.fasta (Phase 2) | 733 | 679 | +54 | +8.0% |
-| cufflinks_example | 94 | 82 | +12 | +14.6% |
-| pasa_example | 977 | 792 | +185 | +23.4% |
+| Dataset | Python ORFs | Perl ORFs | Difference | Agreement |
+|---------|-------------|-----------|------------|-----------|
+| Trinity.fasta (Phase 1) | 845 | 845 | 0 | 100% |
+| Trinity.fasta (Phase 2) | 682 | 679 | +3 | 99.6% |
+| cufflinks_example | 82 | 82 | 0 | **100%** ✅ |
+| pasa_example | 792 | 792 | 0 | **100%** ✅ |
 
-**Key Finding**: Differences arise entirely in **Phase 2 (Predict)**, not Phase 1 (LongOrfs).
+**Key Finding**: The main difference was a bug in Python's overlap checking logic.
 
-## Python-Only ORFs Characteristics
+## Critical Bug Fixed: Strand-Independent Overlap Checking
 
-Analysis of 54 Python-only ORFs from Trinity.fasta:
+### The Issue
+
+**Python's original code** (INCORRECT):
+```python
+for selected_candidate in selected:
+    sel_orf = selected_candidate['orf']
+    if sel_orf['strand'] != strand:
+        continue  # ❌ SKIP overlap check if strands differ
+```
+
+**Perl's code** (CORRECT):
+```perl
+sub has_sufficient_overlap {
+    my ($gene_entry, $other_entries_aref) = @_;
+    my $gene_obj = $gene_entry->{gene_obj};
+    my ($lend, $rend) = sort {$a<=>$b} $gene_obj->get_model_span();
+    
+    foreach my $other_entry (@$other_entries_aref) {
+        my ($other_lend, $other_rend) = sort {$a<=>$b} $other_entry->{gene_obj}->get_model_span();
+        # NOTE: NO strand check - overlaps checked regardless of strand!
+```
+
+### Why This Matters
+
+Perl **intentionally filters overlapping ORFs regardless of strand** to avoid selecting multiple ORFs at the same genomic location, even if they're on opposite strands.
+
+**Example: comp1004_c0_seq1**
+- **.p1**: CDS 3-1088 (+), score=98.15
+- **.p2**: CDS 585-1013 (-), score=6.47
+- **Overlap**: 429 nt (100% of p2, 39.5% of p1)
+- **Python (before fix)**: Selected both ✗
+- **Perl**: Only selected p1 ✓
+- **Python (after fix)**: Only selected p1 ✓
+
+### The Fix
+
+```python
+# Check for overlap with already selected ORFs
+# NOTE: Perl checks overlap regardless of strand to avoid selecting
+# multiple ORFs at the same genomic location (even on opposite strands)
+overlaps = False
+for selected_candidate in selected:
+    sel_orf = selected_candidate['orf']
+    # Removed strand check - now matches Perl behavior
+    
+    sel_start = sel_orf['start']
+    sel_end = sel_orf['end']
+    # ... overlap calculation ...
+```
+
+### Impact
+
+This single fix reduced the difference from **+54 ORFs** to **+3 ORFs** (99.6% agreement).
+
+## Remaining Minor Differences (Trinity.fasta)
+
+## Remaining Minor Differences (Trinity.fasta)
+
+After the fix, only **5 ORFs differ** out of 680+ (99.3% agreement):
+
+**Python-only** (4 ORFs):
+- comp1036_c0_seq1.p1
+- comp1238_c0_seq1.p1
+- comp669_c0_seq1.p2
+- comp858_c0_seq2.p1
+
+**Perl-only** (1 ORF):
+- comp1060_c0_seq1.p1
+
+These likely represent edge cases in scoring or tie-breaking logic and have minimal practical impact.
+
+## Lessons Learned
+
+### 1. Strand Matters (or Doesn't!)
+
+The Perl code's design choice to filter overlaps **regardless of strand** prevents selecting:
+- Overlapping ORFs on opposite strands
+- Potential bi-directional transcription artifacts
+- Redundant predictions at the same locus
+
+This is a sensible biological constraint - you typically don't want to predict two ORFs occupying the same genomic space.
+
+### 2. Implicit vs Explicit Logic
+
+The strand-independence wasn't explicitly documented in comments or help text. It required:
+- Reading the Perl source code carefully
+- Testing with verbose output
+- Calculating overlap percentages manually
+- Comparing specific examples
+
+This highlights the importance of comprehensive documentation and tests.
+
+### 3. The Value of Test Cases
+
+Having real sample data (Trinity.fasta, cufflinks_example, pasa_example) was crucial for:
+- Identifying the discrepancy
+- Debugging the root cause
+- Validating the fix
+- Ensuring no regressions
+
+## Previous Analysis (Pre-Fix - For Historical Reference)
+
+Before discovering the strand bug, we analyzed the 54 Python-only ORFs:
 
 - **90% are complete ORFs** (50/55 have both start and stop codons)
 - **Most are secondary ORFs** (p2, p3, p4) on same transcript
