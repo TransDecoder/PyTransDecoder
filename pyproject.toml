@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytransdecoder"
+version = "0.1.0"
+description = "Python port of TransDecoder - identify candidate coding regions in transcript sequences"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "TransDecoder Python Port"}
+]
+dependencies = [
+    "biopython>=1.81",
+    "click>=8.0",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "black>=23.0",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+pytransdecoder = "pytransdecoder.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pytransdecoder*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
