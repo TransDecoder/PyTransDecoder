@@ -10,9 +10,10 @@ The `sample_data/` directory contains multiple test examples that demonstrate Tr
    - These bash wrappers call `pytransdecoder longorfs` and `pytransdecoder predict`
    - Maintains compatibility with existing test scripts
 
-2. **Utility scripts**: Symlinked to Perl TransDecoder's `util/` directory
-   - Contains 26 utility scripts for format conversion and validation
-   - Used for genome coordinate mapping, GFF3/BED conversion, etc.
+2. **Utility scripts**: Self-contained `util/` directory
+   - Contains Python implementations (fasta_prot_checker.py, gff3_file_to_bed.py)
+   - Contains Perl scripts with bundled PerlLib modules
+   - No external dependencies on Perl TransDecoder repository
 
 3. **Simple example tested**: `simple_transcriptome_target` works successfully
    - Phase 1 (LongOrfs): ✅ Working - generated 845 candidate ORFs
@@ -28,15 +29,17 @@ The `sample_data/` directory contains multiple test examples that demonstrate Tr
    - May be due to incomplete ORFs at transcript boundaries
    - Needs investigation in the sequence extraction logic
 
-2. **Utility scripts dependency**: Currently relies on Perl utilities
-   - `util/` is symlinked from Perl TransDecoder
+2. **Utility scripts dependency**: Mixed Python/Perl implementation
+   - Python utilities (no deps): `fasta_prot_checker.py`, `gff3_file_to_bed.py`
+   - Perl utilities (bundled with PerlLib): format conversion scripts
+   - Future goal: Port all utilities to Python
    - Required utilities:
-     - `cdna_alignment_orf_to_genome_orf.pl` - Maps ORFs to genome coordinates
-     - `fasta_prot_checker.pl` - Validates protein sequences
-     - `gtf_to_alignment_gff3.pl` - GTF to GFF3 conversion
-     - `gtf_genome_to_cdna_fasta.pl` - Extract transcripts from genome
-     - `gff3_file_to_bed.pl` - GFF3 to BED conversion
-     - `gtf_to_bed.pl` - GTF to BED conversion
+     - `cdna_alignment_orf_to_genome_orf.pl` - Maps ORFs to genome coordinates (Perl)
+     - `fasta_prot_checker.py` - Validates protein sequences (**Python** ✅)
+     - `gtf_to_alignment_gff3.pl` - GTF to GFF3 conversion (Perl)
+     - `gtf_genome_to_cdna_fasta.pl` - Extract transcripts from genome (Perl)
+     - `gff3_file_to_bed.py` - GFF3 to BED conversion (**Python** ✅)
+     - `gtf_to_bed.pl` - GTF to BED conversion (Perl)
 
 ### 📋 Test Examples
 
@@ -91,10 +94,12 @@ make clean
    - supertranscripts_example
 
 ### Medium Priority
-3. **Port utility scripts to Python** (optional):
-   - Most utilities are format converters
-   - Could be useful for pure Python distribution
-   - Not critical since Perl utilities work fine
+3. **Port remaining utilities to Python**:
+   - gtf_to_bed.py - GTF to BED conversion
+   - gtf_to_alignment_gff3.py - GTF to GFF3 conversion
+   - gtf_genome_to_cdna_fasta.py - Transcript extraction
+   - cdna_alignment_orf_to_genome_orf.py - Coordinate mapping (most complex)
+   - This will eliminate all Perl dependencies
 
 ### Low Priority
 4. **Compare outputs** with Perl version for each example
@@ -111,7 +116,7 @@ make clean
 ### External tools (for homology examples)
 - BLAST+ (blastp, makeblastdb)
 - HMMER (hmmsearch, hmmpress)
-- Perl (for utility scripts)
+- Perl 5.x (for utility scripts that haven't been ported yet)
 
 ## Compatibility
 
