@@ -42,16 +42,20 @@ def check_protein_fasta(fasta_file):
             num_stops = seq_no_trailing_stop.count('*')
             
             if num_stops > 0 or len(seq_no_trailing_stop) == 0:
-                errors.append(f"*{num_stops} internal stops")
+                errors.append(f"*{num_stops}")
                 seen_intervening_stop += 1
             
             # Check for start codon
             if not sequence.startswith('M'):
                 errors.append("Doesn't start with M")
             
-            # Report errors
+            # Check for trailing stop codon
+            if not sequence.endswith('*'):
+                errors.append("No stop codon")
+            
+            # Report errors (only if there are internal stops)
             if errors and num_stops > 0:
-                print(f"{header}\t{', '.join(errors)}", file=sys.stderr)
+                print(f"{header}\tERRORS: {', '.join(errors)}", file=sys.stderr)
     
     if seen_intervening_stop > 0:
         print(f"\nError, found {seen_intervening_stop} proteins with intervening stop codons.",

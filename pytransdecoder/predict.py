@@ -976,6 +976,19 @@ class TransDecoderPredict:
                     continue
                 
                 transcript_seq = transcripts[transcript_id]
+                transcript_len = len(transcript_seq)
+                
+                # Handle invalid coordinates (negative or beyond transcript boundaries)
+                # This can happen with partial ORFs at transcript boundaries
+                if start < 0:
+                    logger.warning(f"ORF {orf_id} has negative start coordinate ({feature['start']}), clamping to 0")
+                    start = 0
+                if end > transcript_len:
+                    logger.warning(f"ORF {orf_id} end coordinate ({end}) exceeds transcript length ({transcript_len}), clamping")
+                    end = transcript_len
+                if start >= end:
+                    logger.warning(f"ORF {orf_id} has invalid coordinates (start={start}, end={end}), skipping")
+                    continue
                 
                 # Extract ORF sequence
                 orf_seq = transcript_seq[start:end]
