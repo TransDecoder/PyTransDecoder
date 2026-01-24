@@ -34,7 +34,7 @@
 
 ## Test Datasets
 
-### 1. test_trinity_small.fasta (Small Test)
+### 1. tests/fixtures/test_trinity_small.fasta (Small Test)
 - **Size**: 3 transcripts
 - **Perl Results**: 3 ORFs predicted
 - **Python Results**: 3 ORFs predicted

@@ -75,7 +75,7 @@ The main prediction pipeline consists of 6 steps:
 
 ## Testing Results
 
-### Test Dataset: test_trinity_small.fasta
+### Test Dataset: tests/fixtures/test_trinity_small.fasta
 - **Input**: 3 transcripts
 - **LongOrfs Output**: 3 candidate ORFs
 - **Predict Output**: 3 final predictions
@@ -192,7 +192,7 @@ python -m pytransdecoder predict -t transcripts.fasta --single-best-only
 4. Add more comprehensive logging options
 
 ### Testing
-1. ✅ Test on small dataset (test_trinity_small.fasta) - PASSED
+1. ✅ Test on small dataset (tests/fixtures/test_trinity_small.fasta) - PASSED
 2. ⏳ Test on larger datasets (Trinity.fasta, stringtie_merged.gtf_Trinity.fasta)
 3. ⏳ Compare results with Perl version at scale
 4. ⏳ Performance benchmarking

@@ -41,5 +41,4 @@ htmlcov/
 *.transdecoder_dir/
 *.fasta
 *.fasta.*
-!test_input.fasta
-!test_trinity_small.fasta
+!tests/fixtures/*.fasta
