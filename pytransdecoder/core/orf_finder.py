@@ -212,18 +212,25 @@ class ORFFinder:
             is_real_stop = valid_stop in real_stops
             
             # Extract ORF sequence
-            # Always include 3 extra bases after stop position (matching Perl's substr logic)
-            # Perl: substr ($seq, $start_pos, ($stop_pos - $start_pos + 3))
-            # This is done for both real and implicit stops
-            orf_end = min(valid_stop + 3, len(sequence))
+            # For real stops: include the 3 bases of the stop codon
+            # For implicit stops (3' partial): extract up to end of sequence
+            if is_real_stop:
+                # Real stop codon - include it (valid_stop points to start of stop codon)
+                orf_end = valid_stop + 3
+            else:
+                # Implicit stop (3' partial) - extract to end of sequence
+                orf_end = len(sequence)
             
             orf_seq = sequence[start_pos:orf_end]
             
-            # Length check based on COORDINATES, not extracted sequence length
-            # Perl calculates: int((abs($start-$stop)+1)/3) where start/stop include the +3
-            # This ensures ORFs that extend past sequence end still meet length requirements
-            coord_length = (valid_stop + 3) - start_pos
-            if coord_length < self.min_nt_length:
+            # Ensure CDS length is a multiple of 3 (trim partial codons)
+            remainder = len(orf_seq) % 3
+            if remainder != 0:
+                orf_seq = orf_seq[:-remainder]
+                orf_end = start_pos + len(orf_seq)
+            
+            # Length check
+            if len(orf_seq) < self.min_nt_length:
                 continue
             
             # Translate

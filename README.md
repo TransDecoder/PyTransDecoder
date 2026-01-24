@@ -48,14 +48,69 @@ This creates a directory `transcripts.fasta.transdecoder_dir/` with:
 - candida
 - And 15+ more...
 
-## Phase 2: Predict (Coming Soon)
+## Phase 2: Predict Likely Coding Regions
 
-Phase 2 (TransDecoder.Predict) will be implemented after Phase 1 is validated.
+### Basic Usage
+
+```bash
+pytransdecoder predict -t transcripts.fasta
+```
+
+This creates final output files in the same directory as your transcripts:
+- `transcripts.fasta.transdecoder.gff3` - Gene predictions
+- `transcripts.fasta.transdecoder.bed` - BED format
+- `transcripts.fasta.transdecoder.pep` - Protein sequences
+- `transcripts.fasta.transdecoder.cds` - CDS sequences
+
+### With Homology Support
+
+```bash
+# Run BLASTP against UniProt
+blastp -query transcripts.fasta.transdecoder_dir/longest_orfs.pep \
+       -db uniprot_sprot.pep -max_target_seqs 1 \
+       -outfmt 6 -evalue 1e-5 -num_threads 4 > blastp.outfmt6
+
+# Run Pfam domain search
+hmmscan --cpu 4 --domtblout pfam.domtblout Pfam-A.hmm \
+        transcripts.fasta.transdecoder_dir/longest_orfs.pep
+
+# Run predict with homology data
+pytransdecoder predict -t transcripts.fasta \
+    --retain-blastp-hits blastp.outfmt6 \
+    --retain-pfam-hits pfam.domtblout
+```
+
+### Options
+
+```
+-t, --transcripts PATH            Input transcripts FASTA file [required]
+-O, --output-dir PATH             Output directory
+-T, --top-orfs-train INT          Training ORFs (default: 500)
+--retain-long-orfs-mode           'dynamic' or 'strict' (default: dynamic)
+--retain-pfam-hits PATH           Pfam domain hits (domtblout format)
+--retain-blastp-hits PATH         BLAST hits (outfmt 6 format)
+--single-best-only                Only best ORF per transcript
+--no-refine-starts                Skip start codon refinement
+-G, --genetic-code TEXT           Genetic code (default: Standard)
+-v, --verbose                     Verbose output
+```
+
+### How It Works
+
+1. **Training**: Selects top longest unique ORFs to train hexamer scoring model
+2. **Scoring**: Scores all ORFs using Markov chain model (hexamer composition)
+3. **Selection**: Chooses best ORFs based on:
+   - Homology support (BLAST/Pfam hits)
+   - Coding potential score
+   - ORF length
+   - GC content-based thresholds
+4. **Output**: Generates final predictions in multiple formats
 
 ## Development Status
 
-- ✅ Phase 1 (LongOrfs): Implemented, ready for testing
-- ⏳ Phase 2 (Predict): Not yet implemented
+- ✅ Phase 1 (LongOrfs): Implemented and validated
+- ✅ Phase 2 (Predict): Implemented and tested
+- ⏳ Performance benchmarking on large datasets
 
 ## Testing Against Perl Version
 
