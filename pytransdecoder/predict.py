@@ -893,9 +893,11 @@ class TransDecoderPredict:
             logger.info("Final outputs already generated (checkpoint exists)")
             return
         
-        # Output file paths (relative to transcript file location)
+        # Output file paths
+        # When output_dir is specified, write final outputs there
+        # Otherwise write to the directory containing the transcripts file
         base_name = self.transcripts_file.name
-        output_base = self.transcripts_file.parent / f"{base_name}.transdecoder"
+        output_base = self.output_dir / f"{base_name}.transdecoder"
         
         final_gff3 = Path(str(output_base) + ".gff3")
         final_bed = Path(str(output_base) + ".bed")

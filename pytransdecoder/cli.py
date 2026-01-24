@@ -48,18 +48,21 @@ Example:
         help='Only analyze top strand'
     )
     parser.add_argument(
-        '-O', '--output-dir',
+        '-O', '--output-dir', '--output_dir',
+        dest='output_dir',
         type=Path,
         default=None,
         help='Output directory (default: current directory)'
     )
     parser.add_argument(
-        '--gene-trans-map',
+        '--gene-trans-map', '--gene_trans_map',
+        dest='gene_trans_map',
         type=Path,
         help='Gene-to-transcript mapping file (tab-delimited: gene_id<tab>trans_id)'
     )
     parser.add_argument(
-        '--complete-orfs-only',
+        '--complete-orfs-only', '--complete_orfs_only',
+        dest='complete_orfs_only',
         action='store_true',
         help='Only output complete ORFs (with start and stop codons)'
     )
@@ -105,12 +108,14 @@ Example:
         help='Transcripts FASTA file'
     )
     parser.add_argument(
-        '-O', '--output-dir',
+        '-O', '--output-dir', '--output_dir',
+        dest='output_dir',
         type=Path,
         help='Output directory (default: current directory)'
     )
     parser.add_argument(
-        '-T', '--top-orfs-train',
+        '-T', '--top-orfs-train', '--top_orfs_train',
+        dest='top_orfs_train',
         type=int,
         default=500,
         help='Number of top ORFs to use for training Markov model (default: 500)'
