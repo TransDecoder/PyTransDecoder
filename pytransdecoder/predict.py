@@ -11,8 +11,10 @@ This module implements the prediction phase of TransDecoder, which:
 """
 
 import logging
+import random
+import re
 from pathlib import Path
-from typing import Optional, Dict, Set, List, Tuple
+from typing import Optional, Dict, List, Tuple
 import click
 from Bio import SeqIO
 
@@ -872,17 +874,549 @@ class TransDecoderPredict:
             Path to refined GFF3 file (currently just returns input)
         """
         checkpoint = self.checkpoints_dir / "refine_starts.ok"
+        revised_gff3 = Path(str(gff3_file) + ".revised_starts.gff3")
         
         if checkpoint.exists():
             logger.info("Start codon refinement already done (checkpoint exists)")
+            return revised_gff3 if revised_gff3.exists() else gff3_file
+
+        training_outputs = self._train_start_pwm(training_orfs_file)
+        if training_outputs is None:
+            logger.info("Insufficient training data for start codon refinement - skipping")
+            checkpoint.write_text("OK")
             return gff3_file
-        
-        # TODO: Implement PWM-based start codon refinement
-        # For now, just pass through the input file
-        logger.info("Start codon refinement not yet fully implemented - skipping")
+
+        transcripts = self._load_transcripts()
+        pwm_plus, pwm_minus, pwm_range, min_threshold = training_outputs
+        num_revised = self._revise_start_sites(
+            gff3_file, revised_gff3, transcripts, pwm_plus, pwm_minus, pwm_range, min_threshold
+        )
+        logger.info("Revised %s start codon positions", num_revised)
         
         checkpoint.write_text("OK")
-        return gff3_file
+        return revised_gff3
+
+    def _train_start_pwm(self, training_orfs_file: Path):
+        """
+        Train PWM assets used by start codon refinement.
+
+        Returns:
+            Tuple of (pwm_plus, pwm_minus, pwm_range, min_threshold) or None if the
+            training set does not contain enough valid start-site features.
+        """
+        from pytransdecoder.core.pwm import PWM, build_pwm, trapezoid_auc
+
+        pwm_left = 20
+        pwm_right = 10
+        pwm_length = pwm_left + 3 + pwm_right
+        out_prefix = self.workdir / "start_refinement"
+
+        transcripts = self._load_transcripts()
+        positive_features, negative_features = self._extract_pwm_features(
+            training_orfs_file, transcripts, pwm_left, pwm_right
+        )
+
+        if not positive_features or not negative_features:
+            return None
+
+        self._write_feature_file(out_prefix.with_name(out_prefix.name + ".+.features"), positive_features)
+        self._write_feature_file(out_prefix.with_name(out_prefix.name + ".-.features"), negative_features)
+
+        pwm_plus = build_pwm(positive_features)
+        pwm_minus = build_pwm(negative_features)
+        pwm_plus_file = out_prefix.with_name(out_prefix.name + ".+.pwm")
+        pwm_minus_file = out_prefix.with_name(out_prefix.name + ".-.pwm")
+        pwm_plus.write(pwm_plus_file)
+        pwm_minus.write(pwm_minus_file)
+
+        enhanced_features, enhanced_pwm = self._deplete_feature_noise(positive_features, pwm_minus)
+        enhanced_features_file = out_prefix.with_name(out_prefix.name + ".enhanced.+.features")
+        enhanced_pwm_file = out_prefix.with_name(out_prefix.name + ".enhanced.+.pwm")
+        self._write_feature_file(enhanced_features_file, enhanced_features)
+        enhanced_pwm.write(enhanced_pwm_file)
+
+        features_minus_file = out_prefix.with_name(out_prefix.name + ".-.features")
+        feature_scores_file = out_prefix.with_name(out_prefix.name + ".feature.scores")
+        feature_roc_file = out_prefix.with_name(out_prefix.name + ".feature.scores.roc")
+        feature_auc_file = out_prefix.with_name(out_prefix.name + ".feature.scores.roc.auc")
+        enhanced_scores_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores")
+        enhanced_roc_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores.roc")
+        enhanced_auc_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores.roc.auc")
+
+        self._score_feature_sets(
+            enhanced_features, negative_features, pwm_length, pwm_left, feature_scores_file=enhanced_scores_file
+        )
+        self._feature_scores_to_roc(enhanced_scores_file, enhanced_roc_file)
+        self._compute_auc(enhanced_roc_file, enhanced_auc_file)
+
+        # Preserve the non-enhanced files too for compatibility/debugging.
+        self._score_feature_sets(
+            positive_features, negative_features, pwm_length, pwm_left, feature_scores_file=feature_scores_file
+        )
+        self._feature_scores_to_roc(feature_scores_file, feature_roc_file)
+        self._compute_auc(feature_roc_file, feature_auc_file)
+
+        best_range, min_threshold = self._select_pwm_range_and_threshold(
+            enhanced_auc_file, enhanced_roc_file
+        )
+        return enhanced_pwm, pwm_minus, best_range, min_threshold
+
+    def _extract_pwm_features(
+        self,
+        training_orfs_file: Path,
+        transcripts: Dict[str, str],
+        pwm_left: int,
+        pwm_right: int,
+    ) -> Tuple[List[str], List[str]]:
+        from pytransdecoder.core.sequence import reverse_complement
+
+        positive_features = []
+        negative_features = []
+        pwm_length = pwm_left + 3 + pwm_right
+        pattern = re.compile(r"(\S+):(\d+)-(\d+)\(([+-])\)")
+
+        with open(training_orfs_file) as handle:
+            for record in SeqIO.parse(handle, "fasta"):
+                match = pattern.search(record.description)
+                if not match:
+                    continue
+
+                transcript_id = match.group(1)
+                start_coord = int(match.group(2))
+                end_coord = int(match.group(3))
+                strand = match.group(4)
+
+                transcript_seq = transcripts.get(transcript_id)
+                if transcript_seq is None:
+                    continue
+
+                if strand == "-":
+                    transcript_seq = reverse_complement(transcript_seq)
+                    start_coord = len(transcript_seq) - max(start_coord, end_coord) + 1
+                else:
+                    start_coord = min(start_coord, end_coord)
+
+                start_index = start_coord - 1
+                if transcript_seq[start_index:start_index + 3] != "ATG":
+                    continue
+
+                feature_seq = self._extract_feature_seq(
+                    transcript_seq, start_index, pwm_left, pwm_right, pwm_length
+                )
+                if feature_seq:
+                    positive_features.append(feature_seq)
+
+                downstream_seq = transcript_seq[start_coord + 1 :]
+                negative_features.extend(
+                    self._extract_all_start_features(
+                        downstream_seq, pwm_left, pwm_right, pwm_length
+                    )
+                )
+
+        return positive_features, negative_features
+
+    def _extract_feature_seq(
+        self,
+        sequence: str,
+        start_index: int,
+        pwm_left: int,
+        pwm_right: int,
+        pwm_length: int,
+    ) -> Optional[str]:
+        begin = start_index - pwm_left
+        end = begin + pwm_length
+        if begin < 0 or end > len(sequence):
+            return None
+        feature_seq = sequence[begin:end].upper()
+        if any(base not in "GATC" for base in feature_seq):
+            return None
+        return feature_seq
+
+    def _extract_all_start_features(
+        self,
+        sequence: str,
+        pwm_left: int,
+        pwm_right: int,
+        pwm_length: int,
+    ) -> List[str]:
+        features = []
+        start = 0
+        while True:
+            pos = sequence.find("ATG", start)
+            if pos == -1:
+                break
+            feature_seq = self._extract_feature_seq(sequence, pos, pwm_left, pwm_right, pwm_length)
+            if feature_seq:
+                features.append(feature_seq)
+            start = pos + 1
+        return features
+
+    def _write_feature_file(self, filename: Path, features: List[str]) -> None:
+        with open(filename, "w") as handle:
+            for feature in features:
+                handle.write(f"{feature}\n")
+
+    def _deplete_feature_noise(self, positive_features: List[str], pwm_minus):
+        from pytransdecoder.core.pwm import build_pwm
+
+        rng = random.Random(1)
+        features = positive_features[:]
+        rng.shuffle(features)
+
+        num_incorporate = max(1, int(len(features) * 30 / 100))
+        init_features = features[:num_incorporate]
+        remaining_features = features[num_incorporate:]
+
+        pwm_plus = build_pwm(init_features)
+        scored_features = []
+        for feature in init_features:
+            score = pwm_plus.score_plus_minus(feature, pwm_minus)
+            if score is not None:
+                scored_features.append({"score": score, "seq": feature})
+        scored_features.sort(key=lambda item: item["score"])
+
+        for feature in remaining_features:
+            if not scored_features:
+                break
+            score = pwm_plus.score_plus_minus(feature, pwm_minus)
+            if score is None or score <= scored_features[0]["score"]:
+                continue
+
+            purge_feature = scored_features.pop(0)
+            pwm_plus.remove_feature(purge_feature["seq"])
+            pwm_plus.add_feature(feature)
+            pwm_plus.build()
+            scored_features.append({"score": score, "seq": feature})
+
+            for scored in scored_features:
+                rescored = pwm_plus.score_plus_minus(scored["seq"], pwm_minus)
+                scored["score"] = float("-inf") if rescored is None else rescored
+            scored_features.sort(key=lambda item: item["score"])
+
+        retained_features = []
+        for scored_feature in scored_features:
+            if scored_feature["score"] <= 0:
+                pwm_plus.remove_feature(scored_feature["seq"])
+            else:
+                retained_features.append(scored_feature["seq"])
+
+        pwm_plus.build()
+        return retained_features, pwm_plus
+
+    def _score_feature_sets(
+        self,
+        positive_features: List[str],
+        negative_features: List[str],
+        pwm_length: int,
+        atg_position: int,
+        feature_scores_file: Path,
+    ) -> None:
+        from pytransdecoder.core.pwm import build_pwm
+
+        rng = random.Random(1)
+        pwm_upstream_max = atg_position
+        pwm_downstream_max = pwm_length - (atg_position + 3)
+        up_down_combos = [
+            (up, down)
+            for up in range(1, pwm_upstream_max + 1)
+            for down in range(1, pwm_downstream_max + 1)
+        ]
+
+        num_rounds = 5
+        fraction_train = 0.75
+        max_feature_select = 1000
+
+        with open(feature_scores_file, "w") as handle:
+            for _ in range(num_rounds):
+                plus_train, plus_test = self._sample_features(positive_features, fraction_train, rng)
+                minus_train, minus_test = self._sample_features(negative_features, fraction_train, rng)
+                if not plus_train or not minus_train or not plus_test or not minus_test:
+                    continue
+
+                pwm_plus = build_pwm(plus_train)
+                pwm_minus = build_pwm(minus_train)
+
+                self._score_features(
+                    handle, plus_test, pwm_plus, pwm_minus, up_down_combos, atg_position, "pos", max_feature_select
+                )
+                self._score_features(
+                    handle, minus_test, pwm_plus, pwm_minus, up_down_combos, atg_position, "neg", max_feature_select
+                )
+
+    def _sample_features(
+        self, features: List[str], fraction_train: float, rng: random.Random
+    ) -> Tuple[List[str], List[str]]:
+        features = features[:]
+        rng.shuffle(features)
+        num_train = int(fraction_train * len(features))
+        num_train = min(max(num_train, 1), len(features) - 1) if len(features) > 1 else len(features)
+        return features[:num_train], features[num_train:]
+
+    def _score_features(
+        self,
+        handle,
+        features: List[str],
+        pwm_plus,
+        pwm_minus,
+        up_down_combos: List[Tuple[int, int]],
+        atg_position: int,
+        feature_set_type: str,
+        max_feature_select: int,
+    ) -> None:
+        for up, down in up_down_combos:
+            range_left = atg_position - up
+            range_right = atg_position + 2 + down
+            local_pwm_len = up + down
+            for feature in features[:max_feature_select]:
+                score = pwm_plus.score_plus_minus(feature, pwm_minus, pwm_range=(range_left, range_right))
+                if score is None:
+                    score_str = "NA"
+                else:
+                    score_str = f"{score / local_pwm_len:.3f}"
+                handle.write(f"{up},{down}\t{feature_set_type}\t{score_str}\n")
+
+    def _feature_scores_to_roc(self, feature_scores_file: Path, roc_file: Path) -> None:
+        scores_by_category = {}
+        min_score = None
+        max_score = None
+
+        with open(feature_scores_file) as handle:
+            for line in handle:
+                category, pos_or_neg, score_str = line.rstrip().split("\t")
+                if score_str == "NA":
+                    continue
+                score = float(score_str)
+                scores_by_category.setdefault(category, []).append((pos_or_neg, score))
+                min_score = score if min_score is None else min(min_score, score)
+                max_score = score if max_score is None else max(max_score, score)
+
+        if min_score is None or max_score is None:
+            roc_file.write_text("cat\tthresh\tTP\tTN\tFP\tFN\tTPR\tFPR\tF1\n")
+            return
+
+        delta = (max_score - min_score) / 10 if max_score != min_score else 1.0
+        with open(roc_file, "w") as handle:
+            handle.write("cat\tthresh\tTP\tTN\tFP\tFN\tTPR\tFPR\tF1\n")
+            for category, score_entries in scores_by_category.items():
+                threshold = min_score
+                while threshold < max_score:
+                    tp = tn = fp = fn = 0
+                    for pos_or_neg, score in score_entries:
+                        if pos_or_neg == "pos":
+                            if score >= threshold:
+                                tp += 1
+                            else:
+                                fn += 1
+                        else:
+                            if score >= threshold:
+                                fp += 1
+                            else:
+                                tn += 1
+                    tpr = tp / (tp + fn) if (tp + fn) else 0.0
+                    fpr = fp / (fp + tn) if (fp + tn) else 0.0
+                    denom = (2 * tp + fp + fn)
+                    f1 = (2 * tp) / denom if denom else 0.0
+                    handle.write(
+                        f"{category}\t{threshold}\t{tp}\t{tn}\t{fp}\t{fn}\t{tpr}\t{fpr}\t{f1}\n"
+                    )
+                    threshold += delta
+
+    def _compute_auc(self, roc_file: Path, auc_file: Path) -> None:
+        from pytransdecoder.core.pwm import trapezoid_auc
+
+        points_by_category = {}
+        with open(roc_file) as handle:
+            next(handle, None)
+            for line in handle:
+                parts = line.rstrip().split("\t")
+                if len(parts) < 8:
+                    continue
+                category = parts[0]
+                tpr = float(parts[6])
+                fpr = float(parts[7])
+                points_by_category.setdefault(category, []).append((fpr, tpr))
+
+        with open(auc_file, "w") as handle:
+            for category in sorted(points_by_category):
+                auc = trapezoid_auc(points_by_category[category])
+                handle.write(f"{category}\t{auc}\n")
+
+    def _select_pwm_range_and_threshold(self, auc_file: Path, roc_file: Path) -> Tuple[Tuple[int, int], float]:
+        best_range = None
+        best_auc = float("-inf")
+        with open(auc_file) as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                range_str, auc_str = line.split("\t")
+                auc = float(auc_str)
+                if auc > best_auc:
+                    best_auc = auc
+                    best_range = range_str
+
+        if best_range is None:
+            raise ValueError("Unable to determine best PWM range")
+
+        best_threshold = None
+        best_f1 = float("-inf")
+        with open(roc_file) as handle:
+            next(handle, None)
+            for line in handle:
+                parts = line.rstrip().split("\t")
+                if len(parts) < 9 or parts[0] != best_range:
+                    continue
+                threshold = float(parts[1])
+                f1 = float(parts[8])
+                if f1 > best_f1:
+                    best_f1 = f1
+                    best_threshold = threshold
+
+        if best_threshold is None:
+            raise ValueError("Unable to determine best PWM threshold")
+
+        range_left, range_right = [int(value) for value in best_range.split(",")]
+        return (range_left, range_right), best_threshold
+
+    def _revise_start_sites(
+        self,
+        gff3_file: Path,
+        revised_gff3_file: Path,
+        transcripts: Dict[str, str],
+        pwm_plus,
+        pwm_minus,
+        pwm_range: Tuple[int, int],
+        min_threshold: float,
+    ) -> int:
+        from pytransdecoder.core.sequence import reverse_complement
+
+        atg_pwm_pos = 20
+        adj_dist = 30
+        adj_pct = 15
+        num_revised = 0
+        alt_start_scores_file = self.workdir / "start_refinement.alt_start_scores"
+
+        with open(gff3_file) as src, open(revised_gff3_file, "w") as dst, open(
+            alt_start_scores_file, "w"
+        ) as scores_handle:
+            for line in src:
+                stripped = line.rstrip("\n")
+                if not stripped or stripped.startswith("#"):
+                    dst.write(line)
+                    continue
+
+                parts = stripped.split("\t")
+                if len(parts) != 9:
+                    dst.write(line)
+                    continue
+
+                seqid, source, feature_type = parts[0], parts[1], parts[2]
+                if feature_type != "mRNA":
+                    dst.write(line)
+                    continue
+
+                start = int(parts[3])
+                end = int(parts[4])
+                strand = parts[6]
+                attrs = self._parse_attrs(parts[8])
+                transcript_seq = transcripts.get(seqid)
+                if transcript_seq is None:
+                    dst.write(line)
+                    continue
+
+                oriented_seq = transcript_seq
+                start_pos = start
+                if strand == "-":
+                    oriented_seq = reverse_complement(transcript_seq)
+                    start_pos = len(oriented_seq) - end + 1
+
+                start_index = start_pos - 1
+                if oriented_seq[start_index:start_index + 3] == "ATG":
+                    dst.write(line)
+                    continue
+
+                orf_len = end - start + 1
+                max_search_pos = max(start_index + adj_dist, start_index + int(adj_pct * orf_len / 100))
+                best_alt_start = None
+                best_alt_score = None
+                alt_score_entries = []
+
+                search_pos = 0
+                while True:
+                    pos = oriented_seq.find("ATG", search_pos)
+                    if pos == -1 or pos > max_search_pos:
+                        break
+                    if pos > start_index and (pos - start_index) % 3 == 0:
+                        feature_seq_start = pos - atg_pwm_pos
+                        feature_seq_end = feature_seq_start + pwm_plus.length
+                        if feature_seq_start > 0 and feature_seq_end <= len(oriented_seq):
+                            feature_seq = oriented_seq[feature_seq_start:feature_seq_end]
+                            score = pwm_plus.score_plus_minus(
+                                feature_seq, pwm_minus, pwm_range=(
+                                    atg_pwm_pos - pwm_range[0] - 1,
+                                    atg_pwm_pos + 2 + pwm_range[1] - 1,
+                                )
+                            )
+                            if score is not None:
+                                score = round(score, 3)
+                                alt_score_entries.append(
+                                    f"{pos}_{self._translate_brief(oriented_seq[pos:pos + 15])}_{score:.3f}"
+                                )
+                                if score >= min_threshold and (
+                                    best_alt_score is None or score > best_alt_score
+                                ):
+                                    best_alt_start = pos
+                                    best_alt_score = score
+                    search_pos = pos + 1
+
+                if alt_score_entries:
+                    gene_id = attrs.get("Parent", [""])[0]
+                    scores_handle.write(f"{seqid}\t{gene_id}\t" + "\t".join(alt_score_entries) + "\n")
+
+                if best_alt_start is None:
+                    dst.write(line)
+                    continue
+
+                best_alt_start += 1
+                if strand == "-":
+                    new_start = len(oriented_seq) - best_alt_start + 1
+                    parts[4] = str(new_start)
+                else:
+                    new_start = best_alt_start
+                    parts[3] = str(new_start)
+
+                attrs["start_revised"] = ["true"]
+                attrs["start_revised_score"] = [f"{best_alt_score:.3f}"]
+                parts[8] = self._format_attrs(attrs)
+                dst.write("\t".join(parts) + "\n")
+                num_revised += 1
+
+        return num_revised
+
+    def _load_transcripts(self) -> Dict[str, str]:
+        transcripts = {}
+        with open(self.transcripts_file) as handle:
+            for record in SeqIO.parse(handle, "fasta"):
+                transcripts[record.id] = str(record.seq).upper()
+        return transcripts
+
+    def _parse_attrs(self, attrs_str: str) -> Dict[str, List[str]]:
+        attrs = {}
+        for entry in attrs_str.split(";"):
+            if "=" not in entry:
+                continue
+            key, value = entry.split("=", 1)
+            attrs[key] = value.split(",")
+        return attrs
+
+    def _format_attrs(self, attrs: Dict[str, List[str]]) -> str:
+        return ";".join(f"{key}={','.join(values)}" for key, values in attrs.items())
+
+    def _translate_brief(self, sequence: str) -> str:
+        from pytransdecoder.core.translator import Translator
+
+        translator = Translator(self.genetic_code)
+        return translator.translate(sequence, frame=0)
     
     def _generate_final_outputs(self, gff3_file: Path):
         """

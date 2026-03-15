@@ -7,6 +7,8 @@ from pytransdecoder.core.translator import Translator
 from pytransdecoder.core.sequence import reverse_complement
 from pytransdecoder.core.orf_finder import ORFFinder
 from pytransdecoder.core.models import ORF
+from pytransdecoder.core.pwm import build_pwm, PWM
+from pytransdecoder.predict import TransDecoderPredict
 
 
 def test_translator_standard_code():
@@ -173,3 +175,68 @@ def test_orf_to_fasta():
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
+
+
+def test_pwm_roundtrip_and_scoring(tmp_path):
+    positive = ["CCCCCATGAAAA", "CCCCCATGAAAT", "CCCCCATGAAAG"]
+    negative = ["TTTTTATGCCCC", "GGGGGATGTTTT", "AAAACATGCCCC"]
+
+    pwm_plus = build_pwm(positive)
+    pwm_minus = build_pwm(negative)
+
+    positive_score = pwm_plus.score_plus_minus(positive[0], pwm_minus)
+    negative_score = pwm_plus.score_plus_minus(negative[0], pwm_minus)
+
+    assert positive_score is not None
+    assert negative_score is not None
+    assert positive_score > negative_score
+
+    pwm_file = tmp_path / "test.pwm"
+    pwm_plus.write(pwm_file)
+    loaded = PWM.load(pwm_file)
+    loaded_score = loaded.score_plus_minus(positive[0], pwm_minus)
+
+    assert loaded_score == pytest.approx(positive_score)
+
+
+def test_refine_start_sites_updates_plus_strand(tmp_path):
+    transcript_seq = "CCCCCCCCCCCCCCCCCCCCCCTGAAACCCGGGTTTAAA"
+    transcript_seq = transcript_seq[:21] + "ATG" + transcript_seq[24:]
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\n" + transcript_seq + "\n")
+
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+    predictor.workdir.mkdir(parents=True, exist_ok=True)
+
+    gff3_file = tmp_path / "best_candidates.gff3"
+    gff3_file.write_text(
+        "##gff-version 3\n"
+        "tx1\ttransdecoder\tmRNA\t1\t34\t.\t+\t.\t"
+        "ID=tx1.p1;Parent=GENE.tx1~~tx1.p1;Name=tx1.p1;score=10.0\n"
+    )
+
+    revised_gff3 = tmp_path / "best_candidates.gff3.revised"
+    pwm_plus = build_pwm(["CCCCCCCCCCCCCCCCCCCCCATGAAACCCGGGTT"])
+    pwm_minus = build_pwm(
+        [
+            "TTTTTTTTTTTTTTTTTTTTTATGCCCCGGGAAAA",
+            "GGGGGGGGGGGGGGGGGGGGGATGTTTTCCCAAAA",
+            "AAAACCCCAAAACCCCAAAACCATGCCCCAAAACC",
+        ]
+    )
+
+    num_revised = predictor._revise_start_sites(
+        gff3_file,
+        revised_gff3,
+        {"tx1": transcript_seq},
+        pwm_plus,
+        pwm_minus,
+        (5, 5),
+        min_threshold=0.0,
+    )
+
+    assert num_revised == 1
+    revised_line = revised_gff3.read_text().splitlines()[1]
+    fields = revised_line.split("\t")
+    assert fields[3] == "22"
+    assert "start_revised=true" in fields[8]
