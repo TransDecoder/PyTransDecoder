@@ -15,7 +15,6 @@ import random
 import re
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
-import click
 from Bio import SeqIO
 
 logger = logging.getLogger(__name__)
@@ -1572,76 +1571,3 @@ class TransDecoderPredict:
                 # Write sequence (60 chars per line)
                 for i in range(0, len(output_seq), 60):
                     out.write(output_seq[i:i+60] + '\n')
-
-
-@click.command()
-@click.option('-t', '--transcripts', 'transcripts_file', required=True, type=click.Path(exists=True),
-              help='Transcripts FASTA file')
-@click.option('-O', '--output-dir', type=click.Path(),
-              help='Output directory (default: current directory)')
-@click.option('-T', '--top-orfs-train', type=int, default=500,
-              help='Number of top ORFs to use for training Markov model (default: 500)')
-@click.option('--retain-long-orfs-mode', type=click.Choice(['dynamic', 'strict']), default='dynamic',
-              help='Mode for retaining long ORFs (default: dynamic)')
-@click.option('--retain-long-orfs-length', type=int, default=1000000,
-              help='Under strict mode, minimum length to auto-retain (default: 1000000)')
-@click.option('--retain-pfam-hits', type=click.Path(exists=True),
-              help='Pfam domain hits file from hmmscan')
-@click.option('--retain-blastp-hits', type=click.Path(exists=True),
-              help='BLASTP hits file in outfmt 6 format')
-@click.option('--single-best-only', is_flag=True,
-              help='Retain only single best ORF per transcript')
-@click.option('--no-refine-starts', is_flag=True,
-              help='Skip start codon refinement')
-@click.option('-G', '--genetic-code', default='Standard',
-              help='Genetic code (default: Standard)')
-@click.option('-v', '--verbose', is_flag=True,
-              help='Verbose output')
-def main(
-    transcripts_file,
-    output_dir,
-    top_orfs_train,
-    retain_long_orfs_mode,
-    retain_long_orfs_length,
-    retain_pfam_hits,
-    retain_blastp_hits,
-    single_best_only,
-    no_refine_starts,
-    genetic_code,
-    verbose
-):
-    """
-    TransDecoder.Predict - Final coding region predictions
-    
-    This command takes the output from TransDecoder.LongOrfs and identifies
-    the most likely coding regions using:
-    - Hexamer composition scoring
-    - Homology support (BLAST and Pfam)
-    - ORF length
-    - Start codon refinement
-    """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.DEBUG if verbose else logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Run prediction
-    predictor = TransDecoderPredict(
-        transcripts_file=transcripts_file,
-        output_dir=output_dir,
-        top_orfs_train=top_orfs_train,
-        retain_long_orfs_mode=retain_long_orfs_mode,
-        retain_long_orfs_length=retain_long_orfs_length,
-        retain_pfam_hits=retain_pfam_hits,
-        retain_blastp_hits=retain_blastp_hits,
-        single_best_only=single_best_only,
-        no_refine_starts=no_refine_starts,
-        genetic_code=genetic_code
-    )
-    
-    predictor.run()
-
-
-if __name__ == '__main__':
-    main()

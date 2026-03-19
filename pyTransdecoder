@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""pyTransdecoder - Full TransDecoder pipeline entry point"""
+
+import sys
+import os
+
+# Allow running from the project directory without installation
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from pytransdecoder.cli import pipeline_main
+
+if __name__ == '__main__':
+    pipeline_main()
