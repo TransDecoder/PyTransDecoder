@@ -1447,10 +1447,9 @@ class TransDecoderPredict:
         final_pep = Path(str(output_base) + ".pep")
         final_cds = Path(str(output_base) + ".cds")
         
-        # Copy GFF3 to final location
+        # Write final GFF3 with full gene/mRNA/CDS hierarchy
         logger.info(f"Creating {final_gff3}")
-        import shutil
-        shutil.copy(gff3_file, final_gff3)
+        self._write_final_gff3(gff3_file, final_gff3)
         
         # Generate BED file
         logger.info(f"Creating {final_bed}")
@@ -1467,6 +1466,49 @@ class TransDecoderPredict:
         logger.info(f"Final outputs written to: {base_name}.transdecoder.*")
         checkpoint.write_text("OK")
     
+    def _write_final_gff3(self, src_gff3: Path, out_gff3: Path):
+        """
+        Write final GFF3 with full gene/mRNA/CDS hierarchy.
+        The best_candidates.gff3 only has mRNA entries; cdna_alignment_orf_to_genome_orf.pl
+        requires CDS children to build gene models, so we expand each mRNA into:
+            gene  (parent)
+            mRNA  (child of gene)
+            CDS   (child of mRNA, same coords)
+        """
+        with open(src_gff3) as fh, open(out_gff3, 'w') as out:
+            out.write("##gff-version 3\n")
+            for line in fh:
+                if line.startswith('#'):
+                    continue
+                line = line.rstrip('\n')
+                if not line:
+                    continue
+                parts = line.split('\t')
+                if len(parts) != 9 or parts[2] != 'mRNA':
+                    continue
+
+                seqid, source, _, start, end, score, strand, phase, attrs = parts
+
+                # Parse ID and Parent from attributes
+                mrna_id, parent_id = '', ''
+                for attr in attrs.split(';'):
+                    if attr.startswith('ID='):
+                        mrna_id = attr[3:]
+                    elif attr.startswith('Parent='):
+                        parent_id = attr[7:]
+
+                # gene line
+                out.write(f"{seqid}\t{source}\tgene\t{start}\t{end}\t.\t{strand}\t.\t"
+                          f"ID={parent_id};Name=ORF_{parent_id}\n")
+                # mRNA line (unchanged)
+                out.write(line + '\n')
+                # exon line (required by GFF3_utils2 for gene model building)
+                out.write(f"{seqid}\t{source}\texon\t{start}\t{end}\t.\t{strand}\t.\t"
+                          f"ID=exon.{mrna_id};Parent={mrna_id}\n")
+                # CDS line
+                out.write(f"{seqid}\t{source}\tCDS\t{start}\t{end}\t.\t{strand}\t0\t"
+                          f"ID=cds.{mrna_id};Parent={mrna_id}\n")
+
     def _gff3_to_bed(self, gff3_file: Path, bed_file: Path):
         """Convert GFF3 to BED format"""
         from pytransdecoder.core.gff3_parser import parse_gff3
