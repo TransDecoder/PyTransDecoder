@@ -8,7 +8,7 @@ if [ ! -f "chrX.fa" ]; then
 fi
 
 
-../../pyTransdecoder --genome chrX.fa --gtf stringtie_merged.gtf 
+../../pyTransdecoder --genome chrX.fa --gtf stringtie_merged.gtf -S $ARGS
 
 
 exit 0
