@@ -9,9 +9,9 @@ set -ex
 ../../util/gtf_genome_to_cdna_fasta.pl supertranscripts.gtf supertranscripts.fasta > transcripts.fasta
 
 # run TransDecoder
-../../TransDecoder.LongOrfs -t transcripts.fasta
+../../util/TransDecoder.LongOrfs -t transcripts.fasta
 
-cmd="../../TransDecoder.Predict -t transcripts.fasta"
+cmd="../../util/TransDecoder.Predict -t transcripts.fasta"
 if [ $1 ]; then
     cmd="$cmd --no_refine_starts"
 fi

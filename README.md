@@ -11,6 +11,26 @@ pip install -e .
 
 ## Quick Start
 
+Use `pyTransdecoder` as the primary interface when you want the standard end-to-end pipeline:
+
+```bash
+pyTransdecoder -t transcripts.fasta
+```
+
+This runs LongOrfs followed by Predict and writes the usual `*.transdecoder.{gff3,bed,pep,cds}` outputs.
+
+You can also have the pipeline run homology support searches directly:
+
+```bash
+pyTransdecoder -t transcripts.fasta \
+    --blast-search-pep uniprot_sprot.pep \
+    --pfam-search-db Pfam-A.hmm
+```
+
+## Phase-Specific Commands
+
+If you want to run the phases separately, use the subcommand CLI:
+
 ### Phase 1: Extract Long ORFs
 
 ```bash
@@ -47,6 +67,8 @@ pytransdecoder predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
 ```
 
 This means you can use existing scripts and Makefiles without modification.
+
+Legacy compatibility wrappers for `TransDecoder.LongOrfs` and `TransDecoder.Predict` now live under [`util/`](./util) instead of the repository root.
 
 ## Supported Genetic Codes
 
@@ -90,6 +112,13 @@ hmmscan --cpu 4 --domtblout pfam.domtblout Pfam-A.hmm \
 pytransdecoder predict -t transcripts.fasta \
     --retain-blastp-hits blastp.outfmt6 \
     --retain-pfam-hits pfam.domtblout
+```
+
+For the full pipeline entrypoint, you can skip the separate Pfam step and let
+`pyTransdecoder` prepare and search the HMM database for you:
+
+```bash
+pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 ```
 
 ### Options
@@ -149,4 +178,3 @@ diff ../TransDecoder/test.fasta.transdecoder_dir/longest_orfs.pep \
 - tqdm >= 4.65
 
 **Note**: Ported by Claude.io Sonnet 4.5 under guidance by bhaas. Jan 24, 2026.
-

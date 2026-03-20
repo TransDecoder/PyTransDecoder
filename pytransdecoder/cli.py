@@ -260,7 +260,7 @@ def create_pipeline_parser():
     """Create standalone parser for pyTransdecoder pipeline command"""
     parser = argparse.ArgumentParser(
         prog='pyTransdecoder',
-        description='pyTransdecoder: Full pipeline - run LongOrfs, optional BLASTP, then Predict',
+        description='pyTransdecoder: Full pipeline - run LongOrfs, optional BLAST/Pfam searches, then Predict',
         epilog='Python port of TransDecoder (https://github.com/TransDecoder/TransDecoder)',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -295,6 +295,9 @@ def create_pipeline_parser():
                         help='E-value cutoff for homology search (default: 1e-5)')
     parser.add_argument('--blast-threads', type=int, default=1, dest='blast_threads',
                         help='Number of threads for homology search (default: 1)')
+    parser.add_argument('--pfam-search-db', type=Path, default=None, dest='pfam_search_db',
+                        help='Pfam HMM database to search with hmmsearch; '
+                             'hmmpress will be run automatically if needed')
 
     # Predict args
     parser.add_argument('-T', '--top-orfs-train', type=int, default=500, dest='top_orfs_train',
@@ -305,8 +308,6 @@ def create_pipeline_parser():
     parser.add_argument('--retain-long-orfs-length', type=int, default=1000000,
                         dest='retain_long_orfs_length',
                         help='Under strict mode, minimum length to auto-retain (default: 1000000)')
-    parser.add_argument('--retain-pfam-hits', type=Path, default=None, dest='retain_pfam_hits',
-                        help='Pfam domain hits file from hmmscan (pre-computed)')
     parser.add_argument('--single-best-only', action='store_true', dest='single_best_only',
                         help='Retain only single best ORF per transcript')
     parser.add_argument('--no-refine-starts', action='store_true', dest='no_refine_starts',
@@ -364,8 +365,8 @@ def pipeline_cmd(args):
         print(f"Error: Protein FASTA not found: {args.blast_search_pep}", file=sys.stderr)
         sys.exit(1)
 
-    if args.retain_pfam_hits and not args.retain_pfam_hits.exists():
-        print(f"Error: Pfam hits file not found: {args.retain_pfam_hits}", file=sys.stderr)
+    if args.pfam_search_db and not args.pfam_search_db.exists():
+        print(f"Error: Pfam search database not found: {args.pfam_search_db}", file=sys.stderr)
         sys.exit(1)
 
     if args.gene_trans_map and not args.gene_trans_map.exists():
@@ -454,6 +455,29 @@ def pipeline_cmd(args):
             sys.exit(result.returncode)
         retain_blastp_hits = str(blast_out)
 
+    retain_pfam_hits = None
+    if args.pfam_search_db:
+        pep_file = workdir / "longest_orfs.pep"
+        pfam_out = workdir / "pfam.domtblout"
+        pfam_db = args.pfam_search_db
+        hmmpress_outputs = [Path(str(pfam_db) + ext) for ext in ('.h3f', '.h3i', '.h3m', '.h3p')]
+
+        if not all(path.exists() for path in hmmpress_outputs):
+            hmmpress_cmd = ['hmmpress', '-f', str(pfam_db)]
+            print(f"Preparing Pfam database: {' '.join(hmmpress_cmd)}", file=sys.stderr)
+            result = subprocess.run(hmmpress_cmd)
+            if result.returncode != 0:
+                print(f"Error: hmmpress failed with return code {result.returncode}", file=sys.stderr)
+                sys.exit(result.returncode)
+
+        hmmsearch_cmd = ['hmmsearch', '--domtblout', str(pfam_out), str(pfam_db), str(pep_file)]
+        print(f"Running Pfam search: {' '.join(hmmsearch_cmd)}", file=sys.stderr)
+        result = subprocess.run(hmmsearch_cmd)
+        if result.returncode != 0:
+            print(f"Error: hmmsearch failed with return code {result.returncode}", file=sys.stderr)
+            sys.exit(result.returncode)
+        retain_pfam_hits = str(pfam_out)
+
     # Phase 2: Predict
     try:
         predictor = TransDecoderPredict(
@@ -462,7 +486,7 @@ def pipeline_cmd(args):
             top_orfs_train=args.top_orfs_train,
             retain_long_orfs_mode=args.retain_long_orfs_mode,
             retain_long_orfs_length=args.retain_long_orfs_length,
-            retain_pfam_hits=str(args.retain_pfam_hits) if args.retain_pfam_hits else None,
+            retain_pfam_hits=retain_pfam_hits,
             retain_blastp_hits=retain_blastp_hits,
             single_best_only=args.single_best_only,
             no_refine_starts=args.no_refine_starts,

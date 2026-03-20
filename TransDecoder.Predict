@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Wrapper script to maintain compatibility with original TransDecoder.Predict
-# Calls the Python implementation: pytransdecoder predict
-
-exec python -m pytransdecoder predict "$@"

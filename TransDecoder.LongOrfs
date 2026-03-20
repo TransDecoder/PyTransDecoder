@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Wrapper script to maintain compatibility with original TransDecoder.LongOrfs
-# Calls the Python implementation: pytransdecoder longorfs
-
-exec python -m pytransdecoder longorfs "$@"

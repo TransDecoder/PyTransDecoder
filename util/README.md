@@ -2,6 +2,10 @@
 
 This directory contains utility scripts for format conversion and validation.
 
+It also contains the legacy `TransDecoder.LongOrfs` and `TransDecoder.Predict`
+compatibility wrappers. The preferred user-facing entrypoint is `pyTransdecoder`,
+but these wrappers remain available for phase-specific workflows and older scripts.
+
 ## Python Implementations
 
 These scripts are pure Python with no Perl dependencies:
@@ -39,11 +43,18 @@ The `PerlLib/` directory contains Perl modules required by the Perl scripts:
 All scripts can be called directly:
 
 ```bash
+# Preferred full pipeline
+../pyTransdecoder -t transcripts.fa
+
+# Legacy phase-specific wrappers
+./TransDecoder.LongOrfs -t transcripts.fa
+./TransDecoder.Predict -t transcripts.fa
+
 # Python scripts
 ./fasta_prot_checker.py proteins.fa
 ./gff3_file_to_bed.py annotations.gff3 > output.bed
 
-# Perl scripts (called via .pl wrappers)
+# Perl scripts
 ./gtf_to_bed.pl transcripts.gtf > output.bed
 ./fasta_prot_checker.pl proteins.fa
 ```

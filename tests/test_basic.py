@@ -2,12 +2,16 @@
 Basic tests for PyTransDecoder core modules
 """
 
+import subprocess
+from pathlib import Path
+
 import pytest
 from pytransdecoder.core.translator import Translator
 from pytransdecoder.core.sequence import reverse_complement
 from pytransdecoder.core.orf_finder import ORFFinder
 from pytransdecoder.core.models import ORF
 from pytransdecoder.core.pwm import build_pwm, PWM
+from pytransdecoder import cli
 from pytransdecoder.predict import TransDecoderPredict
 
 
@@ -264,3 +268,61 @@ def test_final_pep_header_includes_orf_metadata(tmp_path):
         "blast:sp|P12345|TEST|1e-5|50 len:2 tx1:1-9(+)"
     )
     assert lines[1] == "MK"
+
+
+def test_pipeline_runs_pfam_search_and_passes_domtblout(tmp_path, monkeypatch):
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
+    pfam_db = tmp_path / "Pfam-A.hmm"
+    pfam_db.write_text("HMMER3/f\n")
+
+    recorded_cmds = []
+    predict_kwargs = {}
+
+    def fake_run_longorfs(**kwargs):
+        output_dir = Path(kwargs["output_dir"]) if kwargs["output_dir"] else Path(".")
+        workdir = output_dir / f"{Path(kwargs['transcripts_file']).name}.transdecoder_dir"
+        workdir.mkdir(parents=True, exist_ok=True)
+        (workdir / "longest_orfs.pep").write_text(">tx1.p1\nMK\n")
+
+    class DummyPredict:
+        def __init__(self, **kwargs):
+            predict_kwargs.update(kwargs)
+
+        def run(self):
+            return None
+
+    def fake_subprocess_run(cmd, *args, **kwargs):
+        recorded_cmds.append(cmd)
+        if cmd[0] == "hmmpress":
+            for ext in (".h3f", ".h3i", ".h3m", ".h3p"):
+                Path(str(pfam_db) + ext).write_text("")
+        elif cmd[0] == "hmmsearch":
+            domtblout = Path(cmd[2])
+            domtblout.write_text("# hmmer domtblout\n")
+        return subprocess.CompletedProcess(cmd, 0)
+
+    monkeypatch.setattr(cli, "run_longorfs", fake_run_longorfs)
+    monkeypatch.setattr("pytransdecoder.predict.TransDecoderPredict", DummyPredict)
+    monkeypatch.setattr("subprocess.run", fake_subprocess_run)
+
+    parser = cli.create_pipeline_parser()
+    args = parser.parse_args([
+        "-t", str(transcripts_fasta),
+        "-O", str(tmp_path),
+        "--pfam-search-db", str(pfam_db),
+    ])
+
+    cli.pipeline_cmd(args)
+
+    assert ["hmmpress", "-f", str(pfam_db)] in recorded_cmds
+    assert [
+        "hmmsearch",
+        "--domtblout",
+        str(tmp_path / "transcripts.fa.transdecoder_dir" / "pfam.domtblout"),
+        str(pfam_db),
+        str(tmp_path / "transcripts.fa.transdecoder_dir" / "longest_orfs.pep"),
+    ] in recorded_cmds
+    assert predict_kwargs["retain_pfam_hits"] == str(
+        tmp_path / "transcripts.fa.transdecoder_dir" / "pfam.domtblout"
+    )

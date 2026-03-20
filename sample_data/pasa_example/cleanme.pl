@@ -19,6 +19,7 @@ pasa_assemblies.gff3.gz
 runMe.sh
 pasa_assemblies_described.txt.gz
 Makefile
+pasa_assemblies.GTF.gz    
                         );
 
 

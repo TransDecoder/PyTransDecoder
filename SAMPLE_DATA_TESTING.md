@@ -6,8 +6,9 @@ The `sample_data/` directory contains multiple test examples that demonstrate Tr
 ## Current Status
 
 ### ✅ Core Functionality Working
-1. **Wrapper scripts created**: `TransDecoder.LongOrfs` and `TransDecoder.Predict`
+1. **Compatibility wrappers relocated**: `util/TransDecoder.LongOrfs` and `util/TransDecoder.Predict`
    - These bash wrappers call `pytransdecoder longorfs` and `pytransdecoder predict`
+   - `pyTransdecoder` is the preferred primary interface for full pipeline runs
    - Maintains compatibility with existing test scripts
 
 2. **Utility scripts**: Self-contained `util/` directory
