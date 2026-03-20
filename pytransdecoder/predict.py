@@ -1527,6 +1527,64 @@ class TransDecoderPredict:
                 # BED12 format with additional fields
                 # For now, use simple BED6 format
                 out.write(f"{chrom}\t{start}\t{end}\t{name}\t{score}\t{strand}\n")
+
+    @staticmethod
+    def _get_orf_type_from_protein(protein: str) -> str:
+        """Infer ORF completeness from the translated protein sequence."""
+        has_start = protein.startswith("M")
+        has_stop = protein.endswith("*")
+
+        if has_start and has_stop:
+            return "complete"
+        if has_start:
+            return "3prime_partial"
+        if has_stop:
+            return "5prime_partial"
+        return "internal"
+
+    def _format_transdecoder_fasta_header(
+        self,
+        feature: Dict[str, object],
+        gene_id: str,
+        sequence: str,
+        protein: str,
+        seq_type: str,
+    ) -> str:
+        """Reconstruct the Perl-style FASTA header for final outputs."""
+        attrs = feature['attributes']
+        model_id = attrs.get('ID', [''])[0]
+        transcript_id = feature['seqid']
+        start = feature['start']
+        end = feature['end']
+        strand = feature['strand']
+
+        orf_type = self._get_orf_type_from_protein(protein)
+        com_name = f"ORF type:{orf_type} ({strand})"
+
+        score = attrs.get('score', [''])[0]
+        if score:
+            com_name += f",score={score}"
+
+        blast_info = attrs.get('blast', [''])[0]
+        if blast_info:
+            com_name += blast_info if blast_info.startswith(',') else f",{blast_info}"
+
+        pfam_info = attrs.get('pfam', [''])[0]
+        if pfam_info:
+            com_name += pfam_info if pfam_info.startswith(',') else f",{pfam_info}"
+
+        seq_len = len(protein.rstrip('*')) if seq_type == 'pep' else len(sequence)
+
+        header_parts = [model_id]
+        if gene_id:
+            header_parts.append(gene_id)
+        header_parts.extend([
+            com_name,
+            f"len:{seq_len}",
+            f"{transcript_id}:{start}-{end}({strand})",
+        ])
+
+        return " ".join(part for part in header_parts if part)
     
     def _gff3_to_proteins(self, gff3_file: Path, output_file: Path, seq_type: str = 'pep'):
         """
@@ -1557,6 +1615,7 @@ class TransDecoderPredict:
                 end = feature['end']
                 strand = feature['strand']
                 orf_id = feature['attributes'].get('ID', [''])[0]
+                gene_id = feature['attributes'].get('Parent', [''])[0]
                 
                 if transcript_id not in transcripts:
                     logger.warning(f"Transcript {transcript_id} not found in input file")
@@ -1584,11 +1643,18 @@ class TransDecoderPredict:
                 if strand == '-':
                     from pytransdecoder.core.sequence import reverse_complement
                     orf_seq = reverse_complement(orf_seq)
+
+                protein_seq = translator.translate(orf_seq, frame=0)
+                header = self._format_transdecoder_fasta_header(
+                    feature=feature,
+                    gene_id=gene_id,
+                    sequence=orf_seq,
+                    protein=protein_seq,
+                    seq_type=seq_type,
+                )
                 
                 # Generate output sequence
                 if seq_type == 'pep':
-                    # Translate to protein
-                    protein_seq = translator.translate(orf_seq, frame=0)
                     # Remove stop codon if present
                     if protein_seq.endswith('*'):
                         protein_seq = protein_seq[:-1]
@@ -1598,17 +1664,7 @@ class TransDecoderPredict:
                     output_seq = orf_seq
                 
                 # Write FASTA record
-                # Include additional info from attributes
-                gene_info = feature['attributes'].get('gene', [''])[0]
-                type_info = feature['attributes'].get('type', [''])[0]
-                
-                header = f">{orf_id}"
-                if gene_info:
-                    header += f" gene={gene_info}"
-                if type_info:
-                    header += f" type={type_info}"
-                
-                out.write(f"{header}\n")
+                out.write(f">{header}\n")
                 
                 # Write sequence (60 chars per line)
                 for i in range(0, len(output_seq), 60):

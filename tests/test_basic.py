@@ -240,3 +240,27 @@ def test_refine_start_sites_updates_plus_strand(tmp_path):
     fields = revised_line.split("\t")
     assert fields[3] == "22"
     assert "start_revised=true" in fields[8]
+
+
+def test_final_pep_header_includes_orf_metadata(tmp_path):
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
+
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+
+    gff3_file = tmp_path / "best_candidates.gff3"
+    gff3_file.write_text(
+        "##gff-version 3\n"
+        "tx1\ttransdecoder\tmRNA\t1\t9\t.\t+\t.\t"
+        "ID=tx1.p1;Parent=GENE.tx1~~tx1.p1;score=10.0;blast=blast:sp|P12345|TEST|1e-5|50\n"
+    )
+
+    pep_file = tmp_path / "out.pep"
+    predictor._gff3_to_proteins(gff3_file, pep_file, seq_type="pep")
+
+    lines = pep_file.read_text().splitlines()
+    assert lines[0] == (
+        ">tx1.p1 GENE.tx1~~tx1.p1 ORF type:complete (+),score=10.0,"
+        "blast:sp|P12345|TEST|1e-5|50 len:2 tx1:1-9(+)"
+    )
+    assert lines[1] == "MK"
