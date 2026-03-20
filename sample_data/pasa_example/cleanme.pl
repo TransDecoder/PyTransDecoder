@@ -41,4 +41,6 @@ foreach my $file (<*>) {
 
 `rm -rf ./pasa.transdecoder_workdir*`;
 
+`rm -rf ./pasa_assemblies.cDNA.fasta.transdecoder_dir`;
+
 exit(0);
