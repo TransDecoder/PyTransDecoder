@@ -270,17 +270,20 @@ class ORFFinder:
             # Perl ALWAYS adds +3 to stop position, even for implicit stops
             # This affects both coordinate reporting and length calculations
             if strand == '-':
-                # Transform coordinates back to original sequence
+                # Transform coordinates back to original sequence. For 3' partial
+                # ORFs, use the trimmed sequence end rather than the implicit stop
+                # position so the reported span matches the extracted CDS.
                 start_adj = start_pos + 1  # 1-based position of start
-                end_adj = valid_stop + 3  # Always add +3 (matching Perl)
-                
+                end_adj = orf_end
+
                 # Transform to original sequence coordinates
                 orf_start = original_length - start_adj + 1
                 orf_end_coord = original_length - end_adj + 1
             else:
-                # Forward strand: convert to 1-based
+                # Forward strand: convert to 1-based. For 3' partial ORFs, use the
+                # trimmed CDS endpoint rather than valid_stop + 3.
                 orf_start = start_pos + 1  # 1-based position of start
-                orf_end_coord = valid_stop + 3  # Always add +3 (matching Perl)
+                orf_end_coord = orf_end
             
             # Create ORF object
             orf = ORF(

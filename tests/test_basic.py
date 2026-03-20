@@ -101,6 +101,26 @@ def test_orf_finder_complete_only():
             assert orf.orf_type == "complete"
 
 
+def test_orf_finder_3prime_partial_coordinates_match_trimmed_cds():
+    finder = ORFFinder(
+        min_protein_length=1,
+        forward_strand=True,
+        reverse_strand=False,
+    )
+
+    # No in-frame stop codon after the start. The trailing 2 nt should be
+    # trimmed from the CDS and must not remain in the reported coordinates.
+    sequence = "ATGAAACCCGGGTTTTT"
+    orfs = finder.find_all_orfs(sequence, "test")
+
+    partial = next(orf for orf in orfs if orf.strand == '+' and orf.orf_type == "3prime_partial")
+
+    assert partial.sequence == "ATGAAACCCGGGTTT"
+    assert partial.start == 1
+    assert partial.end == 15
+    assert partial.length == len(partial.sequence)
+
+
 def test_orf_finder_min_length():
     """Test minimum length filtering"""
     # Very short ORF
@@ -267,7 +287,7 @@ def test_final_pep_header_includes_orf_metadata(tmp_path):
         ">tx1.p1 GENE.tx1~~tx1.p1 ORF type:complete (+),score=10.0,"
         "blast:sp|P12345|TEST|1e-5|50 len:2 tx1:1-9(+)"
     )
-    assert lines[1] == "MK"
+    assert lines[1] == "MK*"
 
 
 def test_pipeline_runs_pfam_search_and_passes_domtblout(tmp_path, monkeypatch):

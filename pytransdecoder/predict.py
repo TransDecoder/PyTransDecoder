@@ -1655,9 +1655,6 @@ class TransDecoderPredict:
                 
                 # Generate output sequence
                 if seq_type == 'pep':
-                    # Remove stop codon if present
-                    if protein_seq.endswith('*'):
-                        protein_seq = protein_seq[:-1]
                     output_seq = protein_seq
                 else:
                     # CDS sequence
