@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+# //TODO: make this a streamlined use-case through pyTransDecoder instead of doing it piecemeal. 
+
 if [ ! -e Trinity.fasta ]; then
     gunzip -c Trinity.fasta.gz > Trinity.fasta
     gunzip -c genome_alignments.gmap.gff3.gz > genome_alignments.gmap.gff3
