@@ -408,3 +408,37 @@ def test_orf_finder_min_length_counts_implicit_stop_like_perl():
     assert frame0_types(partial) == ["3prime_partial"]
     assert frame0_types(complete) == ["complete"]
     assert frame0_types(too_short) == []
+
+
+# Translation tables from the Perl TransDecoder's Nuc_translator.pm (codons in TCAG order).
+PERL_GENETIC_CODES = {
+    'Universal': "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Vertebrates': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
+    'Mitochondrial-Yeast': "FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Protozoan': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Invertebrates': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG",
+    'Ciliate': 'FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+    'Mitochondrial-Echinoderm': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+    'Euplotid': "FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Candida': "FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Ascidian': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG",
+    'Mitochondrial-Chlorophycean': "FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Trematode': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+    'Mitochondrial-Scenedesmus_obliquus': "FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Thraustochytrium': "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mitochondrial-Pterobranchia': "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+    'SR1_Gracilibacteria': "FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Pachysolen_tannophilus': "FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Mesodinium': "FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+    'Peritrich': "FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+}
+
+
+@pytest.mark.parametrize("name", sorted(PERL_GENETIC_CODES))
+def test_genetic_codes_match_perl(name):
+    bases = "TCAG"
+    codons = [a + b + c for a in bases for b in bases for c in bases]
+    t = Translator(name)
+    expected = PERL_GENETIC_CODES[name]
+    assert "".join(t.translate(c) for c in codons) == expected
+    assert set(t.get_stop_codons()) == {c for c, aa in zip(codons, expected) if aa == "*"}

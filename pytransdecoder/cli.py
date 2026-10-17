@@ -40,7 +40,7 @@ Example:
     parser.add_argument(
         '-G', '--genetic-code',
         default='universal',
-        help='Genetic code (universal, Euplotes, Tetrahymena, Candida, etc.) (default: universal)'
+        help='Genetic code (universal, Euplotid, Tetrahymena, Candida, etc.) (default: universal)'
     )
     parser.add_argument(
         '-S', '--strand-specific',

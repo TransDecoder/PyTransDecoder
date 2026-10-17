@@ -43,8 +43,20 @@ class Translator:
         'candida': 12,  # CUG encodes Ser instead of Leu
         'acetabularia': 6,
         'tetrahymena': 6,
-        'mesodinium': 6,
-        'peritrich': 6,
+        'mesodinium': 29,  # UAA/UAG encode Tyr
+        'peritrich': 30,   # UAA/UAG encode Glu
+        # names used by the Perl TransDecoder (Nuc_translator.pm)
+        'mitochondrial_vertebrates': 2,
+        'mitochondrial_yeast': 3,
+        'mitochondrial_protozoan': 4,
+        'mitochondrial_invertebrates': 5,
+        'mitochondrial_echinoderm': 9,
+        'mitochondrial_ascidian': 13,
+        'mitochondrial_chlorophycean': 16,
+        'mitochondrial_trematode': 21,
+        'mitochondrial_scenedesmus_obliquus': 22,
+        'mitochondrial_thraustochytrium': 23,
+        'mitochondrial_pterobranchia': 24,
     }
     
     def __init__(self, genetic_code: str = "universal"):
