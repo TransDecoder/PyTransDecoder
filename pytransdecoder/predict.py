@@ -585,6 +585,11 @@ class TransDecoderPredict:
         
         orfs_by_transcript = {}
         for orf in parse_gff3(self.gff3_file):
+            # one candidate per ORF: its mRNA feature carries the ORF ID used for
+            # scores and homology hits (gene/exon/CDS lines would otherwise enter as
+            # unscored duplicates and could displace the ORF in overlap filtering)
+            if orf['type'] != 'mRNA':
+                continue
             transcript_id = orf['seqid']
             if transcript_id not in orfs_by_transcript:
                 orfs_by_transcript[transcript_id] = []
