@@ -78,8 +78,11 @@ class ORFFinder:
             rev_seq = reverse_complement(sequence)
             orfs.extend(self._find_orfs_strand(rev_seq, seq_id, '-', original_length))
         
-        # Sort by length descending (longest first)
-        orfs.sort(key=lambda x: x.length, reverse=True)
+        # Longest first, as LongOrfs orders them (and hence numbers them .p1, .p2, ...).
+        # Perl generates ORFs per strand (+ then -) in order of start position and then
+        # applies two stable 'reverse sort's by length, so ties keep generation order.
+        strand_rank = {'+': 0, '-': 1}
+        orfs.sort(key=lambda x: (-x._perl_sort_len, strand_rank[x.strand], x._strand_start))
         
         return orfs
     
@@ -303,7 +306,12 @@ class ORFFinder:
                 length=len(orf_seq),
                 frame=frame
             )
-            
+            # Ordering used by LongOrfs (see find_all_orfs): Perl sorts on the untrimmed
+            # length (through the end of the sequence for 3' partials) and generates
+            # ORFs in order of start position within a strand, across frames.
+            orf._perl_sort_len = (orf_end if is_real_stop else len(sequence)) - start_pos
+            orf._strand_start = start_pos
+
             orfs.append(orf)
         
         return orfs
