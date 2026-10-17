@@ -23,6 +23,17 @@ from pytransdecoder.core.pwm import score_start_window
 logger = logging.getLogger(__name__)
 
 
+def _perl_reverse_sort(items, key):
+    """Longest-first ordering exactly as Perl's `reverse sort {$a <=> $b}` produces it.
+
+    Perl's sort is stable, so reversing an ascending sort places tied items in
+    reverse input order (unlike sorted(..., reverse=True), which keeps input order).
+    The training-set selection applies this ordering at each of its three steps,
+    and tie order determines which equal-length ORFs make the training set.
+    """
+    return list(reversed(sorted(items, key=key)))
+
+
 class TransDecoderPredict:
     """Main class for TransDecoder prediction phase"""
     
@@ -175,7 +186,7 @@ class TransDecoderPredict:
                     longest_orfs.append((record, seq_len))
         
         # Sort by length (longest first)
-        longest_orfs.sort(key=lambda x: x[1], reverse=True)
+        longest_orfs = _perl_reverse_sort(longest_orfs, key=lambda x: x[1])
         
         # Take top red_num
         longest_orfs = longest_orfs[:red_num]
@@ -188,7 +199,7 @@ class TransDecoderPredict:
                    f"({len(nr_orfs)/len(longest_orfs)*100:.1f}%)")
         
         # Step 3: Select top N from non-redundant set
-        nr_orfs_sorted = sorted(nr_orfs, key=lambda x: len(x.seq), reverse=True)
+        nr_orfs_sorted = _perl_reverse_sort(nr_orfs, key=lambda x: len(x.seq))
         training_orfs = nr_orfs_sorted[:self.top_orfs_train]
         logger.info(f"Final training set: {len(training_orfs)} ORFs")
         
@@ -224,8 +235,8 @@ class TransDecoderPredict:
         # Create translator
         translator = Translator(self.genetic_code)
         
-        # Process in order of longest first (already sorted)
-        for record, _ in orf_records:
+        # exclude_similar_proteins.pl re-sorts its input longest-first, which reverses ties again
+        for record, _ in _perl_reverse_sort(orf_records, key=lambda x: x[1]):
             acc = record.id
             sequence = str(record.seq)
             
