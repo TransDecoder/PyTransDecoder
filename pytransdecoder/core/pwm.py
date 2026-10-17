@@ -135,6 +135,24 @@ class PWM:
         return motif_score
 
 
+def score_start_window(
+    pwm_plus: PWM, pwm_minus: PWM, feature: str, atg_position: int, up: int, down: int
+) -> Optional[float]:
+    """Length-normalized +/- log-odds score of a start-codon feature.
+
+    Scores `up` bases upstream of the ATG, the ATG itself, and `down` bases downstream,
+    then divides by (up + down). Both PWM training (ROC/threshold selection) and start
+    refinement must score candidates through this function so that the selected
+    threshold is applied on the same scale and window it was learned on.
+    """
+    score = pwm_plus.score_plus_minus(
+        feature, pwm_minus, pwm_range=(atg_position - up, atg_position + 2 + down)
+    )
+    if score is None:
+        return None
+    return score / (up + down)
+
+
 def build_pwm(features: Iterable[str]) -> PWM:
     pwm = PWM()
     for feature in features:

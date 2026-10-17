@@ -346,3 +346,33 @@ def test_pipeline_runs_pfam_search_and_passes_domtblout(tmp_path, monkeypatch):
     assert predict_kwargs["retain_pfam_hits"] == str(
         tmp_path / "transcripts.fa.transdecoder_dir" / "pfam.domtblout"
     )
+
+
+def test_score_start_window_bounds_and_normalization():
+    """The start-refinement window must cover exactly `up` bases 5' of the ATG, the ATG,
+    and `down` bases 3' of it, and be normalized by (up + down), matching training."""
+    from pytransdecoder.core.pwm import build_pwm, score_start_window
+
+    atg = 20
+    base = "C" * atg + "ATG" + "C" * 10  # 33-nt feature, ATG at index 20
+
+    def with_base(seq, idx, b):
+        return seq[:idx] + b + seq[idx + 1:]
+
+    # positives carry an A just outside the window (idx 18) and a T at the last
+    # downstream position inside it (idx 23); negatives carry neither.
+    plus = build_pwm([with_base(with_base(base, 18, "A"), 23, "T")] * 20)
+    minus = build_pwm([base] * 20)
+
+    probe_outside = with_base(base, 18, "A")
+    probe_inside = with_base(base, 23, "T")
+
+    # up=1 -> window starts at idx 19, so idx 18 must not contribute
+    assert abs(score_start_window(plus, minus, probe_outside, atg, 1, 1) - 
+               score_start_window(plus, minus, base, atg, 1, 1)) < 1e-9
+    # down=1 -> window ends at idx 23, so idx 23 must contribute
+    assert score_start_window(plus, minus, probe_inside, atg, 1, 1) > \
+        score_start_window(plus, minus, base, atg, 1, 1)
+    # normalization by up + down
+    raw = plus.score_plus_minus(probe_inside, minus, pwm_range=(atg - 3, atg + 2 + 4))
+    assert abs(score_start_window(plus, minus, probe_inside, atg, 3, 4) - raw / 7) < 1e-9

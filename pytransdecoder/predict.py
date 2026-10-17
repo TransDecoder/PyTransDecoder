@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from Bio import SeqIO
 
+from pytransdecoder.core.pwm import score_start_window
+
 logger = logging.getLogger(__name__)
 
 
@@ -1163,15 +1165,9 @@ class TransDecoderPredict:
         max_feature_select: int,
     ) -> None:
         for up, down in up_down_combos:
-            range_left = atg_position - up
-            range_right = atg_position + 2 + down
-            local_pwm_len = up + down
             for feature in features[:max_feature_select]:
-                score = pwm_plus.score_plus_minus(feature, pwm_minus, pwm_range=(range_left, range_right))
-                if score is None:
-                    score_str = "NA"
-                else:
-                    score_str = f"{score / local_pwm_len:.3f}"
+                score = score_start_window(pwm_plus, pwm_minus, feature, atg_position, up, down)
+                score_str = "NA" if score is None else f"{score:.3f}"
                 handle.write(f"{up},{down}\t{feature_set_type}\t{score_str}\n")
 
     def _feature_scores_to_roc(self, feature_scores_file: Path, roc_file: Path) -> None:
@@ -1348,13 +1344,11 @@ class TransDecoderPredict:
                     if pos > start_index and (pos - start_index) % 3 == 0:
                         feature_seq_start = pos - atg_pwm_pos
                         feature_seq_end = feature_seq_start + pwm_plus.length
-                        if feature_seq_start > 0 and feature_seq_end <= len(oriented_seq):
+                        if feature_seq_start >= 0 and feature_seq_end <= len(oriented_seq):
                             feature_seq = oriented_seq[feature_seq_start:feature_seq_end]
-                            score = pwm_plus.score_plus_minus(
-                                feature_seq, pwm_minus, pwm_range=(
-                                    atg_pwm_pos - pwm_range[0] - 1,
-                                    atg_pwm_pos + 2 + pwm_range[1] - 1,
-                                )
+                            # same window and normalization as used to select min_threshold
+                            score = score_start_window(
+                                pwm_plus, pwm_minus, feature_seq, atg_pwm_pos, pwm_range[0], pwm_range[1]
                             )
                             if score is not None:
                                 score = round(score, 3)
