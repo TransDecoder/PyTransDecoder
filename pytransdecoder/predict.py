@@ -75,6 +75,9 @@ class TransDecoderPredict:
         self.single_best_only = single_best_only
         self.no_refine_starts = no_refine_starts
         self.genetic_code = genetic_code
+        # Terminal stops excluded from Markov training and scoring
+        from pytransdecoder.core.translator import Translator
+        self.stop_codons = frozenset(Translator(genetic_code).get_stop_codons())
         
         # Derived paths
         self.workdir = self.output_dir / f"{self.transcripts_file.name}.transdecoder_dir"
@@ -340,7 +343,7 @@ class TransDecoderPredict:
                         # Skip stop codons at the end
                         if (i == seq_len - 3 and frame == 0):
                             codon = sequence[i:i+3]
-                            if codon in ('TAA', 'TAG', 'TGA'):
+                            if codon in self.stop_codons:
                                 break
                         
                         # Count frame positions (needed for Markov chain)
@@ -517,7 +520,7 @@ class TransDecoderPredict:
             # Skip stop codons at the end
             if i == seq_length - 3 and frame == 0:
                 codon = sequence[i:i+3]
-                if codon in ('TAA', 'TAG', 'TGA'):
+                if codon in self.stop_codons:
                     break
             
             # Look up score

@@ -442,3 +442,23 @@ def test_genetic_codes_match_perl(name):
     expected = PERL_GENETIC_CODES[name]
     assert "".join(t.translate(c) for c in codons) == expected
     assert set(t.get_stop_codons()) == {c for c, aa in zip(codons, expected) if aa == "*"}
+
+
+def test_markov_terminal_stop_follows_genetic_code(tmp_path):
+    """The terminal stop excluded from Markov scoring must be a stop of the selected code:
+    AGA ends a vertebrate mitochondrial ORF; TAA is a glutamine codon under Tetrahymena."""
+    transcripts_fasta = tmp_path / "t.fa"
+    transcripts_fasta.write_text(">t\nATG\n")
+    scores = {"AGA-2": 5.0, "TAA-2": 5.0}  # trinucleotide ending at position 2
+
+    universal = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+    mito = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                               genetic_code="Mitochondrial-Vertebrates")
+    tetra = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                                genetic_code="Tetrahymena")
+
+    # 3-nt sequences: position 0 starts the terminal triplet, so a stop scores nothing
+    assert universal._score_cds_via_markov("AGA", 2, scores) != 0.0
+    assert mito._score_cds_via_markov("AGA", 2, scores) == 0.0
+    assert universal._score_cds_via_markov("TAA", 2, scores) == 0.0
+    assert tetra._score_cds_via_markov("TAA", 2, scores) != 0.0
