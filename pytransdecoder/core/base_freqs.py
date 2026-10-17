@@ -6,72 +6,63 @@ Replaces compute_base_probs.pl
 """
 
 from typing import Dict
-from collections import defaultdict
 from Bio import SeqIO
 
 
-def compute_base_frequencies(
-    fasta_file: str,
-    top_strand_only: bool = False
-) -> Dict[str, float]:
+def compute_base_counts(fasta_file: str, top_strand_only: bool = False) -> Dict[str, int]:
     """
-    Compute nucleotide base frequencies from FASTA file.
-    
-    Args:
-        fasta_file: Path to FASTA file
-        top_strand_only: If True, only count forward strand
-    
-    Returns:
-        Dictionary mapping nucleotides to frequencies
+    Count nucleotides in a FASTA file, as compute_base_probs.pl does.
+
+    Unless top_strand_only, each base also increments its complement so that
+    the counts reflect both strands (A=T, C=G).
     """
-    counts = defaultdict(int)
-    total = 0
-    
-    # Count bases
+    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    counts = {base: 0 for base in 'ACGT'}
     for record in SeqIO.parse(fasta_file, "fasta"):
-        sequence = str(record.seq).upper()
-        
-        for base in sequence:
-            if base in 'ACGT':
+        for base in str(record.seq).upper():
+            if base in counts:
                 counts[base] += 1
-                total += 1
-                
-                # If counting both strands, add reverse complement
                 if not top_strand_only:
-                    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
                     counts[complement[base]] += 1
-                    total += 1
-    
-    # Convert to frequencies
+    return counts
+
+
+def compute_base_frequencies(fasta_file: str, top_strand_only: bool = False) -> Dict[str, float]:
+    """Nucleotide frequencies from a FASTA file (see compute_base_counts)."""
+    counts = compute_base_counts(fasta_file, top_strand_only)
+    total = sum(counts.values())
     if total == 0:
-        return {'A': 0.25, 'C': 0.25, 'G': 0.25, 'T': 0.25}
-    
-    frequencies = {base: counts[base] / total for base in 'ACGT'}
-    
-    return frequencies
+        return {base: 0.25 for base in 'ACGT'}
+    return {base: counts[base] / total for base in 'ACGT'}
 
 
-def write_base_frequencies(frequencies: Dict[str, float], output_file: str):
+def write_base_frequencies(counts: Dict[str, int], output_file: str):
     """
-    Write base frequencies to file.
-    
-    Format matches TransDecoder's base_freqs.dat
+    Write base_freqs.dat in TransDecoder's format: base, count, ratio (3 decimals).
+
+    The rounded ratio is what both implementations read back as the background
+    model, so it is written exactly as compute_base_probs.pl does.
     """
+    total = sum(counts.values())
     with open(output_file, 'w') as f:
-        for base in sorted(frequencies.keys()):
-            f.write(f"{base}\t{frequencies[base]:.6f}\n")
+        for base in 'ACGT':
+            ratio = counts[base] / total if total else 0.25
+            f.write(f"{base}\t{counts[base]}\t{ratio:.3f}\n")
 
 
 def read_base_frequencies(input_file: str) -> Dict[str, float]:
-    """Read base frequencies from file"""
+    """Read background base frequencies from base_freqs.dat (base, count, ratio)."""
     frequencies = {}
-    
     with open(input_file) as f:
         for line in f:
-            if line.strip():
-                base, freq = line.strip().split('\t')
-                frequencies[base] = float(freq)
-    
+            parts = line.split()
+            if len(parts) == 3:
+                frequencies[parts[0]] = float(parts[2])
+            elif len(parts) == 2:  # files written by PyTransDecoder <= 0.1.0
+                frequencies[parts[0]] = float(parts[1])
+    missing = set('ACGT') - set(frequencies)
+    if missing:
+        raise ValueError(f"{input_file}: missing base frequencies for {sorted(missing)}")
     return frequencies
 
 

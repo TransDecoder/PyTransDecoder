@@ -14,7 +14,7 @@ from tqdm import tqdm
 from .core.orf_finder import ORFFinder
 from .core.models import ORF
 from .core.writers import GFF3Writer, FastaWriter
-from .core.base_freqs import compute_base_frequencies, write_base_frequencies
+from .core.base_freqs import compute_base_counts, write_base_frequencies
 
 
 def run_longorfs(
@@ -68,8 +68,8 @@ def run_longorfs(
         print("\n\n-first extracting base frequencies, we'll need them later.\n", file=sys.stderr)
     
     base_freqs_file = workdir / "base_freqs.dat"
-    base_freqs = compute_base_frequencies(str(transcripts_file), strand_specific)
-    write_base_frequencies(base_freqs, str(base_freqs_file))
+    base_counts = compute_base_counts(str(transcripts_file), strand_specific)
+    write_base_frequencies(base_counts, str(base_freqs_file))
     
     # Step 2: Extract ORFs
     if verbose:

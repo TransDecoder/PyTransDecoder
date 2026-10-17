@@ -376,3 +376,18 @@ def test_score_start_window_bounds_and_normalization():
     # normalization by up + down
     raw = plus.score_plus_minus(probe_inside, minus, pwm_range=(atg - 3, atg + 2 + 4))
     assert abs(score_start_window(plus, minus, probe_inside, atg, 3, 4) - raw / 7) < 1e-9
+
+
+def test_base_freqs_roundtrip_matches_perl_format(tmp_path):
+    """base_freqs.dat must be base/count/ratio (as compute_base_probs.pl writes it) and be
+    read back as the Markov background model, not silently replaced by 0.25."""
+    from pytransdecoder.core.base_freqs import compute_base_counts, write_base_frequencies, read_base_frequencies
+
+    fa = tmp_path / "t.fa"
+    fa.write_text(">a\nAAAAAAACCG\n")
+    counts = compute_base_counts(str(fa))
+    assert counts == {"A": 7, "T": 7, "C": 3, "G": 3}
+    out = tmp_path / "base_freqs.dat"
+    write_base_frequencies(counts, str(out))
+    assert out.read_text().splitlines()[0] == "A\t7\t0.350"
+    assert read_base_frequencies(str(out)) == {"A": 0.35, "C": 0.15, "G": 0.15, "T": 0.35}

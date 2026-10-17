@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from Bio import SeqIO
 
+from pytransdecoder.core.base_freqs import read_base_frequencies
 from pytransdecoder.core.pwm import score_start_window
 
 logger = logging.getLogger(__name__)
@@ -346,20 +347,11 @@ class TransDecoderPredict:
         
         # Load background base probabilities
         logger.info("Loading background base frequencies...")
-        background_probs = {}
         if not self.base_freqs_file.exists():
-            # If base_freqs.dat doesn't exist, calculate it now
-            logger.warning(f"Base frequencies file not found: {self.base_freqs_file}")
-            logger.info("Calculating base frequencies from transcripts...")
-            background_probs = self._compute_base_frequencies()
-        else:
-            with open(self.base_freqs_file) as f:
-                for line in f:
-                    parts = line.strip().split('\t')
-                    if len(parts) >= 3:
-                        base, count, ratio = parts[0], parts[1], parts[2]
-                        background_probs[base] = float(ratio)
-        
+            raise FileNotFoundError(f"{self.base_freqs_file} not found; run LongOrfs first")
+        background_probs = read_base_frequencies(str(self.base_freqs_file))
+        logger.info(f"Background base frequencies: {background_probs}")
+
         # Calculate log-likelihood ratios
         logger.info("Computing log-likelihood scores...")
         scores = []
@@ -393,7 +385,7 @@ class TransDecoderPredict:
             
             # Background probability
             last_base = kmer[-1]
-            background_prob = background_probs.get(last_base, 0.25)
+            background_prob = background_probs[last_base]
             
             # Log-likelihood ratio
             import math
@@ -410,35 +402,6 @@ class TransDecoderPredict:
         
         checkpoint.write_text("OK")
         return output_file
-    
-    def _compute_base_frequencies(self) -> Dict[str, float]:
-        """
-        Compute background base frequencies from transcripts
-        
-        Returns:
-            Dictionary mapping base (A, C, G, T) to frequency
-        """
-        base_counter = {'A': 0, 'C': 0, 'G': 0, 'T': 0}
-        
-        with open(self.transcripts_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
-                sequence = str(record.seq).upper()
-                for base in sequence:
-                    if base in base_counter:
-                        base_counter[base] += 1
-        
-        total = sum(base_counter.values())
-        background_probs = {base: count / total for base, count in base_counter.items()}
-        
-        # Write to file for future use
-        with open(self.base_freqs_file, 'w') as f:
-            for base in sorted(background_probs.keys()):
-                count = base_counter[base]
-                ratio = background_probs[base]
-                f.write(f"{base}\t{count}\t{ratio:.3f}\n")
-        
-        logger.info(f"Base frequencies: {background_probs}")
-        return background_probs
     
     def _score_all_orfs(self, hexamer_scores_file: Path) -> Path:
         """
