@@ -391,3 +391,20 @@ def test_base_freqs_roundtrip_matches_perl_format(tmp_path):
     write_base_frequencies(counts, str(out))
     assert out.read_text().splitlines()[0] == "A\t7\t0.350"
     assert read_base_frequencies(str(out)) == {"A": 0.35, "C": 0.15, "G": 0.15, "T": 0.35}
+
+
+def test_orf_finder_min_length_counts_implicit_stop_like_perl():
+    """LongOrfs counts the implicit 3' stop as a codon, so a 3'-partial ORF of 99 codons
+    passes -m 100 exactly as a complete ORF of 99 codons + stop does."""
+    partial = "ATG" + "GCT" * 98                     # 297 nt, runs off the 3' end
+    complete = "ATG" + "GCT" * 98 + "TAA"            # 300 nt incl. stop
+    too_short = "ATG" + "GCT" * 97                   # 294 nt, runs off the 3' end
+
+    finder = ORFFinder(min_protein_length=100, reverse_strand=False)
+
+    def frame0_types(seq):  # the GCT repeat is also open in frames 1-2; look only at the ATG frame
+        return [o.orf_type for o in finder.find_all_orfs(seq, "x") if o.start == 1]
+
+    assert frame0_types(partial) == ["3prime_partial"]
+    assert frame0_types(complete) == ["complete"]
+    assert frame0_types(too_short) == []

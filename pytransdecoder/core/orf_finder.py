@@ -229,8 +229,12 @@ class ORFFinder:
                 orf_seq = orf_seq[:-remainder]
                 orf_end = start_pos + len(orf_seq)
             
-            # Length check
-            if len(orf_seq) < self.min_nt_length:
+            # Length check. As in TransDecoder.LongOrfs, length is counted in codons up to
+            # and including the stop; for 3' partials the implicit stop just past the
+            # sequence end counts as that final codon, so both complete and 3'-partial
+            # ORFs must encode at least (min_protein_length - 1) amino acids.
+            min_len = self.min_nt_length if is_real_stop else self.min_nt_length - 3
+            if len(orf_seq) < min_len:
                 continue
             
             # Translate
