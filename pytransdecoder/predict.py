@@ -90,12 +90,13 @@ class TransDecoderPredict:
         self.pep_file = self.longest_orfs_prefix.with_suffix(self.longest_orfs_prefix.suffix + ".pep")
         self.base_freqs_file = self.workdir / "base_freqs.dat"
         
-        # GC content to minimum ORF length mapping (from Perl code)
-        # Based on 0.999 quantile of random ORFs
+        # GC% -> minimum ORF length (nt) retained regardless of coding score: the 0.999
+        # quantile of LongOrfs ORF lengths in random sequence of that GC content
+        # (TransDecoderPaper/analyses/long_orf_threshold; same table as TransDecoder.Predict)
         self.gc_to_min_length = [
-            (25, 465), (30, 510), (35, 555), (40, 590),
-            (45, 645), (50, 749), (55, 797), (60, 927),
-            (65, 1086), (70, 1358), (75, 1743), (80, 2422)
+            (25, 519), (30, 552), (35, 573), (40, 615),
+            (45, 663), (50, 726), (55, 804), (60, 927),
+            (65, 1083), (70, 1347), (75, 1746), (80, 2436)
         ]
         
     def validate_inputs(self):
