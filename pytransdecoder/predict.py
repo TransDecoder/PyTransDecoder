@@ -22,6 +22,10 @@ from pytransdecoder.core.pwm import score_start_window
 
 logger = logging.getLogger(__name__)
 
+# Start-codon PWM training needs this many start-site features (training ORFs with a complete
+# ATG window); below it, start refinement is skipped. Matches util/train_start_PWM.pl.
+MIN_START_PWM_TRAINING_FEATURES = 50
+
 
 def _perl_reverse_sort(items, key):
     """Longest-first ordering exactly as Perl's `reverse sort {$a <=> $b}` produces it.
@@ -900,7 +904,12 @@ class TransDecoderPredict:
             training_orfs_file, transcripts, pwm_left, pwm_right
         )
 
-        if not positive_features or not negative_features:
+        if len(positive_features) < MIN_START_PWM_TRAINING_FEATURES or not negative_features:
+            # e.g. transcripts lacking 5' UTRs: training ORFs start at the transcript 5' end
+            logger.warning(
+                "Only %d start-site training features (minimum %d); skipping start codon refinement",
+                len(positive_features), MIN_START_PWM_TRAINING_FEATURES,
+            )
             return None
 
         self._write_feature_file(out_prefix.with_name(out_prefix.name + ".+.features"), positive_features)

@@ -266,6 +266,20 @@ def test_refine_start_sites_updates_plus_strand(tmp_path):
     assert "start_revised=true" in fields[8]
 
 
+def test_start_pwm_training_skipped_with_too_few_features(tmp_path, monkeypatch):
+    """Training ORFs at the transcript 5' end (no 5' UTR) give almost no start-site features;
+    start refinement must be skipped rather than fail."""
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+    predictor.workdir.mkdir(parents=True, exist_ok=True)
+
+    pos = ["CCCCCCCCCCCCCCCCCCCCATGAAACCCGGGT"] * 4
+    neg = ["TTTTTTTTTTTTTTTTTTTTATGCCCCGGGAAA"] * 500
+    monkeypatch.setattr(predictor, "_extract_pwm_features", lambda *args, **kwargs: (pos, neg))
+    assert predictor._train_start_pwm(tmp_path / "unused.cds") is None
+
+
 def test_final_pep_header_includes_orf_metadata(tmp_path):
     transcripts_fasta = tmp_path / "transcripts.fa"
     transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
