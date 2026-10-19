@@ -22,9 +22,17 @@ from pytransdecoder.core.pwm import score_start_window
 
 logger = logging.getLogger(__name__)
 
+# Start refinement: an ORF open at its 5' end stays 5'-partial only when the segment before its
+# first in-frame ATG has at least this fraction of the training ORFs' per-base frame contrast
+# (TransDecoderPaper/benchmark_v2; chosen on the 2026 benchmark, alpha 0.4).
+DEFAULT_START_CONTRAST_ALPHA = 0.4
+
 # Start-codon PWM training needs this many start-site features (training ORFs with a complete
-# ATG window); below it, start refinement is skipped. Matches util/train_start_PWM.pl.
+# ATG window); below it, the PWM is not used. Matches util/train_start_PWM.pl.
 MIN_START_PWM_TRAINING_FEATURES = 50
+
+# Stop codons the GC-dependent long-ORF length table was simulated with
+STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
 
 
 def _perl_reverse_sort(items, key):
@@ -52,7 +60,9 @@ class TransDecoderPredict:
         retain_blastp_hits: Optional[Path] = None,
         single_best_only: bool = False,
         no_refine_starts: bool = False,
-        genetic_code: str = "Standard"
+        genetic_code: str = "Standard",
+        start_contrast_alpha: float = DEFAULT_START_CONTRAST_ALPHA,
+        start_atg_choice: str = "first",
     ):
         """
         Initialize TransDecoder.Predict
@@ -68,6 +78,11 @@ class TransDecoderPredict:
             single_best_only: Retain only single best ORF per transcript
             no_refine_starts: Skip start codon refinement
             genetic_code: Genetic code to use
+            start_contrast_alpha: Start refinement keeps an open 5' end only when the segment
+                before the first in-frame ATG has at least this fraction of the training ORFs'
+                per-base frame contrast
+            start_atg_choice: when an open 5' end is trimmed, 'first' in-frame ATG or 'pwm'
+                (first candidate ATG passing the trained start-site PWM, else the first)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -79,6 +94,10 @@ class TransDecoderPredict:
         self.single_best_only = single_best_only
         self.no_refine_starts = no_refine_starts
         self.genetic_code = genetic_code
+        self.start_contrast_alpha = start_contrast_alpha
+        if start_atg_choice not in ("first", "pwm"):
+            raise ValueError(f"start_atg_choice must be 'first' or 'pwm', not {start_atg_choice!r}")
+        self.start_atg_choice = start_atg_choice
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
         self.stop_codons = frozenset(Translator(genetic_code).get_stop_codons())
@@ -150,7 +169,7 @@ class TransDecoderPredict:
         # Step 5: Refine start codons (if enabled)
         if not self.no_refine_starts:
             logger.info("Refining start codon predictions...")
-            best_orfs_gff3 = self._refine_start_codons(best_orfs_gff3, top_cds_file)
+            best_orfs_gff3 = self._refine_start_codons(best_orfs_gff3, top_cds_file, hexamer_scores_file)
         
         # Step 6: Generate final outputs
         logger.info("Generating final output files...")
@@ -580,12 +599,7 @@ class TransDecoderPredict:
         cds_scores = self._parse_cds_scores(cds_scores_file)
         
         # Calculate min length for auto-accept based on GC content
-        if self.retain_long_orfs_mode == 'dynamic':
-            min_length_auto_accept = self._get_min_length_by_gc()
-            logger.info(f"Dynamic mode: min auto-accept length = {min_length_auto_accept} nt")
-        else:
-            min_length_auto_accept = self.retain_long_orfs_length
-            logger.info(f"Strict mode: min auto-accept length = {min_length_auto_accept} nt")
+        min_length_auto_accept = self._min_length_auto_accept()
         
         # Parse GFF3 and select best ORFs
         logger.info(f"Selecting best ORFs from {self.gff3_file}")
@@ -752,6 +766,21 @@ class TransDecoderPredict:
                     scores[orf_id] = frame_scores
         return scores
     
+    def _min_length_auto_accept(self) -> float:
+        """ORF length (nt) at or above which an ORF is retained regardless of its coding score."""
+        if self.retain_long_orfs_mode != 'dynamic':
+            logger.info(f"Strict mode: min auto-accept length = {self.retain_long_orfs_length} nt")
+            return self.retain_long_orfs_length
+        if self.stop_codons != STANDARD_STOP_CODONS:
+            # the GC table was simulated with TAA/TAG/TGA; with fewer stops random ORFs are much
+            # longer (e.g. TGA-only ciliate code), so no ORF is retained on length alone
+            logger.info("Dynamic mode: genetic code stops %s differ from TAA/TAG/TGA; "
+                        "no length-based auto-accept", ",".join(sorted(self.stop_codons)))
+            return float('inf')
+        min_length = self._get_min_length_by_gc()
+        logger.info(f"Dynamic mode: min auto-accept length = {min_length} nt")
+        return min_length
+
     def _get_min_length_by_gc(self) -> int:
         """
         Calculate minimum ORF length based on GC content (dynamic mode)
@@ -843,46 +872,77 @@ class TransDecoderPredict:
         
         return selected
     
-    def _refine_start_codons(self, gff3_file: Path, training_orfs_file: Path) -> Path:
+    def _refine_start_codons(self, gff3_file: Path, training_orfs_file: Path,
+                             hexamer_scores_file: Path) -> Path:
         """
-        Refine start codon predictions using PWM
-        
-        This is a complex feature that trains a Position Weight Matrix (PWM)
-        on the sequence context around start codons and uses it to refine
-        predictions for 5' partial ORFs.
-        
-        For now, this is a placeholder that returns the input file unchanged.
-        Full PWM-based refinement can be implemented later if needed.
-        
-        Args:
-            gff3_file: GFF3 file with selected ORFs
-            training_orfs_file: Training ORFs file
-            
+        Decide, for each ORF open at its 5' end (no start codon), whether it is a true
+        5'-partial ORF or extends into a 5' UTR and should start at its first in-frame ATG.
+
+        The segment between the open end and the first in-frame ATG is scored with the coding
+        Markov model in its own frame and shifted by one and two bases, as in ORF selection.
+        Coding sequence scores much higher in frame than out of frame; UTR does not. The ORF is
+        trimmed to the ATG unless the segment's frame contrast reaches start_contrast_alpha
+        times the median per-base contrast of the training ORFs.
+
         Returns:
-            Path to refined GFF3 file (currently just returns input)
+            Path to the revised GFF3 file
         """
         checkpoint = self.checkpoints_dir / "refine_starts.ok"
         revised_gff3 = Path(str(gff3_file) + ".revised_starts.gff3")
-        
+
         if checkpoint.exists():
             logger.info("Start codon refinement already done (checkpoint exists)")
             return revised_gff3 if revised_gff3.exists() else gff3_file
 
-        training_outputs = self._train_start_pwm(training_orfs_file)
-        if training_outputs is None:
-            logger.info("Insufficient training data for start codon refinement - skipping")
+        scores = self._load_hexamer_scores(hexamer_scores_file)
+        per_base = []
+        with open(training_orfs_file) as f:
+            for record in SeqIO.parse(f, "fasta"):
+                seq = str(record.seq).upper()
+                if len(seq) >= 30:
+                    per_base.append(self._frame_contrast(seq, scores) / len(seq))
+        if not per_base:
+            logger.warning("No training ORFs for start refinement; skipping")
             checkpoint.write_text("OK")
             return gff3_file
+        per_base.sort()
+        mid = len(per_base) // 2
+        coding_contrast = per_base[mid] if len(per_base) % 2 else (per_base[mid - 1] + per_base[mid]) / 2
+        logger.info("Training ORFs: median frame contrast %.4f per base; open 5' ends kept when "
+                    "the upstream segment reaches %.2f of it", coding_contrast, self.start_contrast_alpha)
+
+        # start-site PWM, used to choose among candidate ATGs (start_atg_choice='pwm')
+        pwm = self._train_start_pwm(training_orfs_file)
+        if pwm is None and self.start_atg_choice == "pwm":
+            logger.info("No start-site PWM; trimmed ORFs start at their first in-frame ATG")
 
         transcripts = self._load_transcripts()
-        pwm_plus, pwm_minus, pwm_range, min_threshold = training_outputs
         num_revised = self._revise_start_sites(
-            gff3_file, revised_gff3, transcripts, pwm_plus, pwm_minus, pwm_range, min_threshold
+            gff3_file, revised_gff3, transcripts, scores, coding_contrast,
+            pwm if self.start_atg_choice == "pwm" else None,
         )
         logger.info("Revised %s start codon positions", num_revised)
-        
+
         checkpoint.write_text("OK")
         return revised_gff3
+
+    def _load_hexamer_scores(self, hexamer_scores_file: Path) -> Dict[str, float]:
+        scores = {}
+        with open(hexamer_scores_file) as f:
+            for line in f:
+                if line.startswith('#'):
+                    continue
+                parts = line.strip().split('\t')
+                if len(parts) >= 4:
+                    scores[parts[0]] = float(parts[3])
+        return scores
+
+    def _frame_contrast(self, sequence: str, scores: Dict[str, float]) -> float:
+        """In-frame Markov score minus the better of the two shifted-frame scores."""
+        return self._score_cds_via_markov(sequence, 5, scores) - max(
+            self._score_cds_via_markov(sequence[1:], 5, scores),
+            self._score_cds_via_markov(sequence[2:], 5, scores),
+        )
 
     def _train_start_pwm(self, training_orfs_file: Path):
         """
@@ -1270,108 +1330,76 @@ class TransDecoderPredict:
         gff3_file: Path,
         revised_gff3_file: Path,
         transcripts: Dict[str, str],
-        pwm_plus,
-        pwm_minus,
-        pwm_range: Tuple[int, int],
-        min_threshold: float,
+        scores: Dict[str, float],
+        coding_contrast: float,
+        pwm=None,
     ) -> int:
+        """Trim open 5' ends that extend into a UTR (see _refine_start_codons).
+
+        Candidate starts are the in-frame ATGs whose upstream segment fails the coding test.
+        Without a PWM the first is used; with one (pwm_plus, pwm_minus, range, threshold), the
+        first candidate scoring at least the threshold, else the first candidate.
+        """
         from pytransdecoder.core.sequence import reverse_complement
-
         atg_pwm_pos = 20
-        adj_dist = 30
-        adj_pct = 15
+
         num_revised = 0
-        alt_start_scores_file = self.workdir / "start_refinement.alt_start_scores"
-
-        with open(gff3_file) as src, open(revised_gff3_file, "w") as dst, open(
-            alt_start_scores_file, "w"
-        ) as scores_handle:
+        with open(gff3_file) as src, open(revised_gff3_file, "w") as dst:
             for line in src:
-                stripped = line.rstrip("\n")
-                if not stripped or stripped.startswith("#"):
+                parts = line.rstrip("\n").split("\t")
+                if line.startswith("#") or len(parts) != 9 or parts[2] != "mRNA":
                     dst.write(line)
                     continue
 
-                parts = stripped.split("\t")
-                if len(parts) != 9:
-                    dst.write(line)
-                    continue
-
-                seqid, source, feature_type = parts[0], parts[1], parts[2]
-                if feature_type != "mRNA":
-                    dst.write(line)
-                    continue
-
-                start = int(parts[3])
-                end = int(parts[4])
-                strand = parts[6]
-                attrs = self._parse_attrs(parts[8])
+                seqid, start, end, strand = parts[0], int(parts[3]), int(parts[4]), parts[6]
                 transcript_seq = transcripts.get(seqid)
                 if transcript_seq is None:
                     dst.write(line)
                     continue
 
-                oriented_seq = transcript_seq
-                start_pos = start
                 if strand == "-":
-                    oriented_seq = reverse_complement(transcript_seq)
-                    start_pos = len(oriented_seq) - end + 1
-
-                start_index = start_pos - 1
-                if oriented_seq[start_index:start_index + 3] == "ATG":
-                    dst.write(line)
-                    continue
-
-                orf_len = end - start + 1
-                max_search_pos = max(start_index + adj_dist, start_index + int(adj_pct * orf_len / 100))
-                best_alt_start = None
-                best_alt_score = None
-                alt_score_entries = []
-
-                search_pos = 0
-                while True:
-                    pos = oriented_seq.find("ATG", search_pos)
-                    if pos == -1 or pos > max_search_pos:
-                        break
-                    if pos > start_index and (pos - start_index) % 3 == 0:
-                        feature_seq_start = pos - atg_pwm_pos
-                        feature_seq_end = feature_seq_start + pwm_plus.length
-                        if feature_seq_start >= 0 and feature_seq_end <= len(oriented_seq):
-                            feature_seq = oriented_seq[feature_seq_start:feature_seq_end]
-                            # same window and normalization as used to select min_threshold
-                            score = score_start_window(
-                                pwm_plus, pwm_minus, feature_seq, atg_pwm_pos, pwm_range[0], pwm_range[1]
-                            )
-                            if score is not None:
-                                score = round(score, 3)
-                                alt_score_entries.append(
-                                    f"{pos}_{self._translate_brief(oriented_seq[pos:pos + 15])}_{score:.3f}"
-                                )
-                                if score >= min_threshold and (
-                                    best_alt_score is None or score > best_alt_score
-                                ):
-                                    best_alt_start = pos
-                                    best_alt_score = score
-                    search_pos = pos + 1
-
-                if alt_score_entries:
-                    gene_id = attrs.get("Parent", [""])[0]
-                    scores_handle.write(f"{seqid}\t{gene_id}\t" + "\t".join(alt_score_entries) + "\n")
-
-                if best_alt_start is None:
-                    dst.write(line)
-                    continue
-
-                best_alt_start += 1
-                if strand == "-":
-                    new_start = len(oriented_seq) - best_alt_start + 1
-                    parts[4] = str(new_start)
+                    orf = reverse_complement(transcript_seq[start - 1:end])
                 else:
-                    new_start = best_alt_start
-                    parts[3] = str(new_start)
+                    orf = transcript_seq[start - 1:end]
+                if orf[:3] == "ATG":
+                    dst.write(line)
+                    continue
 
+                candidates = []
+                for i in range(3, len(orf) - 3, 3):
+                    if orf[i:i + 3] != "ATG":
+                        continue
+                    c = self._frame_contrast(orf[:i], scores)
+                    if c >= self.start_contrast_alpha * coding_contrast * i:
+                        break  # this segment looks coding, and so do longer ones
+                    candidates.append((i, c))
+                    if pwm is None:
+                        break
+                if not candidates:
+                    dst.write(line)  # upstream segment looks coding: 5' partial
+                    continue
+
+                atg, contrast = candidates[0]
+                if pwm is not None:
+                    pwm_plus, pwm_minus, (up, down), threshold = pwm
+                    oriented = transcript_seq if strand == "+" else reverse_complement(transcript_seq)
+                    orf_start = start - 1 if strand == "+" else len(transcript_seq) - end
+                    for i, c in candidates:
+                        w0 = orf_start + i - atg_pwm_pos
+                        window = oriented[w0:w0 + pwm_plus.length] if w0 >= 0 else ""
+                        if len(window) == pwm_plus.length:
+                            sc = score_start_window(pwm_plus, pwm_minus, window, atg_pwm_pos, up, down)
+                            if sc is not None and sc >= threshold:
+                                atg, contrast = i, c
+                                break
+
+                if strand == "-":
+                    parts[4] = str(end - atg)
+                else:
+                    parts[3] = str(start + atg)
+                attrs = self._parse_attrs(parts[8])
                 attrs["start_revised"] = ["true"]
-                attrs["start_revised_score"] = [f"{best_alt_score:.3f}"]
+                attrs["upstream_frame_contrast"] = [f"{contrast / atg:.4f}"]
                 parts[8] = self._format_attrs(attrs)
                 dst.write("\t".join(parts) + "\n")
                 num_revised += 1

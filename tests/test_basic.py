@@ -223,52 +223,81 @@ def test_pwm_roundtrip_and_scoring(tmp_path):
     assert loaded_score == pytest.approx(positive_score)
 
 
-def test_refine_start_sites_updates_plus_strand(tmp_path):
-    transcript_seq = "CCCCCCCCCCCCCCCCCCCCCCTGAAACCCGGGTTTAAA"
-    transcript_seq = transcript_seq[:21] + "ATG" + transcript_seq[24:]
+def _predictor_with_one_orf(tmp_path, transcript_seq, mrna_line):
     transcripts_fasta = tmp_path / "transcripts.fa"
     transcripts_fasta.write_text(">tx1\n" + transcript_seq + "\n")
-
     predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
     predictor.workdir.mkdir(parents=True, exist_ok=True)
-
     gff3_file = tmp_path / "best_candidates.gff3"
-    gff3_file.write_text(
-        "##gff-version 3\n"
-        "tx1\ttransdecoder\tmRNA\t1\t34\t.\t+\t.\t"
-        "ID=tx1.p1;Parent=GENE.tx1~~tx1.p1;Name=tx1.p1;score=10.0\n"
-    )
+    gff3_file.write_text("##gff-version 3\n" + mrna_line + "\n")
+    return predictor, gff3_file
 
-    revised_gff3 = tmp_path / "best_candidates.gff3.revised"
-    pwm_plus = build_pwm(["CCCCCCCCCCCCCCCCCCCCCATGAAACCCGGGTT"])
-    pwm_minus = build_pwm(
-        [
-            "TTTTTTTTTTTTTTTTTTTTTATGCCCCGGGAAAA",
-            "GGGGGGGGGGGGGGGGGGGGGATGTTTTCCCAAAA",
-            "AAAACCCCAAAACCCCAAAACCATGCCCCAAAACC",
-        ]
-    )
 
-    num_revised = predictor._revise_start_sites(
-        gff3_file,
-        revised_gff3,
-        {"tx1": transcript_seq},
-        pwm_plus,
-        pwm_minus,
-        (5, 5),
-        min_threshold=0.0,
-    )
+@pytest.mark.parametrize("strand", ["+", "-"])
+@pytest.mark.parametrize("segment_contrast,trimmed", [(-5.0, True), (50.0, False)])
+def test_open_5prime_end_trimmed_unless_upstream_segment_is_coding(
+        tmp_path, monkeypatch, strand, segment_contrast, trimmed):
+    """An ORF open at its 5' end starts at its first in-frame ATG when the segment before the
+    ATG has little frame contrast (UTR), and stays 5'-partial when it looks coding."""
+    from pytransdecoder.core.sequence import reverse_complement
+    orf = "GCAGCAGCA" + "ATG" + "AAACCCGGGTTTAAACCC" + "TAA"   # open end, ATG at offset 9
+    tx = "CC" + orf + "GG"
+    start, end = 3, 2 + len(orf)
+    if strand == "-":
+        tx = reverse_complement(tx)
+        start, end = len(tx) - end + 1, len(tx) - start + 1
+    predictor, gff3_file = _predictor_with_one_orf(
+        tmp_path, tx,
+        f"tx1\ttransdecoder\tmRNA\t{start}\t{end}\t.\t{strand}\t.\tID=tx1.p1;Parent=GENE.tx1~~tx1.p1;score=10.0")
+    monkeypatch.setattr(predictor, "_frame_contrast",
+                        lambda seq, scores: segment_contrast if len(seq) == 9 else 0.0)
 
-    assert num_revised == 1
-    revised_line = revised_gff3.read_text().splitlines()[1]
-    fields = revised_line.split("\t")
-    assert fields[3] == "22"
-    assert "start_revised=true" in fields[8]
+    revised = tmp_path / "revised.gff3"
+    n = predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, coding_contrast=1.0)
+
+    fields = revised.read_text().splitlines()[1].split("\t")
+    assert n == (1 if trimmed else 0)
+    new_start, new_end = int(fields[3]), int(fields[4])
+    if trimmed:
+        assert (new_start, new_end) == ((start + 9, end) if strand == "+" else (start, end - 9))
+        cds = tx[new_start - 1:new_end]
+        assert (cds if strand == "+" else reverse_complement(cds)).startswith("ATG")
+        assert "start_revised=true" in fields[8]
+    else:
+        assert (new_start, new_end) == (start, end)
+
+
+def test_frame_contrast_matches_orf_selection_frames(tmp_path):
+    """The contrast is the in-frame Markov score minus the better of the scores of the sequence
+    shifted by one and two bases, as in ORF selection."""
+    predictor, _ = _predictor_with_one_orf(tmp_path, "ATGAAATAA", "")
+    scores = {"A-0": 1.0, "A-1": -1.0, "A-2": -2.0}
+    seq = "AAAAAA"
+    s0 = predictor._score_cds_via_markov(seq, 5, scores)
+    s1 = predictor._score_cds_via_markov(seq[1:], 5, scores)
+    s2 = predictor._score_cds_via_markov(seq[2:], 5, scores)
+    assert predictor._frame_contrast(seq, scores) == pytest.approx(s0 - max(s1, s2))
+
+
+def test_long_orf_auto_accept_only_for_standard_stop_codons(tmp_path):
+    """The GC-dependent length table assumes TAA/TAG/TGA; codes with other stop sets (ciliate:
+    TGA only) retain no ORF on length alone."""
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\n" + "ATGAAACCCGGGTTTTAA" * 10 + "\n")
+    std = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+    cil = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                              genetic_code="Tetrahymena")
+    assert std._min_length_auto_accept() < 3000
+    assert cil._min_length_auto_accept() == float("inf")
+    strict = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                                 genetic_code="Tetrahymena", retain_long_orfs_mode="strict",
+                                 retain_long_orfs_length=900)
+    assert strict._min_length_auto_accept() == 900
 
 
 def test_start_pwm_training_skipped_with_too_few_features(tmp_path, monkeypatch):
     """Training ORFs at the transcript 5' end (no 5' UTR) give almost no start-site features;
-    start refinement must be skipped rather than fail."""
+    PWM training must be skipped rather than fail."""
     transcripts_fasta = tmp_path / "transcripts.fa"
     transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
     predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
@@ -278,6 +307,28 @@ def test_start_pwm_training_skipped_with_too_few_features(tmp_path, monkeypatch)
     neg = ["TTTTTTTTTTTTTTTTTTTTATGCCCCGGGAAA"] * 500
     monkeypatch.setattr(predictor, "_extract_pwm_features", lambda *args, **kwargs: (pos, neg))
     assert predictor._train_start_pwm(tmp_path / "unused.cds") is None
+
+
+def test_pwm_atg_choice_skips_weak_first_atg(tmp_path, monkeypatch):
+    """With start_atg_choice='pwm', a trimmed ORF starts at the first candidate ATG passing the
+    PWM threshold; candidates are limited to ATGs whose upstream segment looks non-coding."""
+    import pytransdecoder.predict as pred
+    orf = "GCA" * 3 + "ATG" + "GCA" * 3 + "ATG" + "AAACCCGGGTTT" + "TAA"   # ATGs at 9 and 21
+    tx = "C" * 25 + orf
+    start, end = 26, len(tx)
+    predictor, gff3_file = _predictor_with_one_orf(
+        tmp_path, tx, f"tx1\ttransdecoder\tmRNA\t{start}\t{end}\t.\t+\t.\tID=tx1.p1;Parent=G;score=1")
+    monkeypatch.setattr(predictor, "_frame_contrast", lambda seq, scores: -1.0)
+    plus = build_pwm(["A" * 33]); minus = build_pwm(["A" * 33])
+    # the second ATG (transcript offset 25 + 21) passes, the first does not
+    monkeypatch.setattr(pred, "score_start_window",
+                        lambda p, m, window, pos, up, down: 1.0 if "ATG" in window[:20] else -1.0)
+    revised = tmp_path / "revised.gff3"
+    predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, 1.0, (plus, minus, (5, 5), 0.5))
+    assert int(revised.read_text().splitlines()[1].split("\t")[3]) == start + 21
+    # first-ATG choice ignores the PWM
+    predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, 1.0, None)
+    assert int(revised.read_text().splitlines()[1].split("\t")[3]) == start + 9
 
 
 def test_final_pep_header_includes_orf_metadata(tmp_path):

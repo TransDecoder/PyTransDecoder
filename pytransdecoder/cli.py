@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 from . import __version__
 from .longorfs import run_longorfs
+from .predict import DEFAULT_START_CONTRAST_ALPHA
 
 
 def create_longorfs_parser(subparsers):
@@ -160,6 +161,18 @@ Example:
         help='Skip start codon refinement'
     )
     parser.add_argument(
+        '--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
+        dest='start_contrast_alpha',
+        help="Start refinement: keep an ORF open at its 5' end only if the segment before its first "
+             "in-frame ATG reaches this fraction of the training ORFs' per-base frame contrast "
+             f"(default: {DEFAULT_START_CONTRAST_ALPHA})"
+    )
+    parser.add_argument(
+        '--start-atg-choice', choices=['first', 'pwm'], default='first', dest='start_atg_choice',
+        help="Start refinement: ATG used when an open 5' end is trimmed: the first in-frame ATG, or "
+             "the first passing the trained start-site PWM (default: first)"
+    )
+    parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
         help='Genetic code (default: Standard)'
@@ -245,7 +258,9 @@ def predict_cmd(args):
             retain_blastp_hits=str(args.retain_blastp_hits) if args.retain_blastp_hits else None,
             single_best_only=args.single_best_only,
             no_refine_starts=args.no_refine_starts,
-            genetic_code=args.genetic_code
+            genetic_code=args.genetic_code,
+            start_contrast_alpha=args.start_contrast_alpha,
+            start_atg_choice=args.start_atg_choice,
         )
         predictor.run()
     except Exception as e:
@@ -312,6 +327,12 @@ def create_pipeline_parser():
                         help='Retain only single best ORF per transcript')
     parser.add_argument('--no-refine-starts', action='store_true', dest='no_refine_starts',
                         help='Skip start codon refinement')
+    parser.add_argument('--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
+                        dest='start_contrast_alpha',
+                        help="Start refinement frame-contrast fraction (default: %(default)s)")
+    parser.add_argument('--start-atg-choice', choices=['first', 'pwm'], default='first',
+                        dest='start_atg_choice',
+                        help="ATG used when an open 5' end is trimmed (default: first)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -490,7 +511,9 @@ def pipeline_cmd(args):
             retain_blastp_hits=retain_blastp_hits,
             single_best_only=args.single_best_only,
             no_refine_starts=args.no_refine_starts,
-            genetic_code=args.genetic_code
+            genetic_code=args.genetic_code,
+            start_contrast_alpha=args.start_contrast_alpha,
+            start_atg_choice=args.start_atg_choice,
         )
         predictor.run()
     except Exception as e:
