@@ -26,11 +26,6 @@ logger = logging.getLogger(__name__)
 # (TransDecoderPaper/benchmark_v2; chosen on the 2026 benchmark, alpha 0.4).
 DEFAULT_START_CONTRAST_ALPHA = 0.4
 
-# Kozak model: log-odds of bases at -6..-1 and +4..+5 around the ATG (A of ATG = +1), true
-# starts of the training ORFs vs in-frame ATGs inside them. Needs this many training starts.
-KOZAK_UPSTREAM = 6
-KOZAK_DOWNSTREAM = 2
-MIN_KOZAK_TRAINING_STARTS = 50
 # Kozak log-odds (nats) of the candidate ATG shift the frame-contrast cutoff: an open 5' end is
 # trimmed when contrast < (alpha + weight * kozak) * the training ORFs' per-base contrast.
 DEFAULT_START_KOZAK_WEIGHT = 0.15
@@ -944,27 +939,20 @@ class TransDecoderPredict:
             self._score_cds_via_markov(sequence[2:], 5, scores),
         )
 
-    @staticmethod
-    def _kozak_window(sequence: str, atg_index: int) -> List[Optional[str]]:
-        """Bases at -6..-1 and +4..+5 around the ATG at atg_index (None outside the sequence)."""
-        positions = list(range(atg_index - KOZAK_UPSTREAM, atg_index)) + \
-            list(range(atg_index + 3, atg_index + 3 + KOZAK_DOWNSTREAM))
-        return [sequence[j] if 0 <= j < len(sequence) and sequence[j] in "ACGT" else None
-                for j in positions]
-
     def _train_kozak_model(self, training_orfs_file: Path, transcripts: Dict[str, str]):
         """
-        Per-position log-odds (natural log) of the start-codon context: training ORF starts vs
-        in-frame ATGs inside the training ORFs. Written to start_refinement.kozak.tsv.
+        Start-codon (Kozak) context model (core/kozak.py): log-odds of -6..-1 and +4..+5 for the
+        training ORFs' starts vs in-frame ATGs inside them. Writes start_refinement.kozak.tsv,
+        .kozak.counts.tsv and .kozak.logo.svg (or .kozak.SKIPPED) in the work directory.
 
-        Returns a list of {base: log-odds} per window position, or None if there are fewer
-        than MIN_KOZAK_TRAINING_STARTS training ORFs starting with ATG.
+        Returns the model, or None if fewer than kozak.MIN_TRAINING_STARTS training ORFs start
+        with ATG.
         """
+        from pytransdecoder.core import kozak
         from pytransdecoder.core.sequence import reverse_complement
 
-        n = KOZAK_UPSTREAM + KOZAK_DOWNSTREAM
-        pos_counts = [dict.fromkeys("ACGT", 0) for _ in range(n)]
-        neg_counts = [dict.fromkeys("ACGT", 0) for _ in range(n)]
+        prefix = self.workdir / "start_refinement"
+        pos_counts, neg_counts = kozak.new_counts(), kozak.new_counts()
         num_starts = 0
         pattern = re.compile(r"(\S+):(\d+)-(\d+)\(([+-])\)")
         with open(training_orfs_file) as handle:
@@ -981,33 +969,32 @@ class TransDecoderPredict:
                 if seq[start:start + 3] != "ATG":
                     continue
                 num_starts += 1
-                for counts, i in [(pos_counts, start)] + [
-                        (neg_counts, i) for i in range(start + 3, end - 3, 3) if seq[i:i + 3] == "ATG"]:
-                    for k, base in enumerate(self._kozak_window(seq, i)):
-                        if base:
-                            counts[k][base] += 1
+                kozak.add_site(pos_counts, seq, start)
+                for i in range(start + 3, end - 3, 3):
+                    if seq[i:i + 3] == "ATG":
+                        kozak.add_site(neg_counts, seq, i)
 
-        if num_starts < MIN_KOZAK_TRAINING_STARTS:
-            logger.warning("Only %d training ORFs start with ATG (minimum %d); start refinement "
-                           "uses frame contrast only", num_starts, MIN_KOZAK_TRAINING_STARTS)
+        skipped = Path(f"{prefix}.kozak.SKIPPED")
+        skipped.unlink(missing_ok=True)
+        if num_starts < kozak.MIN_TRAINING_STARTS:
+            msg = (f"only {num_starts} training ORFs start with ATG (minimum {kozak.MIN_TRAINING_STARTS}); "
+                   "start refinement uses frame contrast only")
+            logger.warning(msg)
+            skipped.write_text(msg + "\n")
             return None
 
-        model = []
-        for pc, nc in zip(pos_counts, neg_counts):
-            pt, nt = sum(pc.values()) + 4, sum(nc.values()) + 4
-            model.append({b: math.log(((pc[b] + 1) / pt) / ((nc[b] + 1) / nt)) for b in "ACGT"})
-        labels = [str(k) for k in range(-KOZAK_UPSTREAM, 0)] + \
-            [f"+{k}" for k in range(4, 4 + KOZAK_DOWNSTREAM)]
-        with open(self.workdir / "start_refinement.kozak.tsv", "w") as out:
-            out.write("#position\tA\tC\tG\tT  (log-odds, start vs internal in-frame ATG; "
-                      f"{num_starts} training starts)\n")
-            for label, row in zip(labels, model):
-                out.write(label + "\t" + "\t".join(f"{row[b]:.3f}" for b in "ACGT") + "\n")
+        model = kozak.log_odds_model(pos_counts, neg_counts)
+        kozak.write_model(model, num_starts, Path(f"{prefix}.kozak.tsv"))
+        kozak.write_counts(pos_counts, neg_counts, Path(f"{prefix}.kozak.counts.tsv"))
+        kozak.write_logo_svg(pos_counts, model, num_starts, Path(f"{prefix}.kozak.logo.svg"))
+        logger.info("Kozak model from %d training starts: %s.kozak.tsv, %s.kozak.logo.svg",
+                    num_starts, prefix, prefix)
         return model
 
     @staticmethod
     def _kozak_score(model, sequence: str, atg_index: int) -> float:
-        return sum(model[k][b] for k, b in enumerate(TransDecoderPredict._kozak_window(sequence, atg_index)) if b)
+        from pytransdecoder.core import kozak
+        return kozak.score(model, sequence, atg_index)
 
     def _revise_start_sites(
         self,

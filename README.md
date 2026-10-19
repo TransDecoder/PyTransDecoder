@@ -159,7 +159,10 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
      training ORFs' starts against in-frame ATGs inside them.
    The ORF is trimmed to start at the ATG unless the segment's contrast reaches
    (`--start-contrast-alpha` + `--start-kozak-weight` x Kozak log-odds) of the training ORFs'
-   per-base contrast.
+   per-base contrast. The Kozak model is written to the work directory as
+   `start_refinement.kozak.tsv` (log-odds), `.kozak.counts.tsv` and a sequence logo,
+   `.kozak.logo.svg` (information content of the training starts, and log2-odds against
+   internal in-frame ATGs).
 5. **Output**: Generates final predictions in multiple formats
 
 ## Development Status

@@ -346,12 +346,18 @@ def test_kozak_model_learns_start_context(tmp_path):
     model = predictor._train_kozak_model(training, predictor._load_transcripts())
     assert model[3]["A"] > 0 > model[3]["C"]       # -3: A at starts, C at internal ATGs
     assert model[6]["G"] > 0                       # +4
-    assert (predictor.workdir / "start_refinement.kozak.tsv").exists()
+    for suffix in ("kozak.tsv", "kozak.counts.tsv", "kozak.logo.svg"):
+        assert (predictor.workdir / f"start_refinement.{suffix}").exists()
+    from pytransdecoder.core import kozak
+    assert kozak.read_model(predictor.workdir / "start_refinement.kozak.tsv")[3]["A"] == pytest.approx(model[3]["A"], abs=1e-3)
+    svg = (predictor.workdir / "start_refinement.kozak.logo.svg").read_text()
+    assert svg.startswith("<svg") and svg.rstrip().endswith("</svg>")
     seq = "CCCACCATGGCC" + "TGATGCAG"
     assert predictor._kozak_score(model, seq, 6) > predictor._kozak_score(model, seq, seq.index("ATG", 9))
     # too few training starts: no model
     training.write_text("".join(records[:10]))
     assert predictor._train_kozak_model(training, predictor._load_transcripts()) is None
+    assert (predictor.workdir / "start_refinement.kozak.SKIPPED").exists()
 
 
 @pytest.mark.parametrize("kozak_score,trimmed", [(2.0, True), (-2.0, False)])
