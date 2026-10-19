@@ -130,7 +130,8 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --retain-long-orfs-mode           'dynamic' or 'strict' (default: dynamic)
 --retain-pfam-hits PATH           Pfam domain hits (domtblout format)
 --retain-blastp-hits PATH         BLAST hits (outfmt 6 format)
---single-best-only                Only best ORF per transcript
+--retain-multiple-orfs            Report all non-overlapping ORFs passing selection
+                                  (default: the best ORF per transcript)
 --no-refine-starts                Skip start codon refinement
 --start-contrast-alpha FLOAT      Start refinement: frame-contrast fraction (default: 0.4)
 --start-atg-choice first|pwm      Start refinement: ATG used when trimming (default: first)

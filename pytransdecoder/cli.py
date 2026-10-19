@@ -149,10 +149,17 @@ Example:
         help='BLASTP hits file in outfmt 6 format'
     )
     parser.add_argument(
+        '--retain-multiple-orfs', '--retain_multiple_orfs',
+        action='store_false',
+        dest='single_best_only',
+        help='Report every non-overlapping ORF that passes selection, not only the best per '
+             'transcript (the default reports one ORF per transcript)'
+    )
+    parser.add_argument(
         '--single-best-only', '--single_best_only',
         action='store_true',
         dest='single_best_only',
-        help='Retain only single best ORF per transcript'
+        help=argparse.SUPPRESS  # now the default; accepted for compatibility
     )
     parser.add_argument(
         '--no-refine-starts', '--no_refine_starts',
@@ -323,8 +330,11 @@ def create_pipeline_parser():
     parser.add_argument('--retain-long-orfs-length', type=int, default=1000000,
                         dest='retain_long_orfs_length',
                         help='Under strict mode, minimum length to auto-retain (default: 1000000)')
+    parser.add_argument('--retain-multiple-orfs', action='store_false', dest='single_best_only',
+                        help='Report every non-overlapping ORF that passes selection (default: '
+                             'one ORF per transcript)')
     parser.add_argument('--single-best-only', action='store_true', dest='single_best_only',
-                        help='Retain only single best ORF per transcript')
+                        help=argparse.SUPPRESS)  # now the default; accepted for compatibility
     parser.add_argument('--no-refine-starts', action='store_true', dest='no_refine_starts',
                         help='Skip start codon refinement')
     parser.add_argument('--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,

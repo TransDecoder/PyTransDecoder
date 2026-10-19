@@ -58,7 +58,7 @@ class TransDecoderPredict:
         retain_long_orfs_length: int = 1000000,
         retain_pfam_hits: Optional[Path] = None,
         retain_blastp_hits: Optional[Path] = None,
-        single_best_only: bool = False,
+        single_best_only: bool = True,
         no_refine_starts: bool = False,
         genetic_code: str = "Standard",
         start_contrast_alpha: float = DEFAULT_START_CONTRAST_ALPHA,
@@ -75,7 +75,8 @@ class TransDecoderPredict:
             retain_long_orfs_length: Min length to auto-retain under strict mode
             retain_pfam_hits: Pfam domain hits file
             retain_blastp_hits: BLASTP hits file  
-            single_best_only: Retain only single best ORF per transcript
+            single_best_only: Retain only the best ORF per transcript (default); False keeps
+                every non-overlapping ORF that passes selection
             no_refine_starts: Skip start codon refinement
             genetic_code: Genetic code to use
             start_contrast_alpha: Start refinement keeps an open 5' end only when the segment
@@ -672,11 +673,8 @@ class TransDecoderPredict:
             
             # Select ORFs
             if self.single_best_only:
-                # Re-sort by homology then length
-                candidates.sort(key=lambda x: (
-                    -x['homology_count'],
-                    -x['length']
-                ))
+                # the top candidate by homology, then coding score, then length (the priority
+                # used for overlap removal); ranking by length alone favours long antisense ORFs
                 selected_orfs.append(candidates[0])
             else:
                 # Remove overlapping ORFs

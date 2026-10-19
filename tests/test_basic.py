@@ -331,6 +331,38 @@ def test_pwm_atg_choice_skips_weak_first_atg(tmp_path, monkeypatch):
     assert int(revised.read_text().splitlines()[1].split("\t")[3]) == start + 9
 
 
+@pytest.mark.parametrize("single_best_only", [True, False])
+def test_single_best_orf_is_top_by_coding_score_not_length(tmp_path, single_best_only):
+    """One ORF per transcript by default, chosen by coding score before length (a longer
+    low-scoring ORF, e.g. antisense, must not win); --retain-multiple-orfs keeps both."""
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\n" + "ACGT" * 300 + "\n")
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                                    single_best_only=single_best_only)
+    predictor.workdir.mkdir(parents=True, exist_ok=True)
+    predictor.checkpoints_dir.mkdir(exist_ok=True)
+    predictor.gff3_file.write_text(
+        "tx1\ttransdecoder\tmRNA\t1\t600\t.\t+\t.\tID=tx1.p1;Parent=GENE.tx1~~tx1.p1\n"
+        "tx1\ttransdecoder\tmRNA\t700\t990\t.\t-\t.\tID=tx1.p2;Parent=GENE.tx1~~tx1.p2\n")
+    scores = tmp_path / "cds.scores"
+    scores.write_text("#acc\tMarkov_order\tseq_length\tscore_1\tscore_2\tscore_3\tscore_4\tscore_5\tscore_6\n"
+                      "tx1.p1\t5\t600\t5.0\t1.0\t1.0\t0\t0\t0\n"
+                      "tx1.p2\t5\t291\t40.0\t1.0\t1.0\t0\t0\t0\n")
+    out = predictor._select_best_orfs(scores)
+    ids = [l.split("ID=")[1].split(";")[0] for l in out.read_text().splitlines() if "\tmRNA\t" in l]
+    assert ids == (["tx1.p2"] if single_best_only else ["tx1.p2", "tx1.p1"])
+
+
+def test_cli_reports_single_orf_by_default():
+    import argparse
+    from pytransdecoder.cli import create_predict_parser
+    sub = argparse.ArgumentParser().add_subparsers()
+    p = create_predict_parser(sub)
+    assert p.parse_args(["-t", "x.fa"]).single_best_only is True
+    assert p.parse_args(["-t", "x.fa", "--retain-multiple-orfs"]).single_best_only is False
+    assert p.parse_args(["-t", "x.fa", "--single_best_only"]).single_best_only is True
+
+
 def test_final_pep_header_includes_orf_metadata(tmp_path):
     transcripts_fasta = tmp_path / "transcripts.fa"
     transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
