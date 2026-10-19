@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 from . import __version__
 from .longorfs import run_longorfs
-from .predict import DEFAULT_START_CONTRAST_ALPHA
+from .predict import DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT
 
 
 def create_longorfs_parser(subparsers):
@@ -175,9 +175,10 @@ Example:
              f"(default: {DEFAULT_START_CONTRAST_ALPHA})"
     )
     parser.add_argument(
-        '--start-atg-choice', choices=['first', 'pwm'], default='first', dest='start_atg_choice',
-        help="Start refinement: ATG used when an open 5' end is trimmed: the first in-frame ATG, or "
-             "the first passing the trained start-site PWM (default: first)"
+        '--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
+        dest='start_kozak_weight',
+        help="Start refinement: weight of the first ATG's Kozak log-odds in the keep-or-trim "
+             f"decision for open 5' ends; 0 uses frame contrast only (default: {DEFAULT_START_KOZAK_WEIGHT})"
     )
     parser.add_argument(
         '-G', '--genetic-code',
@@ -267,7 +268,7 @@ def predict_cmd(args):
             no_refine_starts=args.no_refine_starts,
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
-            start_atg_choice=args.start_atg_choice,
+            start_kozak_weight=args.start_kozak_weight,
         )
         predictor.run()
     except Exception as e:
@@ -340,9 +341,9 @@ def create_pipeline_parser():
     parser.add_argument('--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
                         dest='start_contrast_alpha',
                         help="Start refinement frame-contrast fraction (default: %(default)s)")
-    parser.add_argument('--start-atg-choice', choices=['first', 'pwm'], default='first',
-                        dest='start_atg_choice',
-                        help="ATG used when an open 5' end is trimmed (default: first)")
+    parser.add_argument('--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
+                        dest='start_kozak_weight',
+                        help="Start refinement Kozak weight (default: %(default)s)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -523,7 +524,7 @@ def pipeline_cmd(args):
             no_refine_starts=args.no_refine_starts,
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
-            start_atg_choice=args.start_atg_choice,
+            start_kozak_weight=args.start_kozak_weight,
         )
         predictor.run()
     except Exception as e:

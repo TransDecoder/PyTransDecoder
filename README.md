@@ -134,7 +134,7 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
                                   (default: the best ORF per transcript)
 --no-refine-starts                Skip start codon refinement
 --start-contrast-alpha FLOAT      Start refinement: frame-contrast fraction (default: 0.4)
---start-atg-choice first|pwm      Start refinement: ATG used when trimming (default: first)
+--start-kozak-weight FLOAT        Start refinement: Kozak weight in keep-or-trim (default: 0.15)
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```
@@ -151,12 +151,15 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
      transcriptome's GC content are kept regardless of score; applied only when the genetic
      code's stop codons are TAA/TAG/TGA, the set the thresholds were simulated with)
 4. **Start refinement**: an ORF that runs to the 5' end of its transcript (no start codon) is
-   either a truncated (5'-partial) ORF or one that extends into the 5' UTR. The segment before
-   its first in-frame ATG is scored with the coding model in frame and shifted by one and two
-   bases. Coding sequence scores well above its shifted frames; UTR does not. Unless that
-   contrast reaches `--start-contrast-alpha` of the training ORFs' per-base contrast, the ORF is
-   trimmed to start at the ATG (or, with `--start-atg-choice pwm`, the first such ATG passing
-   the trained start-site PWM).
+   either a truncated (5'-partial) ORF or one that extends into the 5' UTR. Two signals decide:
+   - the segment before its first in-frame ATG is scored with the coding model in frame and
+     shifted by one and two bases; coding sequence scores well above its shifted frames, UTR
+     does not;
+   - the ATG's Kozak context (-6..-1, +4..+5), scored by a log-odds model trained on the
+     training ORFs' starts against in-frame ATGs inside them.
+   The ORF is trimmed to start at the ATG unless the segment's contrast reaches
+   (`--start-contrast-alpha` + `--start-kozak-weight` x Kozak log-odds) of the training ORFs'
+   per-base contrast.
 5. **Output**: Generates final predictions in multiple formats
 
 ## Development Status

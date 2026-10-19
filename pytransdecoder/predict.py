@@ -11,14 +11,13 @@ This module implements the prediction phase of TransDecoder, which:
 """
 
 import logging
-import random
+import math
 import re
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from Bio import SeqIO
 
 from pytransdecoder.core.base_freqs import read_base_frequencies
-from pytransdecoder.core.pwm import score_start_window
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +26,14 @@ logger = logging.getLogger(__name__)
 # (TransDecoderPaper/benchmark_v2; chosen on the 2026 benchmark, alpha 0.4).
 DEFAULT_START_CONTRAST_ALPHA = 0.4
 
-# Start-codon PWM training needs this many start-site features (training ORFs with a complete
-# ATG window); below it, the PWM is not used. Matches util/train_start_PWM.pl.
-MIN_START_PWM_TRAINING_FEATURES = 50
+# Kozak model: log-odds of bases at -6..-1 and +4..+5 around the ATG (A of ATG = +1), true
+# starts of the training ORFs vs in-frame ATGs inside them. Needs this many training starts.
+KOZAK_UPSTREAM = 6
+KOZAK_DOWNSTREAM = 2
+MIN_KOZAK_TRAINING_STARTS = 50
+# Kozak log-odds (nats) of the candidate ATG shift the frame-contrast cutoff: an open 5' end is
+# trimmed when contrast < (alpha + weight * kozak) * the training ORFs' per-base contrast.
+DEFAULT_START_KOZAK_WEIGHT = 0.15
 
 # Stop codons the GC-dependent long-ORF length table was simulated with
 STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
@@ -62,7 +66,7 @@ class TransDecoderPredict:
         no_refine_starts: bool = False,
         genetic_code: str = "Standard",
         start_contrast_alpha: float = DEFAULT_START_CONTRAST_ALPHA,
-        start_atg_choice: str = "first",
+        start_kozak_weight: float = DEFAULT_START_KOZAK_WEIGHT,
     ):
         """
         Initialize TransDecoder.Predict
@@ -82,8 +86,8 @@ class TransDecoderPredict:
             start_contrast_alpha: Start refinement keeps an open 5' end only when the segment
                 before the first in-frame ATG has at least this fraction of the training ORFs'
                 per-base frame contrast
-            start_atg_choice: when an open 5' end is trimmed, 'first' in-frame ATG or 'pwm'
-                (first candidate ATG passing the trained start-site PWM, else the first)
+            start_kozak_weight: weight of the first ATG's Kozak log-odds in that decision
+                (0 uses frame contrast alone)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -96,9 +100,7 @@ class TransDecoderPredict:
         self.no_refine_starts = no_refine_starts
         self.genetic_code = genetic_code
         self.start_contrast_alpha = start_contrast_alpha
-        if start_atg_choice not in ("first", "pwm"):
-            raise ValueError(f"start_atg_choice must be 'first' or 'pwm', not {start_atg_choice!r}")
-        self.start_atg_choice = start_atg_choice
+        self.start_kozak_weight = start_kozak_weight
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
         self.stop_codons = frozenset(Translator(genetic_code).get_stop_codons())
@@ -876,11 +878,15 @@ class TransDecoderPredict:
         Decide, for each ORF open at its 5' end (no start codon), whether it is a true
         5'-partial ORF or extends into a 5' UTR and should start at its first in-frame ATG.
 
-        The segment between the open end and the first in-frame ATG is scored with the coding
-        Markov model in its own frame and shifted by one and two bases, as in ORF selection.
-        Coding sequence scores much higher in frame than out of frame; UTR does not. The ORF is
-        trimmed to the ATG unless the segment's frame contrast reaches start_contrast_alpha
-        times the median per-base contrast of the training ORFs.
+        Two signals are combined:
+        - frame contrast of the segment between the open end and the ATG: the coding Markov
+          score in frame minus the better of the two shifted frames, as in ORF selection.
+          Coding sequence scores well above its shifted frames; UTR does not.
+        - Kozak context of the ATG: a log-odds model of -6..-1 and +4..+5 trained on the
+          training ORFs' starts against in-frame ATGs inside them.
+        The ORF is trimmed to the ATG when the segment's contrast is below
+        (start_contrast_alpha + start_kozak_weight * kozak) times the training ORFs' median
+        per-base contrast.
 
         Returns:
             Path to the revised GFF3 file
@@ -909,15 +915,11 @@ class TransDecoderPredict:
         logger.info("Training ORFs: median frame contrast %.4f per base; open 5' ends kept when "
                     "the upstream segment reaches %.2f of it", coding_contrast, self.start_contrast_alpha)
 
-        # start-site PWM, used to choose among candidate ATGs (start_atg_choice='pwm')
-        pwm = self._train_start_pwm(training_orfs_file)
-        if pwm is None and self.start_atg_choice == "pwm":
-            logger.info("No start-site PWM; trimmed ORFs start at their first in-frame ATG")
-
         transcripts = self._load_transcripts()
+        kozak = self._train_kozak_model(training_orfs_file, transcripts)
+
         num_revised = self._revise_start_sites(
-            gff3_file, revised_gff3, transcripts, scores, coding_contrast,
-            pwm if self.start_atg_choice == "pwm" else None,
+            gff3_file, revised_gff3, transcripts, scores, coding_contrast, kozak
         )
         logger.info("Revised %s start codon positions", num_revised)
 
@@ -942,386 +944,70 @@ class TransDecoderPredict:
             self._score_cds_via_markov(sequence[2:], 5, scores),
         )
 
-    def _train_start_pwm(self, training_orfs_file: Path):
+    @staticmethod
+    def _kozak_window(sequence: str, atg_index: int) -> List[Optional[str]]:
+        """Bases at -6..-1 and +4..+5 around the ATG at atg_index (None outside the sequence)."""
+        positions = list(range(atg_index - KOZAK_UPSTREAM, atg_index)) + \
+            list(range(atg_index + 3, atg_index + 3 + KOZAK_DOWNSTREAM))
+        return [sequence[j] if 0 <= j < len(sequence) and sequence[j] in "ACGT" else None
+                for j in positions]
+
+    def _train_kozak_model(self, training_orfs_file: Path, transcripts: Dict[str, str]):
         """
-        Train PWM assets used by start codon refinement.
+        Per-position log-odds (natural log) of the start-codon context: training ORF starts vs
+        in-frame ATGs inside the training ORFs. Written to start_refinement.kozak.tsv.
 
-        Returns:
-            Tuple of (pwm_plus, pwm_minus, pwm_range, min_threshold) or None if the
-            training set does not contain enough valid start-site features.
+        Returns a list of {base: log-odds} per window position, or None if there are fewer
+        than MIN_KOZAK_TRAINING_STARTS training ORFs starting with ATG.
         """
-        from pytransdecoder.core.pwm import PWM, build_pwm, trapezoid_auc
-
-        pwm_left = 20
-        pwm_right = 10
-        pwm_length = pwm_left + 3 + pwm_right
-        out_prefix = self.workdir / "start_refinement"
-
-        transcripts = self._load_transcripts()
-        positive_features, negative_features = self._extract_pwm_features(
-            training_orfs_file, transcripts, pwm_left, pwm_right
-        )
-
-        if len(positive_features) < MIN_START_PWM_TRAINING_FEATURES or not negative_features:
-            # e.g. transcripts lacking 5' UTRs: training ORFs start at the transcript 5' end
-            logger.warning(
-                "Only %d start-site training features (minimum %d); skipping start codon refinement",
-                len(positive_features), MIN_START_PWM_TRAINING_FEATURES,
-            )
-            return None
-
-        self._write_feature_file(out_prefix.with_name(out_prefix.name + ".+.features"), positive_features)
-        self._write_feature_file(out_prefix.with_name(out_prefix.name + ".-.features"), negative_features)
-
-        pwm_plus = build_pwm(positive_features)
-        pwm_minus = build_pwm(negative_features)
-        pwm_plus_file = out_prefix.with_name(out_prefix.name + ".+.pwm")
-        pwm_minus_file = out_prefix.with_name(out_prefix.name + ".-.pwm")
-        pwm_plus.write(pwm_plus_file)
-        pwm_minus.write(pwm_minus_file)
-
-        enhanced_features, enhanced_pwm = self._deplete_feature_noise(positive_features, pwm_minus)
-        enhanced_features_file = out_prefix.with_name(out_prefix.name + ".enhanced.+.features")
-        enhanced_pwm_file = out_prefix.with_name(out_prefix.name + ".enhanced.+.pwm")
-        self._write_feature_file(enhanced_features_file, enhanced_features)
-        enhanced_pwm.write(enhanced_pwm_file)
-
-        features_minus_file = out_prefix.with_name(out_prefix.name + ".-.features")
-        feature_scores_file = out_prefix.with_name(out_prefix.name + ".feature.scores")
-        feature_roc_file = out_prefix.with_name(out_prefix.name + ".feature.scores.roc")
-        feature_auc_file = out_prefix.with_name(out_prefix.name + ".feature.scores.roc.auc")
-        enhanced_scores_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores")
-        enhanced_roc_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores.roc")
-        enhanced_auc_file = out_prefix.with_name(out_prefix.name + ".enhanced.feature.scores.roc.auc")
-
-        self._score_feature_sets(
-            enhanced_features, negative_features, pwm_length, pwm_left, feature_scores_file=enhanced_scores_file
-        )
-        self._feature_scores_to_roc(enhanced_scores_file, enhanced_roc_file)
-        self._compute_auc(enhanced_roc_file, enhanced_auc_file)
-
-        # Preserve the non-enhanced files too for compatibility/debugging.
-        self._score_feature_sets(
-            positive_features, negative_features, pwm_length, pwm_left, feature_scores_file=feature_scores_file
-        )
-        self._feature_scores_to_roc(feature_scores_file, feature_roc_file)
-        self._compute_auc(feature_roc_file, feature_auc_file)
-
-        best_range, min_threshold = self._select_pwm_range_and_threshold(
-            enhanced_auc_file, enhanced_roc_file
-        )
-        return enhanced_pwm, pwm_minus, best_range, min_threshold
-
-    def _extract_pwm_features(
-        self,
-        training_orfs_file: Path,
-        transcripts: Dict[str, str],
-        pwm_left: int,
-        pwm_right: int,
-    ) -> Tuple[List[str], List[str]]:
         from pytransdecoder.core.sequence import reverse_complement
 
-        positive_features = []
-        negative_features = []
-        pwm_length = pwm_left + 3 + pwm_right
+        n = KOZAK_UPSTREAM + KOZAK_DOWNSTREAM
+        pos_counts = [dict.fromkeys("ACGT", 0) for _ in range(n)]
+        neg_counts = [dict.fromkeys("ACGT", 0) for _ in range(n)]
+        num_starts = 0
         pattern = re.compile(r"(\S+):(\d+)-(\d+)\(([+-])\)")
-
         with open(training_orfs_file) as handle:
             for record in SeqIO.parse(handle, "fasta"):
                 match = pattern.search(record.description)
-                if not match:
+                if not match or match.group(1) not in transcripts:
                     continue
-
-                transcript_id = match.group(1)
-                start_coord = int(match.group(2))
-                end_coord = int(match.group(3))
-                strand = match.group(4)
-
-                transcript_seq = transcripts.get(transcript_id)
-                if transcript_seq is None:
+                seq = transcripts[match.group(1)].upper()
+                lo, hi = sorted((int(match.group(2)), int(match.group(3))))
+                if match.group(4) == "-":
+                    seq = reverse_complement(seq)
+                    lo, hi = len(seq) - hi + 1, len(seq) - lo + 1
+                start, end = lo - 1, hi
+                if seq[start:start + 3] != "ATG":
                     continue
+                num_starts += 1
+                for counts, i in [(pos_counts, start)] + [
+                        (neg_counts, i) for i in range(start + 3, end - 3, 3) if seq[i:i + 3] == "ATG"]:
+                    for k, base in enumerate(self._kozak_window(seq, i)):
+                        if base:
+                            counts[k][base] += 1
 
-                if strand == "-":
-                    transcript_seq = reverse_complement(transcript_seq)
-                    start_coord = len(transcript_seq) - max(start_coord, end_coord) + 1
-                else:
-                    start_coord = min(start_coord, end_coord)
-
-                start_index = start_coord - 1
-                if transcript_seq[start_index:start_index + 3] != "ATG":
-                    continue
-
-                feature_seq = self._extract_feature_seq(
-                    transcript_seq, start_index, pwm_left, pwm_right, pwm_length
-                )
-                if feature_seq:
-                    positive_features.append(feature_seq)
-
-                downstream_seq = transcript_seq[start_coord + 1 :]
-                negative_features.extend(
-                    self._extract_all_start_features(
-                        downstream_seq, pwm_left, pwm_right, pwm_length
-                    )
-                )
-
-        return positive_features, negative_features
-
-    def _extract_feature_seq(
-        self,
-        sequence: str,
-        start_index: int,
-        pwm_left: int,
-        pwm_right: int,
-        pwm_length: int,
-    ) -> Optional[str]:
-        begin = start_index - pwm_left
-        end = begin + pwm_length
-        if begin < 0 or end > len(sequence):
+        if num_starts < MIN_KOZAK_TRAINING_STARTS:
+            logger.warning("Only %d training ORFs start with ATG (minimum %d); start refinement "
+                           "uses frame contrast only", num_starts, MIN_KOZAK_TRAINING_STARTS)
             return None
-        feature_seq = sequence[begin:end].upper()
-        if any(base not in "GATC" for base in feature_seq):
-            return None
-        return feature_seq
 
-    def _extract_all_start_features(
-        self,
-        sequence: str,
-        pwm_left: int,
-        pwm_right: int,
-        pwm_length: int,
-    ) -> List[str]:
-        features = []
-        start = 0
-        while True:
-            pos = sequence.find("ATG", start)
-            if pos == -1:
-                break
-            feature_seq = self._extract_feature_seq(sequence, pos, pwm_left, pwm_right, pwm_length)
-            if feature_seq:
-                features.append(feature_seq)
-            start = pos + 1
-        return features
+        model = []
+        for pc, nc in zip(pos_counts, neg_counts):
+            pt, nt = sum(pc.values()) + 4, sum(nc.values()) + 4
+            model.append({b: math.log(((pc[b] + 1) / pt) / ((nc[b] + 1) / nt)) for b in "ACGT"})
+        labels = [str(k) for k in range(-KOZAK_UPSTREAM, 0)] + \
+            [f"+{k}" for k in range(4, 4 + KOZAK_DOWNSTREAM)]
+        with open(self.workdir / "start_refinement.kozak.tsv", "w") as out:
+            out.write("#position\tA\tC\tG\tT  (log-odds, start vs internal in-frame ATG; "
+                      f"{num_starts} training starts)\n")
+            for label, row in zip(labels, model):
+                out.write(label + "\t" + "\t".join(f"{row[b]:.3f}" for b in "ACGT") + "\n")
+        return model
 
-    def _write_feature_file(self, filename: Path, features: List[str]) -> None:
-        with open(filename, "w") as handle:
-            for feature in features:
-                handle.write(f"{feature}\n")
-
-    def _deplete_feature_noise(self, positive_features: List[str], pwm_minus):
-        from pytransdecoder.core.pwm import build_pwm
-
-        rng = random.Random(1)
-        features = positive_features[:]
-        rng.shuffle(features)
-
-        num_incorporate = max(1, int(len(features) * 30 / 100))
-        init_features = features[:num_incorporate]
-        remaining_features = features[num_incorporate:]
-
-        pwm_plus = build_pwm(init_features)
-        scored_features = []
-        for feature in init_features:
-            score = pwm_plus.score_plus_minus(feature, pwm_minus)
-            if score is not None:
-                scored_features.append({"score": score, "seq": feature})
-        scored_features.sort(key=lambda item: item["score"])
-
-        for feature in remaining_features:
-            if not scored_features:
-                break
-            score = pwm_plus.score_plus_minus(feature, pwm_minus)
-            if score is None or score <= scored_features[0]["score"]:
-                continue
-
-            purge_feature = scored_features.pop(0)
-            pwm_plus.remove_feature(purge_feature["seq"])
-            pwm_plus.add_feature(feature)
-            pwm_plus.build()
-            scored_features.append({"score": score, "seq": feature})
-
-            for scored in scored_features:
-                rescored = pwm_plus.score_plus_minus(scored["seq"], pwm_minus)
-                scored["score"] = float("-inf") if rescored is None else rescored
-            scored_features.sort(key=lambda item: item["score"])
-
-        retained_features = []
-        for scored_feature in scored_features:
-            if scored_feature["score"] <= 0:
-                pwm_plus.remove_feature(scored_feature["seq"])
-            else:
-                retained_features.append(scored_feature["seq"])
-
-        pwm_plus.build()
-        return retained_features, pwm_plus
-
-    def _score_feature_sets(
-        self,
-        positive_features: List[str],
-        negative_features: List[str],
-        pwm_length: int,
-        atg_position: int,
-        feature_scores_file: Path,
-    ) -> None:
-        from pytransdecoder.core.pwm import build_pwm
-
-        rng = random.Random(1)
-        pwm_upstream_max = atg_position
-        pwm_downstream_max = pwm_length - (atg_position + 3)
-        up_down_combos = [
-            (up, down)
-            for up in range(1, pwm_upstream_max + 1)
-            for down in range(1, pwm_downstream_max + 1)
-        ]
-
-        num_rounds = 5
-        fraction_train = 0.75
-        max_feature_select = 1000
-
-        with open(feature_scores_file, "w") as handle:
-            for _ in range(num_rounds):
-                plus_train, plus_test = self._sample_features(positive_features, fraction_train, rng)
-                minus_train, minus_test = self._sample_features(negative_features, fraction_train, rng)
-                if not plus_train or not minus_train or not plus_test or not minus_test:
-                    continue
-
-                pwm_plus = build_pwm(plus_train)
-                pwm_minus = build_pwm(minus_train)
-
-                self._score_features(
-                    handle, plus_test, pwm_plus, pwm_minus, up_down_combos, atg_position, "pos", max_feature_select
-                )
-                self._score_features(
-                    handle, minus_test, pwm_plus, pwm_minus, up_down_combos, atg_position, "neg", max_feature_select
-                )
-
-    def _sample_features(
-        self, features: List[str], fraction_train: float, rng: random.Random
-    ) -> Tuple[List[str], List[str]]:
-        features = features[:]
-        rng.shuffle(features)
-        num_train = int(fraction_train * len(features))
-        num_train = min(max(num_train, 1), len(features) - 1) if len(features) > 1 else len(features)
-        return features[:num_train], features[num_train:]
-
-    def _score_features(
-        self,
-        handle,
-        features: List[str],
-        pwm_plus,
-        pwm_minus,
-        up_down_combos: List[Tuple[int, int]],
-        atg_position: int,
-        feature_set_type: str,
-        max_feature_select: int,
-    ) -> None:
-        for up, down in up_down_combos:
-            for feature in features[:max_feature_select]:
-                score = score_start_window(pwm_plus, pwm_minus, feature, atg_position, up, down)
-                score_str = "NA" if score is None else f"{score:.3f}"
-                handle.write(f"{up},{down}\t{feature_set_type}\t{score_str}\n")
-
-    def _feature_scores_to_roc(self, feature_scores_file: Path, roc_file: Path) -> None:
-        scores_by_category = {}
-        min_score = None
-        max_score = None
-
-        with open(feature_scores_file) as handle:
-            for line in handle:
-                category, pos_or_neg, score_str = line.rstrip().split("\t")
-                if score_str == "NA":
-                    continue
-                score = float(score_str)
-                scores_by_category.setdefault(category, []).append((pos_or_neg, score))
-                min_score = score if min_score is None else min(min_score, score)
-                max_score = score if max_score is None else max(max_score, score)
-
-        if min_score is None or max_score is None:
-            roc_file.write_text("cat\tthresh\tTP\tTN\tFP\tFN\tTPR\tFPR\tF1\n")
-            return
-
-        delta = (max_score - min_score) / 10 if max_score != min_score else 1.0
-        with open(roc_file, "w") as handle:
-            handle.write("cat\tthresh\tTP\tTN\tFP\tFN\tTPR\tFPR\tF1\n")
-            for category, score_entries in scores_by_category.items():
-                threshold = min_score
-                while threshold < max_score:
-                    tp = tn = fp = fn = 0
-                    for pos_or_neg, score in score_entries:
-                        if pos_or_neg == "pos":
-                            if score >= threshold:
-                                tp += 1
-                            else:
-                                fn += 1
-                        else:
-                            if score >= threshold:
-                                fp += 1
-                            else:
-                                tn += 1
-                    tpr = tp / (tp + fn) if (tp + fn) else 0.0
-                    fpr = fp / (fp + tn) if (fp + tn) else 0.0
-                    denom = (2 * tp + fp + fn)
-                    f1 = (2 * tp) / denom if denom else 0.0
-                    handle.write(
-                        f"{category}\t{threshold}\t{tp}\t{tn}\t{fp}\t{fn}\t{tpr}\t{fpr}\t{f1}\n"
-                    )
-                    threshold += delta
-
-    def _compute_auc(self, roc_file: Path, auc_file: Path) -> None:
-        from pytransdecoder.core.pwm import trapezoid_auc
-
-        points_by_category = {}
-        with open(roc_file) as handle:
-            next(handle, None)
-            for line in handle:
-                parts = line.rstrip().split("\t")
-                if len(parts) < 8:
-                    continue
-                category = parts[0]
-                tpr = float(parts[6])
-                fpr = float(parts[7])
-                points_by_category.setdefault(category, []).append((fpr, tpr))
-
-        with open(auc_file, "w") as handle:
-            for category in sorted(points_by_category):
-                auc = trapezoid_auc(points_by_category[category])
-                handle.write(f"{category}\t{auc}\n")
-
-    def _select_pwm_range_and_threshold(self, auc_file: Path, roc_file: Path) -> Tuple[Tuple[int, int], float]:
-        best_range = None
-        best_auc = float("-inf")
-        with open(auc_file) as handle:
-            for line in handle:
-                line = line.strip()
-                if not line:
-                    continue
-                range_str, auc_str = line.split("\t")
-                auc = float(auc_str)
-                if auc > best_auc:
-                    best_auc = auc
-                    best_range = range_str
-
-        if best_range is None:
-            raise ValueError("Unable to determine best PWM range")
-
-        best_threshold = None
-        best_f1 = float("-inf")
-        with open(roc_file) as handle:
-            next(handle, None)
-            for line in handle:
-                parts = line.rstrip().split("\t")
-                if len(parts) < 9 or parts[0] != best_range:
-                    continue
-                threshold = float(parts[1])
-                f1 = float(parts[8])
-                if f1 > best_f1:
-                    best_f1 = f1
-                    best_threshold = threshold
-
-        if best_threshold is None:
-            raise ValueError("Unable to determine best PWM threshold")
-
-        range_left, range_right = [int(value) for value in best_range.split(",")]
-        return (range_left, range_right), best_threshold
+    @staticmethod
+    def _kozak_score(model, sequence: str, atg_index: int) -> float:
+        return sum(model[k][b] for k, b in enumerate(TransDecoderPredict._kozak_window(sequence, atg_index)) if b)
 
     def _revise_start_sites(
         self,
@@ -1330,16 +1016,11 @@ class TransDecoderPredict:
         transcripts: Dict[str, str],
         scores: Dict[str, float],
         coding_contrast: float,
-        pwm=None,
+        kozak=None,
     ) -> int:
-        """Trim open 5' ends that extend into a UTR (see _refine_start_codons).
-
-        Candidate starts are the in-frame ATGs whose upstream segment fails the coding test.
-        Without a PWM the first is used; with one (pwm_plus, pwm_minus, range, threshold), the
-        first candidate scoring at least the threshold, else the first candidate.
-        """
+        """Trim open 5' ends that extend into a UTR to their first in-frame ATG
+        (see _refine_start_codons)."""
         from pytransdecoder.core.sequence import reverse_complement
-        atg_pwm_pos = 20
 
         num_revised = 0
         with open(gff3_file) as src, open(revised_gff3_file, "w") as dst:
@@ -1356,40 +1037,27 @@ class TransDecoderPredict:
                     continue
 
                 if strand == "-":
-                    orf = reverse_complement(transcript_seq[start - 1:end])
+                    oriented = reverse_complement(transcript_seq)
+                    orf_start = len(transcript_seq) - end
                 else:
-                    orf = transcript_seq[start - 1:end]
+                    oriented = transcript_seq
+                    orf_start = start - 1
+                orf = oriented[orf_start:orf_start + end - start + 1]
                 if orf[:3] == "ATG":
                     dst.write(line)
                     continue
 
-                candidates = []
-                for i in range(3, len(orf) - 3, 3):
-                    if orf[i:i + 3] != "ATG":
-                        continue
-                    c = self._frame_contrast(orf[:i], scores)
-                    if c >= self.start_contrast_alpha * coding_contrast * i:
-                        break  # this segment looks coding, and so do longer ones
-                    candidates.append((i, c))
-                    if pwm is None:
-                        break
-                if not candidates:
-                    dst.write(line)  # upstream segment looks coding: 5' partial
+                atg = next((i for i in range(3, len(orf) - 3, 3) if orf[i:i + 3] == "ATG"), None)
+                if atg is None:
+                    dst.write(line)
                     continue
 
-                atg, contrast = candidates[0]
-                if pwm is not None:
-                    pwm_plus, pwm_minus, (up, down), threshold = pwm
-                    oriented = transcript_seq if strand == "+" else reverse_complement(transcript_seq)
-                    orf_start = start - 1 if strand == "+" else len(transcript_seq) - end
-                    for i, c in candidates:
-                        w0 = orf_start + i - atg_pwm_pos
-                        window = oriented[w0:w0 + pwm_plus.length] if w0 >= 0 else ""
-                        if len(window) == pwm_plus.length:
-                            sc = score_start_window(pwm_plus, pwm_minus, window, atg_pwm_pos, up, down)
-                            if sc is not None and sc >= threshold:
-                                atg, contrast = i, c
-                                break
+                contrast = self._frame_contrast(orf[:atg], scores)
+                kozak_score = self._kozak_score(kozak, oriented, orf_start + atg) if kozak else 0.0
+                cutoff = self.start_contrast_alpha + self.start_kozak_weight * kozak_score
+                if contrast >= cutoff * coding_contrast * atg:
+                    dst.write(line)  # upstream segment looks coding: 5' partial
+                    continue
 
                 if strand == "-":
                     parts[4] = str(end - atg)
@@ -1397,7 +1065,8 @@ class TransDecoderPredict:
                     parts[3] = str(start + atg)
                 attrs = self._parse_attrs(parts[8])
                 attrs["start_revised"] = ["true"]
-                attrs["upstream_frame_contrast"] = [f"{contrast / atg:.4f}"]
+                attrs["upstream_frame_contrast"] = [f"{contrast / (coding_contrast * atg):.3f}"]
+                attrs["kozak_score"] = [f"{kozak_score:.2f}"]
                 parts[8] = self._format_attrs(attrs)
                 dst.write("\t".join(parts) + "\n")
                 num_revised += 1

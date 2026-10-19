@@ -253,7 +253,7 @@ def test_open_5prime_end_trimmed_unless_upstream_segment_is_coding(
                         lambda seq, scores: segment_contrast if len(seq) == 9 else 0.0)
 
     revised = tmp_path / "revised.gff3"
-    n = predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, coding_contrast=1.0)
+    n = predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, coding_contrast=1.0, kozak=None)
 
     fields = revised.read_text().splitlines()[1].split("\t")
     assert n == (1 if trimmed else 0)
@@ -295,42 +295,6 @@ def test_long_orf_auto_accept_only_for_standard_stop_codons(tmp_path):
     assert strict._min_length_auto_accept() == 900
 
 
-def test_start_pwm_training_skipped_with_too_few_features(tmp_path, monkeypatch):
-    """Training ORFs at the transcript 5' end (no 5' UTR) give almost no start-site features;
-    PWM training must be skipped rather than fail."""
-    transcripts_fasta = tmp_path / "transcripts.fa"
-    transcripts_fasta.write_text(">tx1\nATGAAATAA\n")
-    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
-    predictor.workdir.mkdir(parents=True, exist_ok=True)
-
-    pos = ["CCCCCCCCCCCCCCCCCCCCATGAAACCCGGGT"] * 4
-    neg = ["TTTTTTTTTTTTTTTTTTTTATGCCCCGGGAAA"] * 500
-    monkeypatch.setattr(predictor, "_extract_pwm_features", lambda *args, **kwargs: (pos, neg))
-    assert predictor._train_start_pwm(tmp_path / "unused.cds") is None
-
-
-def test_pwm_atg_choice_skips_weak_first_atg(tmp_path, monkeypatch):
-    """With start_atg_choice='pwm', a trimmed ORF starts at the first candidate ATG passing the
-    PWM threshold; candidates are limited to ATGs whose upstream segment looks non-coding."""
-    import pytransdecoder.predict as pred
-    orf = "GCA" * 3 + "ATG" + "GCA" * 3 + "ATG" + "AAACCCGGGTTT" + "TAA"   # ATGs at 9 and 21
-    tx = "C" * 25 + orf
-    start, end = 26, len(tx)
-    predictor, gff3_file = _predictor_with_one_orf(
-        tmp_path, tx, f"tx1\ttransdecoder\tmRNA\t{start}\t{end}\t.\t+\t.\tID=tx1.p1;Parent=G;score=1")
-    monkeypatch.setattr(predictor, "_frame_contrast", lambda seq, scores: -1.0)
-    plus = build_pwm(["A" * 33]); minus = build_pwm(["A" * 33])
-    # the second ATG (transcript offset 25 + 21) passes, the first does not
-    monkeypatch.setattr(pred, "score_start_window",
-                        lambda p, m, window, pos, up, down: 1.0 if "ATG" in window[:20] else -1.0)
-    revised = tmp_path / "revised.gff3"
-    predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, 1.0, (plus, minus, (5, 5), 0.5))
-    assert int(revised.read_text().splitlines()[1].split("\t")[3]) == start + 21
-    # first-ATG choice ignores the PWM
-    predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, 1.0, None)
-    assert int(revised.read_text().splitlines()[1].split("\t")[3]) == start + 9
-
-
 @pytest.mark.parametrize("single_best_only", [True, False])
 def test_single_best_orf_is_top_by_coding_score_not_length(tmp_path, single_best_only):
     """One ORF per transcript by default, chosen by coding score before length (a longer
@@ -361,6 +325,50 @@ def test_cli_reports_single_orf_by_default():
     assert p.parse_args(["-t", "x.fa"]).single_best_only is True
     assert p.parse_args(["-t", "x.fa", "--retain-multiple-orfs"]).single_best_only is False
     assert p.parse_args(["-t", "x.fa", "--single_best_only"]).single_best_only is True
+
+
+def test_kozak_model_learns_start_context(tmp_path):
+    """Training starts with A at -3 and G at +4 vs internal ATGs without them give positive
+    log-odds there; the model is written to start_refinement.kozak.tsv."""
+    tx, records = [], []
+    for k in range(60):
+        cds = "ATG" + "GCC" + ("CTGATGCAG" * 4) + "TAA"     # internal in-frame ATGs: TGATGC context
+        seq = "CCCCCCACCATGG"[:-4] + cds + "CCCC"           # ...ACC|ATG|G
+        tx.append(f">t{k}\n{seq}\n")
+        start = seq.index(cds) + 1
+        records.append(f">t{k}.p1 t{k}:{start}-{start + len(cds) - 1}(+)\n{cds}\n")
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text("".join(tx))
+    training = tmp_path / "train.cds"
+    training.write_text("".join(records))
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path)
+    predictor.workdir.mkdir(parents=True, exist_ok=True)
+    model = predictor._train_kozak_model(training, predictor._load_transcripts())
+    assert model[3]["A"] > 0 > model[3]["C"]       # -3: A at starts, C at internal ATGs
+    assert model[6]["G"] > 0                       # +4
+    assert (predictor.workdir / "start_refinement.kozak.tsv").exists()
+    seq = "CCCACCATGGCC" + "TGATGCAG"
+    assert predictor._kozak_score(model, seq, 6) > predictor._kozak_score(model, seq, seq.index("ATG", 9))
+    # too few training starts: no model
+    training.write_text("".join(records[:10]))
+    assert predictor._train_kozak_model(training, predictor._load_transcripts()) is None
+
+
+@pytest.mark.parametrize("kozak_score,trimmed", [(2.0, True), (-2.0, False)])
+def test_kozak_context_shifts_keep_or_trim(tmp_path, monkeypatch, kozak_score, trimmed):
+    """With contrast between the two cutoffs, a strong Kozak ATG is taken as the start and a
+    weak one leaves the ORF 5'-partial."""
+    orf = "GCAGCAGCA" + "ATG" + "AAACCCGGGTTTAAACCC" + "TAA"
+    tx = "CC" + orf + "GG"
+    predictor, gff3_file = _predictor_with_one_orf(
+        tmp_path, tx,
+        f"tx1\ttransdecoder\tmRNA\t3\t{2 + len(orf)}\t.\t+\t.\tID=tx1.p1;Parent=GENE.tx1~~tx1.p1;score=10.0")
+    # alpha 0.4, weight 0.15: cutoffs 0.7 (kozak +2) and 0.1 (kozak -2); segment ratio 0.4
+    monkeypatch.setattr(predictor, "_frame_contrast", lambda seq, scores: 0.4 * len(seq))
+    monkeypatch.setattr(predictor, "_kozak_score", lambda model, seq, i: kozak_score)
+    revised = tmp_path / "revised.gff3"
+    n = predictor._revise_start_sites(gff3_file, revised, {"tx1": tx}, {}, 1.0, kozak=[{}])
+    assert n == (1 if trimmed else 0)
 
 
 def test_final_pep_header_includes_orf_metadata(tmp_path):
