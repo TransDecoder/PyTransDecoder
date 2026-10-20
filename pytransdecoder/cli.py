@@ -6,7 +6,7 @@ import sys
 import argparse
 from pathlib import Path
 from . import __version__
-from .longorfs import run_longorfs
+from .longorfs import run_longorfs, DEFAULT_MIN_PROTEIN_LENGTH
 from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
                       DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST)
 
@@ -36,8 +36,9 @@ Example:
     parser.add_argument(
         '-m', '--min-protein-length',
         type=int,
-        default=100,
-        help='Minimum protein length in amino acids (default: 100)'
+        default=DEFAULT_MIN_PROTEIN_LENGTH,
+        help="Minimum protein length in amino acids; ORFs under 100 codons must also pass Predict's "
+             f"short-ORF frame-contrast test (default: {DEFAULT_MIN_PROTEIN_LENGTH})"
     )
     parser.add_argument(
         '-G', '--genetic-code',
@@ -314,8 +315,9 @@ def create_pipeline_parser():
                         help='Genome structures of the -t transcripts for annotating the genome: GTF, alignment '
                              'GFF3 (GMAP/PASA, Target=), or SAM/BAM spliced alignments (minimap2). Writes '
                              '<transcripts>.transdecoder.genome.gff3')
-    parser.add_argument('-m', '--min-protein-length', type=int, default=100, dest='min_protein_length',
-                        help='Minimum protein length in amino acids (default: 100)')
+    parser.add_argument('-m', '--min-protein-length', type=int, default=DEFAULT_MIN_PROTEIN_LENGTH,
+                        dest='min_protein_length',
+                        help='Minimum protein length in amino acids (default: %(default)s)')
     parser.add_argument('-G', '--genetic-code', default='universal', dest='genetic_code',
                         help='Genetic code (default: universal)')
     parser.add_argument('-S', '--strand-specific', action='store_true', dest='strand_specific',

@@ -16,10 +16,14 @@ from .core.models import ORF
 from .core.writers import GFF3Writer, FastaWriter
 from .core.base_freqs import compute_base_counts, write_base_frequencies
 
+# Minimum ORF length (aa). ORFs under 100 codons must also pass Predict's short-ORF frame-contrast
+# test (--short-orf-min-contrast), which keeps the extra noncoding calls near the old 100-aa level.
+DEFAULT_MIN_PROTEIN_LENGTH = 50
+
 
 def run_longorfs(
     transcripts_file: Path,
-    min_protein_length: int = 100,
+    min_protein_length: int = DEFAULT_MIN_PROTEIN_LENGTH,
     genetic_code: str = "universal",
     strand_specific: bool = False,
     output_dir: Optional[Path] = None,

@@ -47,7 +47,8 @@ This creates a directory `transcripts.fasta.transdecoder_dir/` with:
 
 ```
 -t, --transcripts PATH          Input transcripts FASTA file [required]
--m, --min-protein-length INT    Minimum protein length (default: 100 aa)
+-m, --min-protein-length INT    Minimum protein length (default: 50 aa; ORFs under 100 codons
+                                must also pass Predict's short-ORF frame-contrast test)
 -G, --genetic-code TEXT         Genetic code (default: Standard)
 -S, --strand-specific           Only analyze top strand
 -O, --output-dir PATH           Output directory
@@ -135,6 +136,9 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --no-refine-starts                Skip start codon refinement
 --start-contrast-alpha FLOAT      Start refinement: frame-contrast fraction (default: 0.4)
 --start-kozak-weight FLOAT        Start refinement: Kozak weight in keep-or-trim (default: 25)
+--short-orf-length INT            ORFs with fewer codons need the short-ORF test (default: 100)
+--short-orf-min-contrast FLOAT    Short-ORF frame contrast, in bases of median coding contrast
+                                  (default: 200; 0 applies only the usual frame test)
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```
@@ -150,6 +154,13 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
    - GC content-based thresholds (ORFs long enough to be unlikely in random sequence of the
      transcriptome's GC content are kept regardless of score; applied only when the genetic
      code's stop codons are TAA/TAG/TGA, the set the thresholds were simulated with)
+   - Short ORFs (under 100 codons; LongOrfs reports ORFs from 50 aa) need more coding evidence:
+     without homology support their frame contrast (in-frame score minus the better shifted
+     frame) must reach `--short-orf-min-contrast` (200) bases' worth of the training ORFs' median
+     per-base contrast. Short ORFs in noncoding RNA often pass the plain frame test; this keeps
+     calls on lncRNAs and random sequence near the level of a 100-aa minimum while recovering
+     about half of true 50-99 aa proteins. Translated noncanonical ORFs (Ribo-seq ORFs) mostly
+     lack this codon-usage signal, so finding them needs translation evidence.
 4. **Start refinement**: an ORF that runs to the 5' end of its transcript (no start codon) is
    either a truncated (5'-partial) ORF or one that extends into the 5' UTR. Two signals decide:
    - the segment before its first in-frame ATG is scored with the coding model in frame and
