@@ -33,6 +33,15 @@ DEFAULT_START_CONTRAST_ALPHA = 0.4
 # MANE starts, 2026).
 DEFAULT_START_KOZAK_WEIGHT = 25.0
 
+# ORFs shorter than this many codons (LongOrfs -m below 100) are kept only with homology support or
+# when their frame contrast (in-frame score minus the better shifted frame) reaches
+# DEFAULT_SHORT_ORF_MIN_CONTRAST bases' worth of the training ORFs' median per-base contrast. Short
+# ORFs in noncoding RNA often pass the plain frame test; a fixed total contrast, rather than a
+# per-base one, asks for more coding evidence the shorter the ORF (benchmark_v2 lncRNA and random
+# negatives, 2026).
+DEFAULT_SHORT_ORF_LENGTH = 100
+DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
+
 # Stop codons the GC-dependent long-ORF length table was simulated with
 STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
 
@@ -65,6 +74,8 @@ class TransDecoderPredict:
         genetic_code: str = "Standard",
         start_contrast_alpha: float = DEFAULT_START_CONTRAST_ALPHA,
         start_kozak_weight: float = DEFAULT_START_KOZAK_WEIGHT,
+        short_orf_length: int = DEFAULT_SHORT_ORF_LENGTH,
+        short_orf_min_contrast: float = DEFAULT_SHORT_ORF_MIN_CONTRAST,
     ):
         """
         Initialize TransDecoder.Predict
@@ -86,6 +97,10 @@ class TransDecoderPredict:
                 per-base frame contrast
             start_kozak_weight: bases of median per-base frame contrast that one unit of the
                 first ATG's Kozak log-odds is worth in that decision (0 uses frame contrast alone)
+            short_orf_length: ORFs with fewer codons than this need short_orf_min_contrast
+            short_orf_min_contrast: frame contrast, in bases of the training ORFs' median per-base
+                contrast, that an ORF shorter than short_orf_length needs without homology support
+                (0 applies only the usual frame test)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -99,6 +114,9 @@ class TransDecoderPredict:
         self.genetic_code = genetic_code
         self.start_contrast_alpha = start_contrast_alpha
         self.start_kozak_weight = start_kozak_weight
+        self.short_orf_length = short_orf_length
+        self.short_orf_min_contrast = short_orf_min_contrast
+        self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
         self.stop_codons = frozenset(Translator(genetic_code).get_stop_codons())
@@ -165,7 +183,7 @@ class TransDecoderPredict:
         
         # Step 4: Select best ORFs
         logger.info("Selecting best ORFs per transcript...")
-        best_orfs_gff3 = self._select_best_orfs(cds_scores_file)
+        best_orfs_gff3 = self._select_best_orfs(cds_scores_file, top_cds_file, hexamer_scores_file)
         
         # Step 5: Refine start codons (if enabled)
         if not self.no_refine_starts:
@@ -556,14 +574,17 @@ class TransDecoderPredict:
         
         return total_score
     
-    def _select_best_orfs(self, cds_scores_file: Path) -> Path:
+    def _select_best_orfs(self, cds_scores_file: Path, training_orfs_file: Optional[Path] = None,
+                          hexamer_scores_file: Optional[Path] = None) -> Path:
         """
         Select best ORFs per transcript based on scores and homology
         
         Selection criteria (any of):
         1. Has BLAST hit
         2. Has Pfam hit
-        3. Score[frame0] > 0 AND score[frame0] > max(score[frame1], score[frame2])
+        3. Score[frame0] > 0 AND score[frame0] > max(score[frame1], score[frame2]); for ORFs
+           shorter than short_orf_length codons, score[frame0] - max(score[frame1], score[frame2])
+           must also reach short_orf_min_contrast * the training ORFs' median per-base contrast
         4. Length >= min_length_auto_accept (for dynamic/strict mode)
         
         Prioritization:
@@ -601,6 +622,17 @@ class TransDecoderPredict:
         
         # Calculate min length for auto-accept based on GC content
         min_length_auto_accept = self._min_length_auto_accept()
+
+        # Frame contrast required of short ORFs
+        short_orf_nt = 3 * self.short_orf_length
+        short_min_contrast = 0.0
+        if self.short_orf_min_contrast > 0 and training_orfs_file and hexamer_scores_file:
+            mu = self._coding_contrast(training_orfs_file, hexamer_scores_file)
+            if mu:
+                short_min_contrast = self.short_orf_min_contrast * mu
+                logger.info("ORFs shorter than %d codons need frame contrast >= %.2f (%g bases x %.4f) "
+                            "without homology support", self.short_orf_length, short_min_contrast,
+                            self.short_orf_min_contrast, mu)
         
         # Parse GFF3 and select best ORFs
         logger.info(f"Selecting best ORFs from {self.gff3_file}")
@@ -644,10 +676,12 @@ class TransDecoderPredict:
                 scores = cds_scores.get(orf_id, [0.0] * 6)
                 
                 # Apply selection criteria
+                frame_contrast = scores[0] - max(scores[1], scores[2])
                 meets_criteria = (
                     homology_count > 0 or
                     orf_length >= min_length_auto_accept or
-                    (scores[0] > 0 and scores[0] > max(scores[1], scores[2]))
+                    (scores[0] > 0 and frame_contrast > 0 and
+                     (orf_length >= short_orf_nt or frame_contrast >= short_min_contrast))
                 )
                 
                 if meets_criteria:
@@ -870,6 +904,24 @@ class TransDecoderPredict:
         
         return selected
     
+    def _coding_contrast(self, training_orfs_file: Path, hexamer_scores_file: Path) -> Optional[float]:
+        """Median per-base frame contrast of the training ORFs (None without training ORFs)."""
+        if self._coding_contrast_cache is None:
+            scores = self._load_hexamer_scores(hexamer_scores_file)
+            per_base = []
+            with open(training_orfs_file) as f:
+                for record in SeqIO.parse(f, "fasta"):
+                    seq = str(record.seq).upper()
+                    if len(seq) >= 30:
+                        per_base.append(self._frame_contrast(seq, scores) / len(seq))
+            if not per_base:
+                return None
+            per_base.sort()
+            mid = len(per_base) // 2
+            self._coding_contrast_cache = (per_base[mid] if len(per_base) % 2
+                                           else (per_base[mid - 1] + per_base[mid]) / 2)
+        return self._coding_contrast_cache
+
     def _refine_start_codons(self, gff3_file: Path, training_orfs_file: Path,
                              hexamer_scores_file: Path) -> Path:
         """
@@ -897,19 +949,11 @@ class TransDecoderPredict:
             return revised_gff3 if revised_gff3.exists() else gff3_file
 
         scores = self._load_hexamer_scores(hexamer_scores_file)
-        per_base = []
-        with open(training_orfs_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
-                seq = str(record.seq).upper()
-                if len(seq) >= 30:
-                    per_base.append(self._frame_contrast(seq, scores) / len(seq))
-        if not per_base:
+        coding_contrast = self._coding_contrast(training_orfs_file, hexamer_scores_file)
+        if coding_contrast is None:
             logger.warning("No training ORFs for start refinement; skipping")
             checkpoint.write_text("OK")
             return gff3_file
-        per_base.sort()
-        mid = len(per_base) // 2
-        coding_contrast = per_base[mid] if len(per_base) % 2 else (per_base[mid - 1] + per_base[mid]) / 2
         logger.info("Training ORFs: median frame contrast %.4f per base; open 5' ends kept when "
                     "the upstream segment reaches %.2f of it", coding_contrast, self.start_contrast_alpha)
 

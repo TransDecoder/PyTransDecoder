@@ -7,7 +7,8 @@ import argparse
 from pathlib import Path
 from . import __version__
 from .longorfs import run_longorfs
-from .predict import DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT
+from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
+                      DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST)
 
 
 def create_longorfs_parser(subparsers):
@@ -182,6 +183,18 @@ Example:
              f"ends; 0 uses frame contrast only (default: {DEFAULT_START_KOZAK_WEIGHT})"
     )
     parser.add_argument(
+        '--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH, dest='short_orf_length',
+        help="ORFs with fewer codons than this (from LongOrfs -m below it) need --short-orf-min-contrast "
+             f"unless supported by homology (default: {DEFAULT_SHORT_ORF_LENGTH})"
+    )
+    parser.add_argument(
+        '--short-orf-min-contrast', type=float, default=DEFAULT_SHORT_ORF_MIN_CONTRAST,
+        dest='short_orf_min_contrast',
+        help="Frame contrast (in-frame score minus the better shifted frame) a short ORF needs, in bases "
+             "of the training ORFs' median per-base contrast; 0 applies only the usual frame test "
+             f"(default: {DEFAULT_SHORT_ORF_MIN_CONTRAST:g})"
+    )
+    parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
         help='Genetic code (default: Standard)'
@@ -270,6 +283,8 @@ def predict_cmd(args):
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
             start_kozak_weight=args.start_kozak_weight,
+            short_orf_length=args.short_orf_length,
+            short_orf_min_contrast=args.short_orf_min_contrast,
         )
         predictor.run()
     except Exception as e:
@@ -349,6 +364,13 @@ def create_pipeline_parser():
     parser.add_argument('--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
                         dest='start_kozak_weight',
                         help="Start refinement Kozak weight (default: %(default)s)")
+    parser.add_argument('--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH,
+                        dest='short_orf_length',
+                        help="ORFs with fewer codons need --short-orf-min-contrast (default: %(default)s)")
+    parser.add_argument('--short-orf-min-contrast', type=float, default=DEFAULT_SHORT_ORF_MIN_CONTRAST,
+                        dest='short_orf_min_contrast',
+                        help="Frame contrast required of short ORFs, in bases of median coding contrast "
+                             "(default: %(default)s)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -536,6 +558,8 @@ def pipeline_cmd(args):
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
             start_kozak_weight=args.start_kozak_weight,
+            short_orf_length=args.short_orf_length,
+            short_orf_min_contrast=args.short_orf_min_contrast,
         )
         predictor.run()
     except Exception as e:

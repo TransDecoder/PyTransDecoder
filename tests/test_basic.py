@@ -317,6 +317,30 @@ def test_single_best_orf_is_top_by_coding_score_not_length(tmp_path, single_best
     assert ids == (["tx1.p2"] if single_best_only else ["tx1.p2", "tx1.p1"])
 
 
+
+@pytest.mark.parametrize("min_contrast,kept", [(200.0, ["tx2.p1"]), (0.0, ["tx1.p1", "tx2.p1"])])
+def test_short_orfs_need_frame_contrast(tmp_path, monkeypatch, min_contrast, kept):
+    """An ORF under --short-orf-length codons passes only if its frame contrast reaches
+    --short-orf-min-contrast bases of the median coding contrast (here 0.1 per base: 20); ORFs of
+    normal length keep the plain frame test."""
+    transcripts_fasta = tmp_path / "transcripts.fa"
+    transcripts_fasta.write_text(">tx1\n" + "ACGT" * 100 + "\n>tx2\n" + "ACGT" * 100 + "\n")
+    predictor = TransDecoderPredict(transcripts_file=transcripts_fasta, output_dir=tmp_path,
+                                    short_orf_min_contrast=min_contrast)
+    predictor.workdir.mkdir(parents=True, exist_ok=True)
+    predictor.checkpoints_dir.mkdir(exist_ok=True)
+    predictor.gff3_file.write_text(
+        "tx1\ttransdecoder\tmRNA\t1\t180\t.\t+\t.\tID=tx1.p1;Parent=GENE.tx1~~tx1.p1\n"
+        "tx2\ttransdecoder\tmRNA\t1\t330\t.\t+\t.\tID=tx2.p1;Parent=GENE.tx2~~tx2.p1\n")
+    scores = tmp_path / "cds.scores"
+    scores.write_text("#acc\tMarkov_order\tseq_length\tscore_1\tscore_2\tscore_3\tscore_4\tscore_5\tscore_6\n"
+                      "tx1.p1\t5\t180\t12.0\t1.0\t1.0\t0\t0\t0\n"     # 60 codons, contrast 11
+                      "tx2.p1\t5\t330\t6.0\t1.0\t1.0\t0\t0\t0\n")     # 110 codons, contrast 5
+    monkeypatch.setattr(predictor, "_coding_contrast", lambda training, hexamers: 0.1)
+    out = predictor._select_best_orfs(scores, tmp_path / "train.cds", tmp_path / "hexamer.scores")
+    ids = [l.split("ID=")[1].split(";")[0] for l in out.read_text().splitlines() if "\tmRNA\t" in l]
+    assert sorted(ids) == kept
+
 def test_cli_reports_single_orf_by_default():
     import argparse
     from pytransdecoder.cli import create_predict_parser
