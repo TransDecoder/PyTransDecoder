@@ -1036,7 +1036,8 @@ class TransDecoderPredict:
         kozak.write_logo_svg(pos_counts, model, num_starts, Path(f"{prefix}.kozak.logo.svg"))
         logger.info("Kozak model from %d training starts: %s.kozak.tsv, %s.kozak.logo.svg",
                     num_starts, prefix, prefix)
-        return model
+        # score with the model as written (3 decimals), as Perl TransDecoder does
+        return kozak.read_model(Path(f"{prefix}.kozak.tsv"))
 
     @staticmethod
     def _kozak_score(model, sequence: str, atg_index: int) -> float:
