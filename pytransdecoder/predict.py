@@ -26,9 +26,12 @@ logger = logging.getLogger(__name__)
 # (TransDecoderPaper/benchmark_v2; chosen on the 2026 benchmark, alpha 0.4).
 DEFAULT_START_CONTRAST_ALPHA = 0.4
 
-# Kozak log-odds (nats) of the candidate ATG shift the frame-contrast cutoff: an open 5' end is
-# trimmed when contrast < (alpha + weight * kozak) * the training ORFs' per-base contrast.
-DEFAULT_START_KOZAK_WEIGHT = 0.15
+# Kozak log-odds (nats) of the candidate ATG add to the frame-contrast cutoff, independent of the
+# segment's length: an open 5' end of L bases is trimmed when its contrast <
+# (alpha * L + weight * kozak) * the training ORFs' per-base contrast. A weight of 25 equates
+# one nat of Kozak evidence with 25 bases of the median coding contrast (benchmark_v2 and GM12878
+# MANE starts, 2026).
+DEFAULT_START_KOZAK_WEIGHT = 25.0
 
 # Stop codons the GC-dependent long-ORF length table was simulated with
 STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
@@ -81,8 +84,8 @@ class TransDecoderPredict:
             start_contrast_alpha: Start refinement keeps an open 5' end only when the segment
                 before the first in-frame ATG has at least this fraction of the training ORFs'
                 per-base frame contrast
-            start_kozak_weight: weight of the first ATG's Kozak log-odds in that decision
-                (0 uses frame contrast alone)
+            start_kozak_weight: bases of median per-base frame contrast that one unit of the
+                first ATG's Kozak log-odds is worth in that decision (0 uses frame contrast alone)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -880,8 +883,8 @@ class TransDecoderPredict:
         - Kozak context of the ATG: a log-odds model of -6..-1 and +4..+5 trained on the
           training ORFs' starts against in-frame ATGs inside them.
         The ORF is trimmed to the ATG when the segment's contrast is below
-        (start_contrast_alpha + start_kozak_weight * kozak) times the training ORFs' median
-        per-base contrast.
+        (start_contrast_alpha * length + start_kozak_weight * kozak) times the training ORFs'
+        median per-base contrast: the Kozak evidence counts the same whatever the segment's length.
 
         Returns:
             Path to the revised GFF3 file
@@ -1041,8 +1044,8 @@ class TransDecoderPredict:
 
                 contrast = self._frame_contrast(orf[:atg], scores)
                 kozak_score = self._kozak_score(kozak, oriented, orf_start + atg) if kozak else 0.0
-                cutoff = self.start_contrast_alpha + self.start_kozak_weight * kozak_score
-                if contrast >= cutoff * coding_contrast * atg:
+                cutoff = self.start_contrast_alpha * atg + self.start_kozak_weight * kozak_score
+                if contrast >= cutoff * coding_contrast:
                     dst.write(line)  # upstream segment looks coding: 5' partial
                     continue
 

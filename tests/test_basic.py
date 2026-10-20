@@ -369,7 +369,8 @@ def test_kozak_context_shifts_keep_or_trim(tmp_path, monkeypatch, kozak_score, t
     predictor, gff3_file = _predictor_with_one_orf(
         tmp_path, tx,
         f"tx1\ttransdecoder\tmRNA\t3\t{2 + len(orf)}\t.\t+\t.\tID=tx1.p1;Parent=GENE.tx1~~tx1.p1;score=10.0")
-    # alpha 0.4, weight 0.15: cutoffs 0.7 (kozak +2) and 0.1 (kozak -2); segment ratio 0.4
+    # 9-base segment, alpha 0.4, weight 25: cutoffs 3.6 + 50 (kozak +2) and 3.6 - 50 (kozak -2);
+    # segment contrast 3.6
     monkeypatch.setattr(predictor, "_frame_contrast", lambda seq, scores: 0.4 * len(seq))
     monkeypatch.setattr(predictor, "_kozak_score", lambda model, seq, i: kozak_score)
     revised = tmp_path / "revised.gff3"

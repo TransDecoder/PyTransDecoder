@@ -177,8 +177,9 @@ Example:
     parser.add_argument(
         '--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
         dest='start_kozak_weight',
-        help="Start refinement: weight of the first ATG's Kozak log-odds in the keep-or-trim "
-             f"decision for open 5' ends; 0 uses frame contrast only (default: {DEFAULT_START_KOZAK_WEIGHT})"
+        help="Start refinement: bases of the training ORFs' per-base frame contrast that one unit "
+             "of the first ATG's Kozak log-odds is worth in the keep-or-trim decision for open 5' "
+             f"ends; 0 uses frame contrast only (default: {DEFAULT_START_KOZAK_WEIGHT})"
     )
     parser.add_argument(
         '-G', '--genetic-code',

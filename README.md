@@ -134,7 +134,7 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
                                   (default: the best ORF per transcript)
 --no-refine-starts                Skip start codon refinement
 --start-contrast-alpha FLOAT      Start refinement: frame-contrast fraction (default: 0.4)
---start-kozak-weight FLOAT        Start refinement: Kozak weight in keep-or-trim (default: 0.15)
+--start-kozak-weight FLOAT        Start refinement: Kozak weight in keep-or-trim (default: 25)
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```
@@ -157,9 +157,10 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
      does not;
    - the ATG's Kozak context (-6..-1, +4..+5), scored by a log-odds model trained on the
      training ORFs' starts against in-frame ATGs inside them.
-   The ORF is trimmed to start at the ATG unless the segment's contrast reaches
-   (`--start-contrast-alpha` + `--start-kozak-weight` x Kozak log-odds) of the training ORFs'
-   per-base contrast. The Kozak model is written to the work directory as
+   The ORF is trimmed to start at the ATG unless the segment's total contrast reaches
+   (`--start-contrast-alpha` x segment length + `--start-kozak-weight` x Kozak log-odds) times the
+   training ORFs' median per-base contrast, so a strong or weak start context counts the same
+   for short and long segments. The Kozak model is written to the work directory as
    `start_refinement.kozak.tsv` (log-odds), `.kozak.counts.tsv` and a sequence logo,
    `.kozak.logo.svg` (information content of the training starts, and log2-odds against
    internal in-frame ATGs).
