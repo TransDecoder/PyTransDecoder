@@ -317,11 +317,22 @@ def propagate(orfs_by_transcript, structures: Dict[str, TranscriptStructure],
 
 def run(td_gff3: Path, structures_file: Path, transcripts_fasta: Path, out_gff3: Path,
         structures_format: Optional[str] = None, source: str = "transdecoder",
-        unstranded_as: str = "+") -> Tuple[int, int]:
+        unstranded_as: str = "+", out_bed: Optional[Path] = None) -> Tuple[int, int]:
+    """Propagate transcript ORFs to the genome; writes GFF3 and BED12 (default: the GFF3 path
+    with .gff3 replaced by .bed, as Perl TransDecoder's genome mode)."""
     structures = read_structures(structures_file, structures_format, unstranded_as)
     genes, n_done, n_total = propagate(read_orfs(td_gff3), structures, read_fasta_lengths(transcripts_fasta))
     with open(out_gff3, "w") as out:
         for gene in genes:
             out.write(gene.gff3_text(source))
+    if out_bed is None:
+        out_bed = Path(str(out_gff3).removesuffix(".gff3") + ".bed")
+    with open(out_bed, "w") as out:
+        for gene in genes:
+            # name as Perl's Gene_obj::to_BED_format: ID=<transcript>;<gene>;<gene Name>
+            gene_name = (gene.name or gene.models[0].name).strip("'\"")
+            for model in gene.models:
+                name = f"ID={model.model_id};{gene.gene_id};{gene_name or model.model_id}"
+                out.write(model.bed12(name.replace(" ", "_")) + "\n")
     logger.info("%d / %d transcript ORFs propagated to the genome", n_done, n_total)
     return n_done, n_total

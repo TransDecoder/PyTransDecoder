@@ -579,7 +579,8 @@ def pipeline_cmd(args):
         genome_gff3 = output_dir / f"{args.transcripts.name}.transdecoder.genome.gff3"
         n_done, n_total = genome_run(td_gff3, structures, args.transcripts, genome_gff3)
         print(f"{n_done} / {n_total} transcript ORFs propagated to the genome; "
-              f"genome-coordinate annotations written to: {genome_gff3}", file=sys.stderr)
+              f"genome-coordinate annotations written to: {genome_gff3} "
+              f"and {genome_gff3.with_suffix('.bed')}", file=sys.stderr)
 
 
 def pipeline_main():
@@ -618,7 +619,8 @@ Example:
                              "extracted from): plus for gffread (default), minus for TransDecoder's "
                              "util/gtf_genome_to_cdna_fasta.pl")
     parser.add_argument('-o', '--output', type=Path, default=None,
-                        help='output GFF3 (default: <orfs without .gff3>.genome.gff3)')
+                        help='output GFF3 (default: <orfs without .gff3>.genome.gff3); a BED12 file is written '
+                             'next to it (.gff3 replaced by .bed)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.set_defaults(func=genome_map_cmd)
     return parser
@@ -637,7 +639,8 @@ def genome_map_cmd(args):
     out = args.output or Path(str(args.orfs).removesuffix('.gff3') + '.genome.gff3')
     n_done, n_total = genome_run(args.orfs, args.structures, args.transcripts, out, args.format,
                                  unstranded_as='+' if args.unstranded_as == 'plus' else '-')
-    print(f"{n_done} / {n_total} transcript ORFs propagated to the genome: {out}", file=sys.stderr)
+    print(f"{n_done} / {n_total} transcript ORFs propagated to the genome: {out} "
+          f"(BED: {str(out).removesuffix('.gff3') + '.bed'})", file=sys.stderr)
 
 
 def main():

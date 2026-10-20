@@ -188,7 +188,7 @@ From a genome and a GTF (transcript sequences are extracted with gffread):
 
 ```bash
 pyTransdecoder --genome genome.fa --gtf stringtie.gtf -O out
-# -> out/stringtie.cDNA.fasta.transdecoder.genome.gff3
+# -> out/stringtie.cDNA.fasta.transdecoder.genome.gff3 (and .genome.bed)
 ```
 
 From transcript sequences and their structures (GTF, alignment GFF3 from GMAP/PASA with
