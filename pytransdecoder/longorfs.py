@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict
 from collections import defaultdict
-from Bio import SeqIO
+from .core.fasta import read_fasta
 from tqdm import tqdm
 
 from .core.orf_finder import ORFFinder
@@ -97,7 +97,7 @@ def run_longorfs(
     pep_file = prefix.with_suffix('.pep')
     
     # Count total transcripts for progress bar
-    total_transcripts = sum(1 for _ in SeqIO.parse(str(transcripts_file), "fasta"))
+    total_transcripts = sum(1 for _ in read_fasta(transcripts_file))
     
     if verbose:
         print(f"-total transcripts to examine: {total_transcripts}\n", file=sys.stderr)
@@ -112,7 +112,7 @@ def run_longorfs(
          FastaWriter(pep_file) as pep_writer:
         
         progress = tqdm(
-            SeqIO.parse(str(transcripts_file), "fasta"),
+            read_fasta(transcripts_file),
             total=total_transcripts,
             desc="Processing transcripts",
             disable=not verbose,

@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from Bio import SeqIO
 
+from .core.fasta import read_fasta
+
 from pytransdecoder.core.base_freqs import read_base_frequencies
 
 logger = logging.getLogger(__name__)
@@ -224,7 +226,7 @@ class TransDecoderPredict:
         longest_orfs = []
         
         with open(self.cds_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
+            for record in read_fasta(f):
                 seq_len = len(record.seq)
                 
                 # Filter by CDS nucleotide length (not protein length)
@@ -374,7 +376,7 @@ class TransDecoderPredict:
         framed_kmers = {}  # key: "kmer-frame", value: count
         
         with open(training_orfs_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
+            for record in read_fasta(f):
                 sequence = str(record.seq).upper()
                 seq_len = len(sequence)
                 
@@ -502,7 +504,7 @@ class TransDecoderPredict:
         
         results = []
         with open(self.cds_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
+            for record in read_fasta(f):
                 accession = record.id
                 sequence = str(record.seq).upper()
                 
@@ -825,7 +827,7 @@ class TransDecoderPredict:
         total_count = 0
         
         with open(self.transcripts_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
+            for record in read_fasta(f):
                 sequence = str(record.seq).upper()
                 gc_count += sequence.count('G') + sequence.count('C')
                 total_count += len(sequence)
@@ -910,7 +912,7 @@ class TransDecoderPredict:
             scores = self._load_hexamer_scores(hexamer_scores_file)
             per_base = []
             with open(training_orfs_file) as f:
-                for record in SeqIO.parse(f, "fasta"):
+                for record in read_fasta(f):
                     seq = str(record.seq).upper()
                     if len(seq) >= 30:
                         per_base.append(self._frame_contrast(seq, scores) / len(seq))
@@ -1003,7 +1005,7 @@ class TransDecoderPredict:
         num_starts = 0
         pattern = re.compile(r"(\S+):(\d+)-(\d+)\(([+-])\)")
         with open(training_orfs_file) as handle:
-            for record in SeqIO.parse(handle, "fasta"):
+            for record in read_fasta(handle):
                 match = pattern.search(record.description)
                 if not match or match.group(1) not in transcripts:
                     continue
@@ -1111,7 +1113,7 @@ class TransDecoderPredict:
     def _load_transcripts(self) -> Dict[str, str]:
         transcripts = {}
         with open(self.transcripts_file) as handle:
-            for record in SeqIO.parse(handle, "fasta"):
+            for record in read_fasta(handle):
                 transcripts[record.id] = str(record.seq).upper()
         return transcripts
 
@@ -1311,7 +1313,7 @@ class TransDecoderPredict:
         # Load transcript sequences
         transcripts = {}
         with open(self.transcripts_file) as f:
-            for record in SeqIO.parse(f, "fasta"):
+            for record in read_fasta(f):
                 transcripts[record.id] = str(record.seq).upper()
         
         # Extract sequences

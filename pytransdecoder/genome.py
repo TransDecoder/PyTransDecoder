@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
+from pytransdecoder.core.fasta import read_fasta
 from pytransdecoder.core.gene_model import CodingGene, CodingModel
 
 logger = logging.getLogger(__name__)
@@ -261,18 +262,7 @@ def read_orfs(td_gff3: Path) -> "OrderedDict[str, List[TranscriptOrf]]":
 
 
 def read_fasta_lengths(path: Path) -> Dict[str, int]:
-    lengths, name, n = {}, None, 0
-    with open(path) as fh:
-        for line in fh:
-            if line.startswith(">"):
-                if name is not None:
-                    lengths[name] = n
-                name, n = line[1:].split()[0], 0
-            else:
-                n += len(line.strip())
-    if name is not None:
-        lengths[name] = n
-    return lengths
+    return {record.id: len(record.seq) for record in read_fasta(path)}
 
 
 # --------------------------------------------------------------------------------------

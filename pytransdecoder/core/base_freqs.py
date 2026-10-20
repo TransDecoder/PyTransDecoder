@@ -6,7 +6,7 @@ Replaces compute_base_probs.pl
 """
 
 from typing import Dict
-from Bio import SeqIO
+from .fasta import read_fasta
 
 
 def compute_base_counts(fasta_file: str, top_strand_only: bool = False) -> Dict[str, int]:
@@ -18,7 +18,7 @@ def compute_base_counts(fasta_file: str, top_strand_only: bool = False) -> Dict[
     """
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
     counts = {base: 0 for base in 'ACGT'}
-    for record in SeqIO.parse(fasta_file, "fasta"):
+    for record in read_fasta(fasta_file):
         for base in str(record.seq).upper():
             if base in counts:
                 counts[base] += 1
