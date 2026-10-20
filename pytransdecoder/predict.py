@@ -704,7 +704,11 @@ class TransDecoderPredict:
             candidates.sort(key=lambda x: (
                 -x['homology_count'],
                 -x['scores'][0],
-                -x['length']
+                -x['length'],
+                # exact ties (e.g. identical repeated ORFs): leftmost, then plus strand
+                min(x['orf']['start'], x['orf']['end']),
+                max(x['orf']['start'], x['orf']['end']),
+                x['orf']['strand']
             ))
             
             # Select ORFs
@@ -815,7 +819,7 @@ class TransDecoderPredict:
         logger.info(f"Dynamic mode: min auto-accept length = {min_length} nt")
         return min_length
 
-    def _get_min_length_by_gc(self) -> int:
+    def _get_min_length_by_gc(self) -> float:
         """
         Calculate minimum ORF length based on GC content (dynamic mode)
         
@@ -830,7 +834,8 @@ class TransDecoderPredict:
             for record in read_fasta(f):
                 sequence = str(record.seq).upper()
                 gc_count += sequence.count('G') + sequence.count('C')
-                total_count += len(sequence)
+                # as Perl's base_freqs.dat: A/C/G/T only
+                total_count += sum(sequence.count(b) for b in 'ACGT')
         
         gc_pct = (gc_count / total_count * 100) if total_count > 0 else 50
         logger.info(f"Transcriptome GC content: {gc_pct:.1f}%")
@@ -842,8 +847,8 @@ class TransDecoderPredict:
                 min_length = length_threshold
                 break
         else:
-            # GC > 80%, use last entry
-            min_length = self.gc_to_min_length[-1][1]
+            # GC > 80%: as Perl, rely on the coding score alone (no length-based auto-accept)
+            min_length = float('inf')
         
         return min_length
     
