@@ -165,6 +165,42 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
    internal in-frame ATGs).
 5. **Output**: Generates final predictions in multiple formats
 
+## Annotating a Genome from Transcript Structures
+
+Transcripts reconstructed from RNA-seq (StringTie, LRAA, Cufflinks, PASA, or Trinity aligned to
+the genome) can be annotated with coding regions on the genome: ORFs predicted on the transcript
+sequences are propagated through each transcript's exon structure, giving gene / mRNA / exon /
+CDS / five_prime_UTR / three_prime_UTR models in GFF3.
+
+From a genome and a GTF (transcript sequences are extracted with gffread):
+
+```bash
+pyTransdecoder --genome genome.fa --gtf stringtie.gtf -O out
+# -> out/stringtie.cDNA.fasta.transdecoder.genome.gff3
+```
+
+From transcript sequences and their structures (GTF, alignment GFF3 from GMAP/PASA with
+`Target=`, or minimap2 SAM/BAM spliced alignments):
+
+```bash
+pyTransdecoder -t Trinity.fasta --structures Trinity.minimap2.bam -O out
+# or, after LongOrfs + Predict:
+pytransdecoder genome-map --orfs Trinity.fasta.transdecoder.gff3 --structures Trinity.minimap2.bam \
+    -t Trinity.fasta -o Trinity.fasta.transdecoder.genome.gff3
+```
+
+Notes:
+- ORFs on the opposite strand of a spliced transcript are not propagated; single-exon
+  transcripts take the ORF's orientation.
+- Alignment blocks carry transcript coordinates (GFF3 `Target`, SAM CIGAR), so transcripts with
+  indels or clipped ends map base-accurately; an ORF whose CDS is not within the aligned part of
+  its transcript is not propagated. Only primary SAM/BAM alignments are used.
+- GTF transcripts with strand `.` are taken as `+`, as gffread extracts them; use
+  `--unstranded-as minus` for sequences extracted with TransDecoder's
+  `util/gtf_genome_to_cdna_fasta.pl`.
+- Isoforms are grouped by the GTF `gene_id` (or the TransDecoder gene id, e.g. with
+  `--gene-trans-map`), with the chromosome and strand appended.
+
 ## Development Status
 
 - ✅ Phase 1 (LongOrfs): Implemented and validated

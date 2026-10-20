@@ -294,6 +294,10 @@ def create_pipeline_parser():
                         help='Genome FASTA file (use with --gtf to extract cDNA sequences via gffread)')
     parser.add_argument('--gtf', type=Path, default=None, dest='gtf',
                         help='Genome annotation GTF file (use with --genome to extract cDNA sequences via gffread)')
+    parser.add_argument('--structures', type=Path, default=None, dest='structures',
+                        help='Genome structures of the -t transcripts for annotating the genome: GTF, alignment '
+                             'GFF3 (GMAP/PASA, Target=), or SAM/BAM spliced alignments (minimap2). Writes '
+                             '<transcripts>.transdecoder.genome.gff3')
     parser.add_argument('-m', '--min-protein-length', type=int, default=100, dest='min_protein_length',
                         help='Minimum protein length in amino acids (default: 100)')
     parser.add_argument('-G', '--genetic-code', default='universal', dest='genetic_code',
@@ -364,6 +368,12 @@ def pipeline_cmd(args):
 
     # Validate inputs and resolve transcripts file
     genome_mode = args.genome is not None or args.gtf is not None
+    if genome_mode and args.structures is not None:
+        print("Error: use --structures with -t, not with --genome/--gtf", file=sys.stderr)
+        sys.exit(1)
+    if args.structures is not None and not args.structures.exists():
+        print(f"Error: structures file not found: {args.structures}", file=sys.stderr)
+        sys.exit(1)
     if genome_mode:
         if args.genome is None or args.gtf is None:
             print("Error: --genome and --gtf must be provided together", file=sys.stderr)
@@ -534,33 +544,15 @@ def pipeline_cmd(args):
             traceback.print_exc()
         sys.exit(1)
 
-    # Phase 3: Propagate ORFs to genome coordinates (only when genome+gtf provided)
-    if genome_mode:
-        util_dir = Path(__file__).parent.parent / 'util'
-        gtf_to_gff3_pl = util_dir / 'gtf_to_alignment_gff3.pl'
-        cdna_to_genome_pl = util_dir / 'cdna_alignment_orf_to_genome_orf.pl'
-
-        # Convert GTF to alignment GFF3
-        alignment_gff3 = output_dir / (args.gtf.stem + ".gff3")
-        cmd = ['perl', str(gtf_to_gff3_pl), str(args.gtf)]
-        print(f"Converting GTF to alignment GFF3: {' '.join(cmd)}", file=sys.stderr)
-        with open(alignment_gff3, 'w') as fh:
-            result = subprocess.run(cmd, stdout=fh)
-        if result.returncode != 0:
-            print(f"Error: gtf_to_alignment_gff3.pl failed with return code {result.returncode}", file=sys.stderr)
-            sys.exit(result.returncode)
-
-        # Map transcript ORF coords to genome coords
+    # Phase 3: Propagate ORFs to genome coordinates (with --genome/--gtf or --structures)
+    structures = args.gtf if genome_mode else args.structures
+    if structures is not None:
+        from .genome import run as genome_run
         td_gff3 = output_dir / f"{args.transcripts.name}.transdecoder.gff3"
         genome_gff3 = output_dir / f"{args.transcripts.name}.transdecoder.genome.gff3"
-        cmd = ['perl', str(cdna_to_genome_pl), str(td_gff3), str(alignment_gff3), str(args.transcripts)]
-        print(f"Propagating ORFs to genome coordinates: {' '.join(cmd)}", file=sys.stderr)
-        with open(genome_gff3, 'w') as fh:
-            result = subprocess.run(cmd, stdout=fh)
-        if result.returncode != 0:
-            print(f"Error: cdna_alignment_orf_to_genome_orf.pl failed with return code {result.returncode}", file=sys.stderr)
-            sys.exit(result.returncode)
-        print(f"Genome-coordinate ORF annotations written to: {genome_gff3}", file=sys.stderr)
+        n_done, n_total = genome_run(td_gff3, structures, args.transcripts, genome_gff3)
+        print(f"{n_done} / {n_total} transcript ORFs propagated to the genome; "
+              f"genome-coordinate annotations written to: {genome_gff3}", file=sys.stderr)
 
 
 def pipeline_main():
@@ -568,6 +560,57 @@ def pipeline_main():
     parser = create_pipeline_parser()
     args = parser.parse_args()
     pipeline_cmd(args)
+
+
+def create_genome_map_parser(subparsers):
+    """Create parser for genome-map command"""
+    parser = subparsers.add_parser(
+        'genome-map',
+        help='Propagate predicted ORFs to the genome through transcript structures',
+        description="""Propagate ORFs predicted on transcripts to genome coordinates, writing gene / mRNA /
+exon / CDS / five_prime_UTR / three_prime_UTR models (GFF3).
+
+Transcript structures: GTF (StringTie, LRAA, Cufflinks, GENCODE ...), alignment GFF3 (GMAP, PASA;
+Target=<transcript> <start> <end>) or SAM/BAM spliced alignments (minimap2; primary alignments).
+
+Example:
+    pytransdecoder genome-map --orfs transcripts.fa.transdecoder.gff3 --structures transcripts.gtf \\
+        -t transcripts.fa -o transcripts.fa.transdecoder.genome.gff3
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('--orfs', required=True, type=Path,
+                        help='TransDecoder transcript-level GFF3 (<transcripts>.transdecoder.gff3)')
+    parser.add_argument('--structures', required=True, type=Path,
+                        help='transcript genome structures: .gtf, alignment .gff3, .sam or .bam')
+    parser.add_argument('--format', choices=['gtf', 'gff3', 'sam'], default=None,
+                        help='structures format (default: from the file extension)')
+    parser.add_argument('-t', '--transcripts', required=True, type=Path, help='transcripts FASTA')
+    parser.add_argument('--unstranded-as', choices=['plus', 'minus'], default='plus', dest='unstranded_as',
+                        help="strand of GTF transcripts with strand '.' (the strand their sequence was "
+                             "extracted from): plus for gffread (default), minus for TransDecoder's "
+                             "util/gtf_genome_to_cdna_fasta.pl")
+    parser.add_argument('-o', '--output', type=Path, default=None,
+                        help='output GFF3 (default: <orfs without .gff3>.genome.gff3)')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    parser.set_defaults(func=genome_map_cmd)
+    return parser
+
+
+def genome_map_cmd(args):
+    """Execute genome-map command"""
+    import logging
+    from .genome import run as genome_run
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    for f in (args.orfs, args.structures, args.transcripts):
+        if not f.exists():
+            print(f"Error: file not found: {f}", file=sys.stderr)
+            sys.exit(1)
+    out = args.output or Path(str(args.orfs).removesuffix('.gff3') + '.genome.gff3')
+    n_done, n_total = genome_run(args.orfs, args.structures, args.transcripts, out, args.format,
+                                 unstranded_as='+' if args.unstranded_as == 'plus' else '-')
+    print(f"{n_done} / {n_total} transcript ORFs propagated to the genome: {out}", file=sys.stderr)
 
 
 def main():
@@ -594,6 +637,7 @@ def main():
     # Create subcommands
     create_longorfs_parser(subparsers)
     create_predict_parser(subparsers)
+    create_genome_map_parser(subparsers)
     
     # Parse arguments
     args = parser.parse_args()

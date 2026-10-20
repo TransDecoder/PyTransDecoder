@@ -1134,67 +1134,70 @@ class TransDecoderPredict:
         logger.info(f"Final outputs written to: {base_name}.transdecoder.*")
         checkpoint.write_text("OK")
     
+    def _final_models(self, gff3_file: Path):
+        """
+        Transcript-level coding models for the selected ORFs: one exon spanning the transcript,
+        the CDS inside it, oriented by the ORF strand (as Perl TransDecoder reports them).
+
+        Yields (gene_id, CodingModel).
+        """
+        from pytransdecoder.core.gene_model import CodingModel
+        from pytransdecoder.core.gff3_parser import parse_gff3
+        from pytransdecoder.core.sequence import reverse_complement
+        from pytransdecoder.core.translator import Translator
+
+        translator = Translator(self.genetic_code)
+        transcripts = self._load_transcripts()
+        for feature in parse_gff3(gff3_file):
+            if feature['type'] != 'mRNA' or feature['seqid'] not in transcripts:
+                continue
+            attrs = feature['attributes']
+            seq = transcripts[feature['seqid']]
+            start, end, strand = feature['start'], min(feature['end'], len(seq)), feature['strand']
+            orf_seq = seq[start - 1:end]
+            if strand == '-':
+                orf_seq = reverse_complement(orf_seq)
+            orf_type = self._get_orf_type_from_protein(translator.translate(orf_seq, frame=0))
+            extra = ";".join(f"{k}={','.join(v)}" for k, v in attrs.items()
+                             if k not in ("ID", "Parent", "Name", "blast", "pfam"))
+            model = CodingModel(seqid=feature['seqid'], strand=strand, exons=[(1, len(seq))],
+                                cds_lend=start, cds_rend=end, model_id=attrs.get('ID', [''])[0],
+                                name=self._orf_com_name(attrs, strand, orf_type), extra_attrs=extra)
+            yield attrs.get('Parent', [''])[0], model
+
     def _write_final_gff3(self, src_gff3: Path, out_gff3: Path):
         """
-        Write final GFF3 with full gene/mRNA/CDS hierarchy.
-        The best_candidates.gff3 only has mRNA entries; cdna_alignment_orf_to_genome_orf.pl
-        requires CDS children to build gene models, so we expand each mRNA into:
-            gene  (parent)
-            mRNA  (child of gene)
-            CDS   (child of mRNA, same coords)
+        Final GFF3 as in Perl TransDecoder: per ORF a gene and mRNA spanning the transcript,
+        the transcript as one exon, the CDS, and five_prime_UTR / three_prime_UTR features.
         """
-        with open(src_gff3) as fh, open(out_gff3, 'w') as out:
-            out.write("##gff-version 3\n")
-            for line in fh:
-                if line.startswith('#'):
-                    continue
-                line = line.rstrip('\n')
-                if not line:
-                    continue
-                parts = line.split('\t')
-                if len(parts) != 9 or parts[2] != 'mRNA':
-                    continue
+        from pytransdecoder.core.gene_model import CodingGene
 
-                seqid, source, _, start, end, score, strand, phase, attrs = parts
-
-                # Parse ID and Parent from attributes
-                mrna_id, parent_id = '', ''
-                for attr in attrs.split(';'):
-                    if attr.startswith('ID='):
-                        mrna_id = attr[3:]
-                    elif attr.startswith('Parent='):
-                        parent_id = attr[7:]
-
-                # gene line
-                out.write(f"{seqid}\t{source}\tgene\t{start}\t{end}\t.\t{strand}\t.\t"
-                          f"ID={parent_id};Name=ORF_{parent_id}\n")
-                # mRNA line (unchanged)
-                out.write(line + '\n')
-                # exon line (required by GFF3_utils2 for gene model building)
-                out.write(f"{seqid}\t{source}\texon\t{start}\t{end}\t.\t{strand}\t.\t"
-                          f"ID=exon.{mrna_id};Parent={mrna_id}\n")
-                # CDS line
-                out.write(f"{seqid}\t{source}\tCDS\t{start}\t{end}\t.\t{strand}\t0\t"
-                          f"ID=cds.{mrna_id};Parent={mrna_id}\n")
+        with open(out_gff3, 'w') as out:
+            for gene_id, model in self._final_models(src_gff3):
+                out.write(CodingGene(gene_id=gene_id, models=[model]).gff3_text())
 
     def _gff3_to_bed(self, gff3_file: Path, bed_file: Path):
-        """Convert GFF3 to BED format"""
-        from pytransdecoder.core.gff3_parser import parse_gff3
-        
+        """BED12 of the final ORFs as in Perl TransDecoder (thickStart/End = CDS)."""
         with open(bed_file, 'w') as out:
-            for feature in parse_gff3(gff3_file):
-                # BED format: chrom, chromStart, chromEnd, name, score, strand
-                # Note: BED uses 0-based start, 1-based end (half-open)
-                chrom = feature['seqid']
-                start = feature['start'] - 1  # Convert to 0-based
-                end = feature['end']
-                name = feature['attributes'].get('ID', [''])[0]
-                score = feature['score']
-                strand = feature['strand']
-                
-                # BED12 format with additional fields
-                # For now, use simple BED6 format
-                out.write(f"{chrom}\t{start}\t{end}\t{name}\t{score}\t{strand}\n")
+            for gene_id, model in self._final_models(gff3_file):
+                name = f"ID={model.model_id};{gene_id};{model.name.replace(' ', '_')}"
+                out.write(model.bed12(name) + "\n")
+
+    def _orf_com_name(self, attrs: Dict[str, List[str]], strand: str, orf_type: str) -> str:
+        """Perl-style ORF description: 'ORF type:<type> (<strand>),score=<s>[,blast...][,pfam...]'."""
+        com_name = f"ORF type:{orf_type} ({strand})"
+        score = attrs.get('score', [''])[0]
+        if score:
+            try:
+                score = f"{float(score):.2f}"
+            except ValueError:
+                pass
+            com_name += f",score={score}"
+        for key in ('blast', 'pfam'):
+            info = attrs.get(key, [''])[0]
+            if info:
+                com_name += info if info.startswith(',') else f",{info}"
+        return com_name
 
     @staticmethod
     def _get_orf_type_from_protein(protein: str) -> str:
@@ -1227,19 +1230,7 @@ class TransDecoderPredict:
         strand = feature['strand']
 
         orf_type = self._get_orf_type_from_protein(protein)
-        com_name = f"ORF type:{orf_type} ({strand})"
-
-        score = attrs.get('score', [''])[0]
-        if score:
-            com_name += f",score={score}"
-
-        blast_info = attrs.get('blast', [''])[0]
-        if blast_info:
-            com_name += blast_info if blast_info.startswith(',') else f",{blast_info}"
-
-        pfam_info = attrs.get('pfam', [''])[0]
-        if pfam_info:
-            com_name += pfam_info if pfam_info.startswith(',') else f",{pfam_info}"
+        com_name = self._orf_com_name(attrs, strand, orf_type)
 
         seq_len = len(protein.rstrip('*')) if seq_type == 'pep' else len(sequence)
 

@@ -395,7 +395,7 @@ def test_final_pep_header_includes_orf_metadata(tmp_path):
 
     lines = pep_file.read_text().splitlines()
     assert lines[0] == (
-        ">tx1.p1 GENE.tx1~~tx1.p1 ORF type:complete (+),score=10.0,"
+        ">tx1.p1 GENE.tx1~~tx1.p1 ORF type:complete (+),score=10.00,"
         "blast:sp|P12345|TEST|1e-5|50 len:2 tx1:1-9(+)"
     )
     assert lines[1] == "MK*"
@@ -573,3 +573,81 @@ def test_markov_terminal_stop_follows_genetic_code(tmp_path):
     assert mito._score_cds_via_markov("AGA", 2, scores) == 0.0
     assert universal._score_cds_via_markov("TAA", 2, scores) == 0.0
     assert tetra._score_cds_via_markov("TAA", 2, scores) != 0.0
+
+
+# --- genome propagation -----------------------------------------------------------------
+
+def _orf_gff3(path, tid, strand, cds_lend, cds_rend, tlen, model="m1", gene="GENE.t1~~m1"):
+    path.write_text(
+        f"{tid}\ttransdecoder\tgene\t1\t{tlen}\t.\t{strand}\t.\tID={gene};Name=\"ORF type:complete ({strand})\"\n"
+        f"{tid}\ttransdecoder\tmRNA\t1\t{tlen}\t.\t{strand}\t.\tID={model};Parent={gene}\n"
+        f"{tid}\ttransdecoder\texon\t1\t{tlen}\t.\t{strand}\t.\tID={model}.exon1;Parent={model}\n"
+        f"{tid}\ttransdecoder\tCDS\t{cds_lend}\t{cds_rend}\t.\t{strand}\t0\tID=cds.{model};Parent={model}\n")
+
+
+def _features(gff3_text, ftype):
+    return [tuple(int(v) for v in l.split("\t")[3:5]) for l in gff3_text.splitlines()
+            if l and l.split("\t")[2] == ftype]
+
+
+@pytest.mark.parametrize("tstrand", ["+", "-"])
+def test_genome_map_gtf_two_exons(tmp_path, tstrand):
+    """Transcript of exons 101-150 and 201-250 (100 nt); CDS at transcript 11-90 spans the intron."""
+    from pytransdecoder import genome
+    (tmp_path / "t.gtf").write_text("".join(
+        f'chr1\tx\texon\t{a}\t{b}\t.\t{tstrand}\t.\tgene_id "g1"; transcript_id "t1";\n' for a, b in [(101, 150), (201, 250)]))
+    (tmp_path / "t.fa").write_text(">t1\n" + "A" * 100 + "\n")
+    _orf_gff3(tmp_path / "orfs.gff3", "t1", "+", 11, 90, 100)
+    n, total = genome.run(tmp_path / "orfs.gff3", tmp_path / "t.gtf", tmp_path / "t.fa", tmp_path / "out.gff3")
+    out = (tmp_path / "out.gff3").read_text()
+    assert (n, total) == (1, 1)
+    assert f"ID=g1^chr1^{tstrand}" in out
+    assert _features(out, "CDS") == ([(111, 150), (201, 240)] if tstrand == "+" else [(201, 240), (111, 150)])
+    utr5, utr3 = _features(out, "five_prime_UTR"), _features(out, "three_prime_UTR")
+    assert (utr5, utr3) == (([(101, 110)], [(241, 250)]) if tstrand == "+" else ([(241, 250)], [(101, 110)]))
+    phases = [l.split("\t")[7] for l in out.splitlines() if l and l.split("\t")[2] == "CDS"]
+    assert phases == ["0", "2"]   # 40 nt in the first CDS segment: 1 nt left over -> skip 2
+
+
+def test_genome_map_skips_antisense_orf_on_spliced_transcript(tmp_path):
+    from pytransdecoder import genome
+    (tmp_path / "t.gtf").write_text("".join(
+        f'chr1\tx\texon\t{a}\t{b}\t.\t+\t.\tgene_id "g1"; transcript_id "t1";\n' for a, b in [(101, 150), (201, 250)]))
+    (tmp_path / "t.fa").write_text(">t1\n" + "A" * 100 + "\n")
+    _orf_gff3(tmp_path / "orfs.gff3", "t1", "-", 11, 90, 100)
+    assert genome.run(tmp_path / "orfs.gff3", tmp_path / "t.gtf", tmp_path / "t.fa", tmp_path / "out.gff3") == (0, 1)
+
+
+def test_genome_map_alignment_gff3_uses_target_coordinates(tmp_path):
+    """GMAP-style blocks with a 2 nt transcript insertion (transcript 51-52 unaligned): CDS
+    positions after it map using the Target coordinates, and the blocks form one exon."""
+    from pytransdecoder import genome
+    (tmp_path / "a.gff3").write_text(
+        "chr1\tgmap\tcDNA_match\t1001\t1050\t.\t+\t.\tID=p1;Target=t1 1 50\n"
+        "chr1\tgmap\tcDNA_match\t1051\t1098\t.\t+\t.\tID=p1;Target=t1 53 100\n")
+    (tmp_path / "t.fa").write_text(">t1\n" + "A" * 100 + "\n")
+    _orf_gff3(tmp_path / "orfs.gff3", "t1", "+", 11, 90, 100)
+    genome.run(tmp_path / "orfs.gff3", tmp_path / "a.gff3", tmp_path / "t.fa", tmp_path / "out.gff3")
+    out = (tmp_path / "out.gff3").read_text()
+    assert _features(out, "exon") == [(1001, 1098)]
+    assert _features(out, "CDS") == [(1011, 1088)]
+
+
+def test_genome_map_sam_minus_strand_with_clip_deletion_and_intron(tmp_path):
+    """Reverse-strand alignment of a 100 nt transcript: 5S 40M 2D 30M 500N 25M (query in SAM
+    orientation). Transcript position t maps to query q = 101 - t."""
+    from pytransdecoder import genome
+    (tmp_path / "a.sam").write_text("@SQ\tSN:chr1\tLN:100000\n"
+                                    "t1\t16\tchr1\t1001\t60\t5S40M2D30M500N25M\t*\t0\t0\t*\t*\n")
+    (tmp_path / "t.fa").write_text(">t1\n" + "A" * 100 + "\n")
+    _orf_gff3(tmp_path / "orfs.gff3", "t1", "+", 10, 80, 100)
+    structs = genome.read_structures(tmp_path / "a.sam")
+    s = structs["t1"]
+    assert s.strand == "-" and s.exons == [(1001, 1072), (1573, 1597)]
+    # t=10 -> q=91 -> in the 25M block (q 76-100 at genome 1573-1597): 1573 + 15 = 1588
+    # t=80 -> q=21 -> in the 40M block (q 6-45 at 1001-1040): 1001 + 15 = 1016
+    assert s.to_genome(10) == 1588 and s.to_genome(80) == 1016
+    assert s.to_genome(98) is None    # soft-clipped (q 1-5)
+    genome.run(tmp_path / "orfs.gff3", tmp_path / "a.sam", tmp_path / "t.fa", tmp_path / "out.gff3")
+    out = (tmp_path / "out.gff3").read_text()
+    assert _features(out, "CDS") == [(1573, 1588), (1016, 1072)]
