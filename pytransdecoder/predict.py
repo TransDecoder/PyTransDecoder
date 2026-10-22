@@ -23,17 +23,17 @@ from pytransdecoder.core.base_freqs import read_base_frequencies
 
 logger = logging.getLogger(__name__)
 
-# Start refinement: an ORF open at its 5' end stays 5'-partial only when the segment before its
-# first in-frame ATG has at least this fraction of the training ORFs' per-base frame contrast
-# (TransDecoderPaper/benchmark_v2; chosen on the 2026 benchmark, alpha 0.4).
+# Start refinement compares two scores for the segment before an open ORF's first in-frame ATG,
+# both in bases' worth of typical coding signal (the training ORFs' median per-base frame contrast):
+#   coding score = the segment's frame contrast / that median
+#   UTR score    = alpha * segment length + kozak_weight * Kozak score of the ATG (bits)
+# and trims the ORF to the ATG when the UTR score is higher; otherwise it stays 5' partial.
+# alpha: the fraction of typical coding signal a segment may show and still be called UTR.
+# kozak_weight: bases of coding signal the ATG overrules per bit of Kozak score (17 per bit equals
+# the 25 per nat previously used). Both evaluated on the 2026 benchmark and GM12878
+# (TransDecoderPaper evidence E09, E13).
 DEFAULT_START_CONTRAST_ALPHA = 0.4
-
-# Kozak log-odds (nats) of the candidate ATG add to the frame-contrast cutoff, independent of the
-# segment's length: an open 5' end of L bases is trimmed when its contrast <
-# (alpha * L + weight * kozak) * the training ORFs' per-base contrast. A weight of 25 equates
-# one nat of Kozak evidence with 25 bases of the median coding contrast (benchmark_v2 and GM12878
-# MANE starts, 2026).
-DEFAULT_START_KOZAK_WEIGHT = 25.0
+DEFAULT_START_KOZAK_WEIGHT = 17.0
 
 # ORFs shorter than this many codons (LongOrfs -m below 100) are kept only with homology support or
 # when their frame contrast (in-frame score minus the better shifted frame) reaches
@@ -94,11 +94,11 @@ class TransDecoderPredict:
                 every non-overlapping ORF that passes selection
             no_refine_starts: Skip start codon refinement
             genetic_code: Genetic code to use
-            start_contrast_alpha: Start refinement keeps an open 5' end only when the segment
-                before the first in-frame ATG has at least this fraction of the training ORFs'
-                per-base frame contrast
-            start_kozak_weight: bases of median per-base frame contrast that one unit of the
-                first ATG's Kozak log-odds is worth in that decision (0 uses frame contrast alone)
+            start_contrast_alpha: Start refinement UTR score per base of the segment before the
+                first in-frame ATG (the fraction of typical coding signal the segment may show
+                and still be called UTR)
+            start_kozak_weight: Start refinement UTR score per bit of the ATG's Kozak score, in
+                bases of typical coding signal (0 uses the coding score alone)
             short_orf_length: ORFs with fewer codons than this need short_orf_min_contrast
             short_orf_min_contrast: frame contrast, in bases of the training ORFs' median per-base
                 contrast, that an ORF shorter than short_orf_length needs without homology support
@@ -935,15 +935,15 @@ class TransDecoderPredict:
         Decide, for each ORF open at its 5' end (no start codon), whether it is a true
         5'-partial ORF or extends into a 5' UTR and should start at its first in-frame ATG.
 
-        Two signals are combined:
-        - frame contrast of the segment between the open end and the ATG: the coding Markov
-          score in frame minus the better of the two shifted frames, as in ORF selection.
-          Coding sequence scores well above its shifted frames; UTR does not.
-        - Kozak context of the ATG: a log-odds model of -6..-1 and +4..+5 trained on the
+        Two scores are compared for the segment between the open end and the ATG, both in bases'
+        worth of typical coding signal (the training ORFs' median per-base frame contrast):
+        - coding score: the segment's frame contrast (coding Markov score in frame minus the
+          better of the two shifted frames, as in ORF selection) divided by that median.
+          Coding sequence scores about 1 per base; UTR about 0.
+        - UTR score: start_contrast_alpha * segment length + start_kozak_weight * the ATG's Kozak
+          score. The Kozak score is a log2-odds model (bits) of -6..-1 and +4..+5 trained on the
           training ORFs' starts against in-frame ATGs inside them.
-        The ORF is trimmed to the ATG when the segment's contrast is below
-        (start_contrast_alpha * length + start_kozak_weight * kozak) times the training ORFs'
-        median per-base contrast: the Kozak evidence counts the same whatever the segment's length.
+        The ORF is trimmed to the ATG when the UTR score is higher; otherwise it stays 5' partial.
 
         Returns:
             Path to the revised GFF3 file
@@ -961,8 +961,9 @@ class TransDecoderPredict:
             logger.warning("No training ORFs for start refinement; skipping")
             checkpoint.write_text("OK")
             return gff3_file
-        logger.info("Training ORFs: median frame contrast %.4f per base; open 5' ends kept when "
-                    "the upstream segment reaches %.2f of it", coding_contrast, self.start_contrast_alpha)
+        logger.info("Training ORFs: median frame contrast %.4f per base; open 5' ends trimmed to the "
+                    "first ATG when %.2f x segment length + %g x Kozak bits exceeds the segment's "
+                    "coding score", coding_contrast, self.start_contrast_alpha, self.start_kozak_weight)
 
         transcripts = self._load_transcripts()
         kozak = self._train_kozak_model(training_orfs_file, transcripts)
@@ -995,7 +996,7 @@ class TransDecoderPredict:
 
     def _train_kozak_model(self, training_orfs_file: Path, transcripts: Dict[str, str]):
         """
-        Start-codon (Kozak) context model (core/kozak.py): log-odds of -6..-1 and +4..+5 for the
+        Start-codon (Kozak) context model (core/kozak.py): log2-odds (bits) of -6..-1 and +4..+5 for the
         training ORFs' starts vs in-frame ATGs inside them. Writes start_refinement.kozak.tsv,
         .kozak.counts.tsv and .kozak.logo.svg (or .kozak.SKIPPED) in the work directory.
 
@@ -1094,10 +1095,11 @@ class TransDecoderPredict:
                     dst.write(line)
                     continue
 
-                contrast = self._frame_contrast(orf[:atg], scores)
+                # both scores in bases' worth of typical coding signal
+                coding_score = self._frame_contrast(orf[:atg], scores) / coding_contrast
                 kozak_score = self._kozak_score(kozak, oriented, orf_start + atg) if kozak else 0.0
-                cutoff = self.start_contrast_alpha * atg + self.start_kozak_weight * kozak_score
-                if contrast >= cutoff * coding_contrast:
+                utr_score = self.start_contrast_alpha * atg + self.start_kozak_weight * kozak_score
+                if coding_score >= utr_score:
                     dst.write(line)  # upstream segment looks coding: 5' partial
                     continue
 
@@ -1107,7 +1109,8 @@ class TransDecoderPredict:
                     parts[3] = str(start + atg)
                 attrs = self._parse_attrs(parts[8])
                 attrs["start_revised"] = ["true"]
-                attrs["upstream_frame_contrast"] = [f"{contrast / (coding_contrast * atg):.3f}"]
+                attrs["upstream_coding_score"] = [f"{coding_score:.1f}"]
+                attrs["upstream_utr_score"] = [f"{utr_score:.1f}"]
                 attrs["kozak_score"] = [f"{kozak_score:.2f}"]
                 parts[8] = self._format_attrs(attrs)
                 dst.write("\t".join(parts) + "\n")

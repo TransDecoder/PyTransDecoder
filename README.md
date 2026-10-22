@@ -134,8 +134,8 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --retain-multiple-orfs            Report all non-overlapping ORFs passing selection
                                   (default: the best ORF per transcript)
 --no-refine-starts                Skip start codon refinement
---start-contrast-alpha FLOAT      Start refinement: frame-contrast fraction (default: 0.4)
---start-kozak-weight FLOAT        Start refinement: Kozak weight in keep-or-trim (default: 25)
+--start-contrast-alpha FLOAT      Start refinement: UTR score per base of upstream segment (default: 0.4)
+--start-kozak-weight FLOAT        Start refinement: bases of coding signal per bit of Kozak score (default: 17)
 --short-orf-length INT            ORFs with fewer codons need the short-ORF test (default: 100)
 --short-orf-min-contrast FLOAT    Short-ORF frame contrast, in bases of median coding contrast
                                   (default: 200; 0 applies only the usual frame test)
@@ -162,19 +162,20 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
      about half of true 50-99 aa proteins. Translated noncanonical ORFs (Ribo-seq ORFs) mostly
      lack this codon-usage signal, so finding them needs translation evidence.
 4. **Start refinement**: an ORF that runs to the 5' end of its transcript (no start codon) is
-   either a truncated (5'-partial) ORF or one that extends into the 5' UTR. Two signals decide:
-   - the segment before its first in-frame ATG is scored with the coding model in frame and
-     shifted by one and two bases; coding sequence scores well above its shifted frames, UTR
-     does not;
-   - the ATG's Kozak context (-6..-1, +4..+5), scored by a log-odds model trained on the
-     training ORFs' starts against in-frame ATGs inside them.
-   The ORF is trimmed to start at the ATG unless the segment's total contrast reaches
-   (`--start-contrast-alpha` x segment length + `--start-kozak-weight` x Kozak log-odds) times the
-   training ORFs' median per-base contrast, so a strong or weak start context counts the same
-   for short and long segments. The Kozak model is written to the work directory as
-   `start_refinement.kozak.tsv` (log-odds), `.kozak.counts.tsv` and a sequence logo,
-   `.kozak.logo.svg` (information content of the training starts, and log2-odds against
-   internal in-frame ATGs).
+   either a truncated (5'-partial) ORF or one that extends into the 5' UTR. For the segment
+   before its first in-frame ATG, two scores are compared, both in bases' worth of typical coding
+   signal (the training ORFs' median per-base frame contrast):
+   - **coding score**: the segment's frame contrast (coding score in frame minus the better
+     shifted frame) divided by that typical per-base value;
+   - **UTR score**: `--start-contrast-alpha` (0.4) x segment length + `--start-kozak-weight` (17)
+     x the ATG's Kozak score in bits (log2-odds of -6..-1, +4..+5 against in-frame ATGs inside
+     the training ORFs).
+   If the UTR score is higher, the ORF is trimmed to start at the ATG; otherwise it stays 5'
+   partial. Each bit of Kozak score lets the ATG overrule 17 bases of coding signal. See
+   [docs/start_codon_refinement.md](docs/start_codon_refinement.md) for a step-by-step
+   walkthrough with examples and advice on choosing alpha. The Kozak model is written to the
+   work directory as `start_refinement.kozak.tsv` (bits), `.kozak.counts.tsv` and a sequence
+   logo, `.kozak.logo.svg`.
 5. **Output**: Generates final predictions in multiple formats
 
 ## Annotating a Genome from Transcript Structures

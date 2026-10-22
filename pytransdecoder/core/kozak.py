@@ -2,8 +2,8 @@
 Start-codon (Kozak) context model used by start codon refinement.
 
 Positions -6..-1 and +4..+5 around an ATG (A of ATG = +1; the ATG itself is not scored).
-Log-odds (natural log, +1 pseudocounts) of training ORF start contexts vs in-frame ATGs inside
-the training ORFs. Same model and file formats as Perl TransDecoder (PerlLib/Kozak_model.pm,
+Log2-odds (bits, +1 pseudocounts) of training ORF start contexts vs in-frame ATGs inside the
+training ORFs: +1 bit = twice as start-like as an average internal ATG. Same model and file formats as Perl TransDecoder (PerlLib/Kozak_model.pm,
 util/train_kozak_model.pl).
 """
 
@@ -48,7 +48,7 @@ def log_odds_model(pos_counts: Counts, neg_counts: Counts) -> Model:
     model = []
     for pc, nc in zip(pos_counts, neg_counts):
         pt, nt = sum(pc.values()) + 4, sum(nc.values()) + 4
-        model.append({b: math.log(((pc[b] + 1) / pt) / ((nc[b] + 1) / nt)) for b in BASES})
+        model.append({b: math.log2(((pc[b] + 1) / pt) / ((nc[b] + 1) / nt)) for b in BASES})
     return model
 
 
@@ -58,7 +58,7 @@ def score(model: Model, sequence: str, atg_index: int) -> float:
 
 def write_model(model: Model, num_starts: int, filename: Path) -> None:
     with open(filename, "w") as out:
-        out.write("#position\tA\tC\tG\tT  (log-odds, start vs internal in-frame ATG; "
+        out.write("#position\tA\tC\tG\tT  (log2-odds in bits, start vs internal in-frame ATG; "
                   f"{num_starts} training starts)\n")
         for label, row in zip(position_labels(), model):
             out.write(label + "\t" + "\t".join(f"{row[b]:.3f}" for b in BASES) + "\n")
@@ -118,7 +118,7 @@ def write_logo_svg(pos_counts: Counts, model: Model, num_starts: int, filename: 
         ic = 2 + sum(f[b] * math.log2(f[b]) for b in BASES)
         ic_stack.append([(b, f[b] * ic) for b in sorted(BASES, key=lambda b: f[b])])
         max_ic = max(max_ic, ic)
-        lo = {b: model[k][b] / math.log(2) for b in BASES}
+        lo = model[k]
         up = [(b, lo[b]) for b in sorted(BASES, key=lambda b: lo[b]) if lo[b] > 0]
         dn = [(b, -lo[b]) for b in sorted(BASES, key=lambda b: -lo[b]) if lo[b] < 0]
         up_stack.append(up)

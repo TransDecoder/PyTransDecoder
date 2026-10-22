@@ -172,16 +172,18 @@ Example:
     parser.add_argument(
         '--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
         dest='start_contrast_alpha',
-        help="Start refinement: keep an ORF open at its 5' end only if the segment before its first "
-             "in-frame ATG reaches this fraction of the training ORFs' per-base frame contrast "
+        help="Start refinement: UTR score per base of the segment before an open ORF's first in-frame "
+             "ATG, i.e. the fraction of typical coding signal the segment may show and still be "
+             "called UTR. Higher values trim more open 5' ends (suits full-length/long-read "
+             "transcripts); lower values keep more 5' partial (suits fragmentary assemblies) "
              f"(default: {DEFAULT_START_CONTRAST_ALPHA})"
     )
     parser.add_argument(
         '--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
         dest='start_kozak_weight',
-        help="Start refinement: bases of the training ORFs' per-base frame contrast that one unit "
-             "of the first ATG's Kozak log-odds is worth in the keep-or-trim decision for open 5' "
-             f"ends; 0 uses frame contrast only (default: {DEFAULT_START_KOZAK_WEIGHT})"
+        help="Start refinement: bases of coding signal the first ATG may overrule per bit of its "
+             "Kozak score (log2-odds vs internal ATGs); 0 ignores start context "
+             f"(default: {DEFAULT_START_KOZAK_WEIGHT:g})"
     )
     parser.add_argument(
         '--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH, dest='short_orf_length',
@@ -362,10 +364,10 @@ def create_pipeline_parser():
                         help='Skip start codon refinement')
     parser.add_argument('--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
                         dest='start_contrast_alpha',
-                        help="Start refinement frame-contrast fraction (default: %(default)s)")
+                        help="Start refinement UTR score per base of segment (default: %(default)s)")
     parser.add_argument('--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
                         dest='start_kozak_weight',
-                        help="Start refinement Kozak weight (default: %(default)s)")
+                        help="Start refinement bases per bit of Kozak score (default: %(default)s)")
     parser.add_argument('--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH,
                         dest='short_orf_length',
                         help="ORFs with fewer codons need --short-orf-min-contrast (default: %(default)s)")
