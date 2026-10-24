@@ -3,7 +3,8 @@ Decoy ORFs from shuffled transcripts, for target-decoy FDR estimates of candidat
 
 Each transcript is shuffled preserving its dinucleotide counts (Altschul & Erickson 1985; the random
 Eulerian path is drawn with Wilson's algorithm for the last-exit tree), so decoys keep the transcript's
-length and base composition. Decoy ORFs are found with the same ORF finder, genetic code, minimum
+length and base composition. Random numbers come from core/prng.py, so the Perl implementation
+(PerlLib/Decoys.pm) produces the same decoys. Decoy ORFs are found with the same ORF finder, genetic code, minimum
 length and strand setting as LongOrfs and scored with the run's trained Markov model.
 
 Within strata of ORF length (log-spaced bins), transcript length (log2 bins) and ORF type (complete vs
@@ -13,9 +14,10 @@ and its q-value is the lowest FDR of any cutoff that accepts it. Strata without 
 """
 import bisect
 import math
-import random
 from collections import defaultdict
 from typing import Dict, Hashable, Iterable, List, Tuple
+
+from pytransdecoder.core.prng import Xoshiro128ss
 
 LENGTH_BIN_RATIO = 1.1
 LENGTH_BIN_START = 50  # codons
@@ -23,7 +25,7 @@ TX_BIN_START = 500  # nt
 STRATA = ("len", "len_tx", "len_tx_type")
 
 
-def dinucleotide_shuffle(seq: str, rng: random.Random) -> str:
+def dinucleotide_shuffle(seq: str, rng: Xoshiro128ss) -> str:
     """Random sequence with the same first base, last base and dinucleotide counts as seq."""
     n = len(seq)
     if n < 3:
@@ -37,7 +39,7 @@ def dinucleotide_shuffle(seq: str, rng: random.Random) -> str:
     for v in sorted(edges):
         u = v
         while u not in in_tree:
-            nxt[u] = rng.choice(edges[u])
+            nxt[u] = edges[u][rng.below(len(edges[u]))]
             u = nxt[u]
         u = v
         while u not in in_tree:
@@ -63,12 +65,24 @@ def dinucleotide_shuffle(seq: str, rng: random.Random) -> str:
     return "".join(res)
 
 
-def stratum(codons: int, tx_len: int, complete: bool, strata: str) -> Tuple:
-    """Stratum key: ORF-length bin, then (len_tx) transcript-length bin, then (len_tx_type) ORF type."""
-    k = (int(math.log(codons / LENGTH_BIN_START) / math.log(LENGTH_BIN_RATIO))
-         if codons >= LENGTH_BIN_START else -1,)
+def _length_bin(codons: int) -> int:
+    """Largest k with codons >= LENGTH_BIN_START * LENGTH_BIN_RATIO**k (powers by repeated
+    multiplication, so the Perl port bins identically); -1 below LENGTH_BIN_START."""
+    if codons < LENGTH_BIN_START:
+        return -1
+    k, edge = 0, LENGTH_BIN_START * LENGTH_BIN_RATIO
+    while codons >= edge:
+        k += 1
+        edge *= LENGTH_BIN_RATIO
+    return k
+
+
+def stratum(codons: int, tx_len: int, complete: bool, strata: str = "len_tx_type") -> Tuple:
+    """Stratum key: ORF-length bin, then (len_tx) transcript-length bin (floor(log2(tx_len / 500)) + 1,
+    0 below 500 nt), then (len_tx_type) ORF type."""
+    k = (_length_bin(codons),)
     if strata in ("len_tx", "len_tx_type"):
-        k += (int(math.log2(tx_len / TX_BIN_START)) + 1 if tx_len >= TX_BIN_START else 0,)
+        k += ((tx_len // TX_BIN_START).bit_length() if tx_len >= TX_BIN_START else 0,)
     if strata == "len_tx_type":
         k += (bool(complete),)
     return k

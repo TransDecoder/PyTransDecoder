@@ -136,9 +136,14 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --no-refine-starts                Skip start codon refinement
 --start-contrast-alpha FLOAT      Start refinement: UTR score per base of upstream segment (default: 0.4)
 --start-kozak-weight FLOAT        Start refinement: bases of coding signal per bit of Kozak score (default: 17)
---short-orf-length INT            ORFs with fewer codons need the short-ORF test (default: 100)
---short-orf-min-contrast FLOAT    Short-ORF frame contrast, in bases of median coding contrast
-                                  (default: 200; 0 applies only the usual frame test)
+--max-qvalue FLOAT                Keep ORFs (without homology) with target-decoy q-value <= this
+                                  (default: 0.05)
+--precise                         Same as --max-qvalue 0.01: fewer calls on noncoding sequence
+--sensitive                       Same as --max-qvalue 0.2: more short and partial ORFs
+--decoy-shuffles INT              Shuffled copies per transcript (default: 0 = automatic)
+--decoy-seed INT                  Seed of the decoy shuffles (default: 42)
+--preset NAME|DIR                 Models and thresholds from a preset instead of the input
+                                  (recommended below ~1,000 transcripts or for mostly partial sets)
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```
@@ -154,13 +159,22 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
    - GC content-based thresholds (ORFs long enough to be unlikely in random sequence of the
      transcriptome's GC content are kept regardless of score; applied only when the genetic
      code's stop codons are TAA/TAG/TGA, the set the thresholds were simulated with)
-   - Short ORFs (under 100 codons; LongOrfs reports ORFs from 50 aa) need more coding evidence:
-     without homology support their frame contrast (in-frame score minus the better shifted
-     frame) must reach `--short-orf-min-contrast` (200) bases' worth of the training ORFs' median
-     per-base contrast. Short ORFs in noncoding RNA often pass the plain frame test; this keeps
-     calls on lncRNAs and random sequence near the level of a 100-aa minimum while recovering
-     about half of true 50-99 aa proteins. Translated noncanonical ORFs (Ribo-seq ORFs) mostly
-     lack this codon-usage signal, so finding them needs translation evidence.
+   - A false discovery rate against decoys: each input transcript is shuffled keeping its
+     dinucleotide counts (so length and base composition are kept), decoy ORFs are found in the
+     shuffles with the LongOrfs settings and genetic code, and scored with the same model. Within
+     strata of ORF length, transcript length and ORF type (complete or partial), an ORF's q-value
+     is the lowest estimated FDR (decoys / targets at or above its frame contrast) of any cutoff
+     that accepts it. Without homology support an ORF needs in-frame score > 0, a higher score
+     than the shifted frames, and q <= `--max-qvalue` (0.05; `--precise` 0.01, `--sensitive` 0.2).
+     Short ORFs, which are far more frequent by chance, therefore need more coding evidence, with
+     no fixed length cutoff. The decoys are reproducible (`--decoy-seed`) and identical in
+     TransDecoder (Perl).
+   - Translated noncanonical ORFs (Ribo-seq ORFs) mostly lack codon-usage signal, so finding
+     them needs translation evidence.
+   - **Small inputs**: below ~1,000 transcripts the coding model and the decoy statistics learned
+     from the input are unreliable. `--preset NAME` uses a coding model, start model and q-value
+     thresholds learned from a reference transcriptome instead (bundled: see `--help`;
+     `pytransdecoder build-preset` makes one from a Predict run on a related species).
 4. **Start refinement**: an ORF that runs to the 5' end of its transcript (no start codon) is
    either a truncated (5'-partial) ORF or one that extends into the 5' UTR. For the segment
    before its first in-frame ATG, two scores are compared, both in bases' worth of typical coding

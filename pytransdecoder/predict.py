@@ -35,36 +35,20 @@ logger = logging.getLogger(__name__)
 DEFAULT_START_CONTRAST_ALPHA = 0.4
 DEFAULT_START_KOZAK_WEIGHT = 17.0
 
-# ORFs shorter than this many codons (LongOrfs -m below 100) are kept only with homology support or
-# when their frame contrast (in-frame score minus the better shifted frame) reaches
-# DEFAULT_SHORT_ORF_MIN_CONTRAST bases' worth of the training ORFs' median per-base contrast. Short
-# ORFs in noncoding RNA often pass the plain frame test; a fixed total contrast, rather than a
-# per-base one, asks for more coding evidence the shorter the ORF (benchmark_v2 lncRNA and random
-# negatives, 2026).
-DEFAULT_SHORT_ORF_LENGTH = 100
-DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
-# Shape of the required frame contrast vs ORF length (experimental, benchmark_v2 stringency study):
-#   cliff   C below --short-orf-length codons, none above (release default)
-#   fixed   C at every length below the auto-accept length
-#   inverse C * short_orf_length / L
-#   taper   C at short_orf_length codons, falling linearly to 0 at the auto-accept length
-#           (TAPER_FALLBACK_CODONS when there is no auto-accept length)
-#   curve   as taper, but linear in a log prior-odds curve lo(L) (--short-orf-curve: codons, logodds)
-#           instead of in L: C * (lo(end) - lo(L)) / (lo(end) - lo(short_orf_length))
-#   decoy   no length rules: an ORF needs a target-decoy q-value <= --decoy-q, from decoy ORFs in
-#           dinucleotide-shuffled copies of the transcripts (core/decoys.py); no length auto-accept
+# ORF acceptance without homology support: an ORF with in-frame score > 0 and frame contrast (in-frame
+# score minus the better shifted frame) > 0 is kept when its target-decoy q-value is <= the cutoff.
+# Decoy ORFs come from dinucleotide-shuffled copies of the input transcripts, found with the LongOrfs
+# settings and scored with the run's model; q-values are computed within strata of ORF length,
+# transcript length and ORF type (core/decoys.py). ORFs at or above the GC-dependent length below are
+# kept on length alone. Cutoffs: TransDecoderPaper evidence E20-E22.
 DEFAULT_DECOY_Q = 0.05
-# named q-value cutoffs for the decoy rule (benchmark: evidence E22 of the paper)
 PRECISE_DECOY_Q = 0.01
 SENSITIVE_DECOY_Q = 0.2
-DEFAULT_DECOY_STRATA = 'len_tx_type'
-DECOY_TARGET_NT = 20_000_000  # auto number of shuffles: enough copies for ~20 Mb of decoy sequence
+DECOY_TARGET_NT = 20_000_000  # shuffles per transcript: enough for ~20 Mb of decoy sequence, at most 50
 DECOY_MAX_SHUFFLES = 50
-# decoy rule, ORFs kept on length alone (any coding score): 'none'; 'gc' (GC table, as other rules);
-# 'decoy' (length >= DECOY_LONG_QUANTILE of decoy ORF lengths, the GC table's criterion measured on the input)
-DECOY_LONG_QUANTILE = 0.999
-DEFAULT_SHORT_ORF_RULE = 'cliff'
-TAPER_FALLBACK_CODONS = 300
+DEFAULT_DECOY_SEED = 42
+# Fewer input transcripts than this: models learned from the input are unreliable (E21); use a preset
+SMALL_INPUT_TRANSCRIPTS = 1000
 
 # Stop codons the GC-dependent long-ORF length table was simulated with
 STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
@@ -98,15 +82,9 @@ class TransDecoderPredict:
         genetic_code: str = "Standard",
         start_contrast_alpha: float = DEFAULT_START_CONTRAST_ALPHA,
         start_kozak_weight: float = DEFAULT_START_KOZAK_WEIGHT,
-        short_orf_length: int = DEFAULT_SHORT_ORF_LENGTH,
-        short_orf_min_contrast: float = DEFAULT_SHORT_ORF_MIN_CONTRAST,
-        short_orf_rule: str = DEFAULT_SHORT_ORF_RULE,
-        short_orf_curve: Optional[str] = None,
         decoy_q: float = DEFAULT_DECOY_Q,
         decoy_shuffles: int = 0,
-        decoy_seed: int = 42,
-        decoy_strata: str = DEFAULT_DECOY_STRATA,
-        decoy_long_orfs: str = 'none',
+        decoy_seed: int = DEFAULT_DECOY_SEED,
         preset: Optional[str] = None,
     ):
         """
@@ -129,10 +107,11 @@ class TransDecoderPredict:
                 and still be called UTR)
             start_kozak_weight: Start refinement UTR score per bit of the ATG's Kozak score, in
                 bases of typical coding signal (0 uses the coding score alone)
-            short_orf_length: ORFs with fewer codons than this need short_orf_min_contrast
-            short_orf_min_contrast: frame contrast, in bases of the training ORFs' median per-base
-                contrast, that an ORF shorter than short_orf_length needs without homology support
-                (0 applies only the usual frame test)
+            decoy_q: keep ORFs without homology support whose target-decoy q-value is <= this
+            decoy_shuffles: shuffled copies per transcript (0: automatic)
+            decoy_seed: seed of the decoy shuffles
+            preset: preset name or directory: coding model, start model and q-value thresholds from
+                a reference transcriptome instead of the input (small or partial inputs)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -146,28 +125,13 @@ class TransDecoderPredict:
         self.genetic_code = genetic_code
         self.start_contrast_alpha = start_contrast_alpha
         self.start_kozak_weight = start_kozak_weight
-        self.short_orf_length = short_orf_length
-        self.short_orf_min_contrast = short_orf_min_contrast
-        self.short_orf_rule = short_orf_rule
-        self.short_orf_curve = None
-        if short_orf_curve:
-            pts = []
-            with open(short_orf_curve) as fh:
-                for line in fh:
-                    x = line.split()
-                    if len(x) >= 2 and x[0] != 'codons':
-                        pts.append((float(x[0]), float(x[1])))
-            self.short_orf_curve = sorted(pts)
         self.decoy_q = decoy_q
         self.decoy_shuffles = decoy_shuffles
         self.decoy_seed = decoy_seed
-        self.decoy_strata = decoy_strata
-        self.decoy_long_orfs = decoy_long_orfs
-        self._decoy_orf_nt = []
         self.preset = None
         if preset:
-            from pytransdecoder.core.presets import Preset
-            self.preset = Preset(preset)
+            from pytransdecoder.core.presets import Preset, resolve
+            self.preset = Preset(resolve(preset))
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -223,6 +187,8 @@ class TransDecoderPredict:
         
         if self.preset:
             self._install_preset()
+        else:
+            self._warn_if_small_input()
 
         # Step 1: Get top longest ORFs for training
         logger.info(f"Selecting top {self.top_orfs_train} longest ORFs for training...")
@@ -637,9 +603,8 @@ class TransDecoderPredict:
         Selection criteria (any of):
         1. Has BLAST hit
         2. Has Pfam hit
-        3. Score[frame0] > 0 AND score[frame0] > max(score[frame1], score[frame2]); for ORFs
-           shorter than short_orf_length codons, score[frame0] - max(score[frame1], score[frame2])
-           must also reach short_orf_min_contrast * the training ORFs' median per-base contrast
+        3. Score[frame0] > 0 AND score[frame0] > max(score[frame1], score[frame2]) AND a
+           target-decoy q-value <= decoy_q (with a preset: the preset's threshold at decoy_q)
         4. Length >= min_length_auto_accept (for dynamic/strict mode)
         
         Prioritization:
@@ -678,35 +643,13 @@ class TransDecoderPredict:
         # Calculate min length for auto-accept based on GC content
         min_length_auto_accept = self._min_length_auto_accept()
 
-        decoy_q = None
         if self.preset:
             decoy_q = self._preset_pass(cds_scores)
             min_length_auto_accept = self.preset.auto_accept_nt
             logger.info("Preset long-ORF auto-accept: %s nt", min_length_auto_accept)
-        elif self.short_orf_rule == 'decoy':
+        else:
             decoy_q = self._decoy_qvalues(cds_scores, hexamer_scores_file)
-            if self.decoy_long_orfs == 'none':
-                min_length_auto_accept = float('inf')  # length alone never suffices; decoys decide
-            elif self.decoy_long_orfs == 'decoy':
-                lens = sorted(self._decoy_orf_nt)
-                min_length_auto_accept = (lens[min(len(lens) - 1, int(DECOY_LONG_QUANTILE * len(lens)))] + 1
-                                          if lens else float('inf'))
-                logger.info("Decoy long-ORF auto-accept: >= %s nt (%g quantile of %d decoy ORF lengths)",
-                            min_length_auto_accept, DECOY_LONG_QUANTILE, len(lens))
-            # 'gc': keep the GC-table auto-accept length computed above
 
-        # Frame contrast required of short ORFs
-        short_orf_nt = 3 * self.short_orf_length
-        short_min_contrast = 0.0
-        if self.short_orf_min_contrast > 0 and training_orfs_file and hexamer_scores_file:
-            mu = self._coding_contrast(training_orfs_file, hexamer_scores_file)
-            if mu:
-                short_min_contrast = self.short_orf_min_contrast * mu
-                logger.info("ORFs shorter than %d codons need frame contrast >= %.2f (%g bases x %.4f) "
-                            "without homology support", self.short_orf_length, short_min_contrast,
-                            self.short_orf_min_contrast, mu)
-                logger.info("Short ORF rule: %s", self.short_orf_rule)
-        
         # Parse GFF3 and select best ORFs
         logger.info(f"Selecting best ORFs from {self.gff3_file}")
         from pytransdecoder.core.gff3_parser import parse_gff3
@@ -750,18 +693,9 @@ class TransDecoderPredict:
                 
                 # Apply selection criteria
                 frame_contrast = scores[0] - max(scores[1], scores[2])
-                if decoy_q is not None:
-                    meets_criteria = (homology_count > 0 or orf_length >= min_length_auto_accept or
-                                      (scores[0] > 0 and frame_contrast > 0 and
-                                       decoy_q.get(orf_id, 1.0) <= self.decoy_q))
-                else:
-                    meets_criteria = (
-                        homology_count > 0 or
-                        orf_length >= min_length_auto_accept or
-                        (scores[0] > 0 and frame_contrast > 0 and
-                         frame_contrast >= self._required_contrast(orf_length, short_orf_nt,
-                                                                   short_min_contrast, min_length_auto_accept))
-                    )
+                meets_criteria = (homology_count > 0 or orf_length >= min_length_auto_accept or
+                                  (scores[0] > 0 and frame_contrast > 0 and
+                                   decoy_q.get(orf_id, 1.0) <= self.decoy_q))
                 
                 if meets_criteria:
                     candidates.append({
@@ -881,40 +815,31 @@ class TransDecoderPredict:
                     scores[orf_id] = frame_scores
         return scores
     
-    def _required_contrast(self, orf_length, short_orf_nt, short_min_contrast, auto_accept_nt) -> float:
-        """Frame contrast an ORF of orf_length nt needs without homology support (see DEFAULT_SHORT_ORF_RULE)."""
-        rule = self.short_orf_rule
-        if rule == 'cliff':
-            return short_min_contrast if orf_length < short_orf_nt else 0.0
-        if rule == 'fixed':
-            return short_min_contrast
-        if rule == 'inverse':
-            return short_min_contrast * short_orf_nt / orf_length
-        if rule in ('taper', 'curve'):
-            end = auto_accept_nt if auto_accept_nt != float('inf') else 3 * TAPER_FALLBACK_CODONS
-            end = max(end, short_orf_nt + 3)
-            if orf_length >= end:
-                return 0.0
-            if rule == 'curve':
-                lo_end, lo_short = self._curve_at(end / 3), self._curve_at(short_orf_nt / 3)
-                if lo_end > lo_short:
-                    return short_min_contrast * max(0.0, (lo_end - self._curve_at(orf_length / 3)) /
-                                                    (lo_end - lo_short))
-            return short_min_contrast * max(0.0, (end - orf_length) / (end - short_orf_nt))
-        raise ValueError(f"unknown short ORF rule {rule}")
+    def _warn_if_small_input(self):
+        with open(self.transcripts_file) as fh:
+            n = sum(1 for line in fh if line.startswith('>'))
+        if n < SMALL_INPUT_TRANSCRIPTS:
+            from pytransdecoder.core.presets import bundled_presets
+            logger.warning("Only %d input transcripts: coding and start models learned from fewer than %d "
+                           "transcripts are unreliable, and noncoding sequences then often receive ORF "
+                           "calls. Consider --preset (bundled: %s) or a preset built from a related "
+                           "species' transcriptome (build-preset).", n, SMALL_INPUT_TRANSCRIPTS,
+                           ", ".join(bundled_presets()) or "none installed")
 
     def _install_preset(self):
         """Use the preset's training ORFs and coding model instead of learning them from the input."""
-        import shutil
         p = self.preset
         logger.info("Preset %s (%s; GC %s%%, genetic code %s): coding model, training ORFs, start model and "
                     "ORF thresholds from the preset", p.meta.get("name"), p.meta.get("source"),
                     p.meta.get("gc_pct"), p.meta.get("genetic_code"))
-        if p.meta.get("genetic_code", "").lower() != str(self.genetic_code).lower():
-            logger.warning("Preset genetic code %s differs from -G %s", p.meta.get("genetic_code"), self.genetic_code)
-        shutil.copy(p.training_orfs, self.checkpoints_dir / "top_training_orfs.cds")
+        from pytransdecoder.core.presets import copy_plain
+        from pytransdecoder.core.translator import Translator
+        if Translator(p.meta.get("genetic_code", "universal")).table_id != Translator(self.genetic_code).table_id:
+            raise ValueError(f"preset {p.meta.get('name')} was built with genetic code "
+                             f"{p.meta.get('genetic_code')}, not -G {self.genetic_code}")
+        copy_plain(p.training_orfs, self.checkpoints_dir / "top_training_orfs.cds")
         (self.checkpoints_dir / "training_orfs.ok").write_text("OK")
-        shutil.copy(p.hexamer_scores, self.workdir / "hexamer.scores")
+        copy_plain(p.hexamer_scores, self.workdir / "hexamer.scores")
         (self.checkpoints_dir / "hexamer_scores.ok").write_text("OK")
 
     def _target_strata(self, cds_scores: Dict[str, List[float]], strata: str) -> Dict[str, Tuple]:
@@ -952,9 +877,8 @@ class TransDecoderPredict:
     def _decoy_qvalues(self, cds_scores: Dict[str, List[float]], hexamer_scores_file: Path) -> Dict[str, float]:
         """Target-decoy q-value of each eligible candidate ORF (in-frame score > 0, frame contrast > 0)."""
         import json
-        import math
-        import random
         from pytransdecoder.core import decoys
+        from pytransdecoder.core.prng import Xoshiro128ss
         from pytransdecoder.core.orf_finder import ORFFinder
         params_file = self.workdir / "longorfs.params.json"
         if params_file.exists():
@@ -988,7 +912,7 @@ class TransDecoderPredict:
         with open(self.transcripts_file) as fh:
             transcripts = {r.id: str(r.seq).upper() for r in read_fasta(fh)}
         total_nt = sum(len(x) for x in transcripts.values())
-        n_shuf = self.decoy_shuffles or max(1, min(DECOY_MAX_SHUFFLES, math.ceil(DECOY_TARGET_NT / max(total_nt, 1))))
+        n_shuf = self.decoy_shuffles or max(1, min(DECOY_MAX_SHUFFLES, -(-DECOY_TARGET_NT // max(total_nt, 1))))
 
         def contrast(seq):
             s0 = round(self._score_cds_via_markov(seq, 5, hex_scores), 2)
@@ -1013,21 +937,20 @@ class TransDecoderPredict:
             if sc[0] > 0 and c > 0 and orf_id in info:
                 orf_type, tid = info[orf_id]
                 targets[orf_id] = (decoys.stratum(lengths[orf_id], len(transcripts.get(tid, '')),
-                                                  orf_type == 'complete', self.decoy_strata), c)
+                                                  orf_type == 'complete', 'len_tx_type'), c)
         # decoys
         decoy_scores, n_decoy = [], 0
         for tid in sorted(transcripts):
             seq = transcripts[tid]
             for k in range(n_shuf):
-                shuf = decoys.dinucleotide_shuffle(seq, random.Random(f"{self.decoy_seed}:{tid}:{k}"))
+                shuf = decoys.dinucleotide_shuffle(seq, Xoshiro128ss(f"{self.decoy_seed}:{tid}:{k}"))
                 for orf in finder.find_all_orfs(shuf, f"decoy{k}_{tid}"):
                     n_decoy += 1
                     cds = orf.sequence.upper()
-                    self._decoy_orf_nt.append(len(cds))
                     s0, c = contrast(cds)
                     if s0 > 0 and c > 0:
                         decoy_scores.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',
-                                                            self.decoy_strata), c))
+                                                            'len_tx_type'), c))
         q = decoys.qvalues(targets, decoy_scores, n_shuf)
         out = self.workdir / "decoy_qvalues.tsv"
         with open(out, 'w') as fh:
@@ -1036,19 +959,9 @@ class TransDecoderPredict:
                 fh.write(f"{orf_id}\t{','.join(map(str, targets[orf_id][0]))}\t{targets[orf_id][1]:.2f}\t{q[orf_id]:.5g}\n")
         logger.info("Decoys: %d shuffle(s) per transcript (seed %d), %d decoy ORFs (%d eligible), strata %s; "
                     "%d eligible candidates, %d with q <= %g (%s)", n_shuf, self.decoy_seed, n_decoy,
-                    len(decoy_scores), self.decoy_strata, len(targets),
+                    len(decoy_scores), 'len_tx_type', len(targets),
                     sum(v <= self.decoy_q for v in q.values()), self.decoy_q, out)
         return q
-
-    def _curve_at(self, codons: float) -> float:
-        """Log prior odds at an ORF length, linearly interpolated in the --short-orf-curve points."""
-        pts = self.short_orf_curve
-        if codons <= pts[0][0]:
-            return pts[0][1]
-        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-            if codons <= x1:
-                return y0 + (y1 - y0) * (codons - x0) / (x1 - x0)
-        return pts[-1][1]
 
     def _min_length_auto_accept(self) -> float:
         """ORF length (nt) at or above which an ORF is retained regardless of its coding score."""

@@ -8,9 +8,7 @@ from pathlib import Path
 from . import __version__
 from .longorfs import run_longorfs, DEFAULT_MIN_PROTEIN_LENGTH
 from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
-                      DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST,
-                      DEFAULT_SHORT_ORF_RULE, DEFAULT_DECOY_Q, PRECISE_DECOY_Q,
-                      SENSITIVE_DECOY_Q)
+                      DEFAULT_DECOY_Q, PRECISE_DECOY_Q, SENSITIVE_DECOY_Q, DEFAULT_DECOY_SEED)
 
 
 def create_longorfs_parser(subparsers):
@@ -87,10 +85,10 @@ Example:
 
 
 def _add_qvalue_args(parser):
-    """q-value cutoff of the decoy rule: a number or a named setting."""
+    """q-value cutoff for ORFs without homology support: a number or a named setting."""
     g = parser.add_mutually_exclusive_group()
     g.add_argument('--max-qvalue', '--decoy-q', type=float, default=None, dest='decoy_q',
-                   help="For --short-orf-rule decoy: keep ORFs with target-decoy q-value <= this "
+                   help="Keep ORFs (without homology support) whose target-decoy q-value is <= this "
                         f"(default: {DEFAULT_DECOY_Q:g})")
     g.add_argument('--precise', action='store_true',
                    help=f"Fewer calls on noncoding sequence, at some loss of short and partial ORFs "
@@ -98,6 +96,23 @@ def _add_qvalue_args(parser):
     g.add_argument('--sensitive', action='store_true',
                    help=f"More short and partial ORFs, at more calls on noncoding sequence "
                         f"(--max-qvalue {SENSITIVE_DECOY_Q:g})")
+
+
+def _add_selection_args(parser):
+    """ORF acceptance: q-value cutoff, decoy settings and presets."""
+    _add_qvalue_args(parser)
+    parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
+                        help="Shuffled copies of each transcript for decoy ORFs; 0 = automatic "
+                             "(~20 Mb of decoy sequence, at most 50)")
+    parser.add_argument('--decoy-seed', type=int, default=DEFAULT_DECOY_SEED, dest='decoy_seed',
+                        help="Seed of the decoy shuffles (default: %(default)s)")
+    from .core.presets import bundled_presets
+    parser.add_argument('--preset', default=None,
+                        help="Use a preset's coding model, start model and q-value thresholds instead of "
+                             "learning them from the input; recommended for fewer than ~1,000 transcripts "
+                             "or sets of mostly partial transcripts. A bundled name (" +
+                             (", ".join(bundled_presets()) or "none installed") +
+                             ") or a directory from build-preset")
 
 
 def _qvalue_cutoff(args) -> float:
@@ -209,41 +224,7 @@ Example:
              "Kozak score (log2-odds vs internal ATGs); 0 ignores start context "
              f"(default: {DEFAULT_START_KOZAK_WEIGHT:g})"
     )
-    parser.add_argument(
-        '--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH, dest='short_orf_length',
-        help="ORFs with fewer codons than this (from LongOrfs -m below it) need --short-orf-min-contrast "
-             f"unless supported by homology (default: {DEFAULT_SHORT_ORF_LENGTH})"
-    )
-    parser.add_argument(
-        '--short-orf-min-contrast', type=float, default=DEFAULT_SHORT_ORF_MIN_CONTRAST,
-        dest='short_orf_min_contrast',
-        help="Frame contrast (in-frame score minus the better shifted frame) a short ORF needs, in bases "
-             "of the training ORFs' median per-base contrast; 0 applies only the usual frame test "
-             f"(default: {DEFAULT_SHORT_ORF_MIN_CONTRAST:g})"
-    )
-    parser.add_argument(
-        '--short-orf-rule', choices=['cliff', 'fixed', 'inverse', 'taper', 'curve', 'decoy'], default=DEFAULT_SHORT_ORF_RULE,
-        dest='short_orf_rule',
-        help="Required frame contrast vs ORF length (experimental): cliff = only below --short-orf-length; "
-             "fixed = all lengths; inverse = scaled by short-orf-length/length; taper = falling linearly "
-             f"to 0 at the long-ORF auto-accept length (default: {DEFAULT_SHORT_ORF_RULE})"
-    )
-    parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
-                        help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    _add_qvalue_args(parser)
-    parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
-                        help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
-    parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
-    parser.add_argument('--decoy-strata', choices=['len', 'len_tx', 'len_tx_type'], default='len_tx_type',
-                        dest='decoy_strata', help="Decoy FDR strata (default: %(default)s)")
-    parser.add_argument('--decoy-long-orfs', choices=['none', 'gc', 'decoy'], default='none',
-                        dest='decoy_long_orfs',
-                        help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
-                             "of decoy ORF lengths (default: %(default)s)")
-    parser.add_argument('--preset', default=None,
-                        help="Preset directory (build-preset): use its coding model, start model and ORF "
-                             "thresholds (at the q-value cutoff) instead of learning from the input; for small or "
-                             "partial transcript sets (experimental)")
+    _add_selection_args(parser)
     parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
@@ -333,15 +314,9 @@ def predict_cmd(args):
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
             start_kozak_weight=args.start_kozak_weight,
-            short_orf_length=args.short_orf_length,
-            short_orf_min_contrast=args.short_orf_min_contrast,
-            short_orf_rule=args.short_orf_rule,
-            short_orf_curve=args.short_orf_curve,
             decoy_q=_qvalue_cutoff(args),
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
-            decoy_strata=args.decoy_strata,
-            decoy_long_orfs=args.decoy_long_orfs,
             preset=args.preset,
         )
         predictor.run()
@@ -423,32 +398,7 @@ def create_pipeline_parser():
     parser.add_argument('--start-kozak-weight', type=float, default=DEFAULT_START_KOZAK_WEIGHT,
                         dest='start_kozak_weight',
                         help="Start refinement bases per bit of Kozak score (default: %(default)s)")
-    parser.add_argument('--short-orf-length', type=int, default=DEFAULT_SHORT_ORF_LENGTH,
-                        dest='short_orf_length',
-                        help="ORFs with fewer codons need --short-orf-min-contrast (default: %(default)s)")
-    parser.add_argument('--short-orf-min-contrast', type=float, default=DEFAULT_SHORT_ORF_MIN_CONTRAST,
-                        dest='short_orf_min_contrast',
-                        help="Frame contrast required of short ORFs, in bases of median coding contrast "
-                             "(default: %(default)s)")
-    parser.add_argument('--short-orf-rule', choices=['cliff', 'fixed', 'inverse', 'taper', 'curve', 'decoy'],
-                        default=DEFAULT_SHORT_ORF_RULE, dest='short_orf_rule',
-                        help="Required frame contrast vs ORF length (experimental; default: %(default)s)")
-    parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
-                        help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    _add_qvalue_args(parser)
-    parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
-                        help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
-    parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
-    parser.add_argument('--decoy-strata', choices=['len', 'len_tx', 'len_tx_type'], default='len_tx_type',
-                        dest='decoy_strata', help="Decoy FDR strata (default: %(default)s)")
-    parser.add_argument('--decoy-long-orfs', choices=['none', 'gc', 'decoy'], default='none',
-                        dest='decoy_long_orfs',
-                        help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
-                             "of decoy ORF lengths (default: %(default)s)")
-    parser.add_argument('--preset', default=None,
-                        help="Preset directory (build-preset): use its coding model, start model and ORF "
-                             "thresholds (at the q-value cutoff) instead of learning from the input; for small or "
-                             "partial transcript sets (experimental)")
+    _add_selection_args(parser)
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -636,15 +586,9 @@ def pipeline_cmd(args):
             genetic_code=args.genetic_code,
             start_contrast_alpha=args.start_contrast_alpha,
             start_kozak_weight=args.start_kozak_weight,
-            short_orf_length=args.short_orf_length,
-            short_orf_min_contrast=args.short_orf_min_contrast,
-            short_orf_rule=args.short_orf_rule,
-            short_orf_curve=args.short_orf_curve,
             decoy_q=_qvalue_cutoff(args),
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
-            decoy_strata=args.decoy_strata,
-            decoy_long_orfs=args.decoy_long_orfs,
             preset=args.preset,
         )
         predictor.run()
@@ -731,8 +675,8 @@ def create_build_preset_parser(subparsers):
     """Create parser for build-preset command"""
     parser = subparsers.add_parser(
         'build-preset',
-        help='Build a preset (coding model + ORF thresholds) from a decoy-rule Predict run on a large '
-             'reference transcriptome (experimental)')
+        help='Build a preset (coding model, start model, q-value thresholds) from a Predict run on a '
+             'large reference transcriptome, ideally complete transcripts plus fragments of them')
     parser.add_argument('-t', '--transcripts', required=True, type=Path,
                         help='the reference transcripts FASTA the run was made on')
     parser.add_argument('--run-dir', type=Path, default=None,

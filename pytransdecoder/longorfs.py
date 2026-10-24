@@ -16,8 +16,8 @@ from .core.models import ORF
 from .core.writers import GFF3Writer, FastaWriter
 from .core.base_freqs import compute_base_counts, write_base_frequencies
 
-# Minimum ORF length (aa). ORFs under 100 codons must also pass Predict's short-ORF frame-contrast
-# test (--short-orf-min-contrast), which keeps the extra noncoding calls near the old 100-aa level.
+# Minimum ORF length (aa). Predict's decoy q-values (stratified by ORF length) decide how much coding
+# evidence short ORFs need.
 DEFAULT_MIN_PROTEIN_LENGTH = 50
 
 
