@@ -49,6 +49,8 @@ DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
 #   inverse C * short_orf_length / L
 #   taper   C at short_orf_length codons, falling linearly to 0 at the auto-accept length
 #           (TAPER_FALLBACK_CODONS when there is no auto-accept length)
+#   curve   as taper, but linear in a log prior-odds curve lo(L) (--short-orf-curve: codons, logodds)
+#           instead of in L: C * (lo(end) - lo(L)) / (lo(end) - lo(short_orf_length))
 DEFAULT_SHORT_ORF_RULE = 'cliff'
 TAPER_FALLBACK_CODONS = 300
 
@@ -87,6 +89,7 @@ class TransDecoderPredict:
         short_orf_length: int = DEFAULT_SHORT_ORF_LENGTH,
         short_orf_min_contrast: float = DEFAULT_SHORT_ORF_MIN_CONTRAST,
         short_orf_rule: str = DEFAULT_SHORT_ORF_RULE,
+        short_orf_curve: Optional[str] = None,
     ):
         """
         Initialize TransDecoder.Predict
@@ -128,6 +131,15 @@ class TransDecoderPredict:
         self.short_orf_length = short_orf_length
         self.short_orf_min_contrast = short_orf_min_contrast
         self.short_orf_rule = short_orf_rule
+        self.short_orf_curve = None
+        if short_orf_curve:
+            pts = []
+            with open(short_orf_curve) as fh:
+                for line in fh:
+                    x = line.split()
+                    if len(x) >= 2 and x[0] != 'codons':
+                        pts.append((float(x[0]), float(x[1])))
+            self.short_orf_curve = sorted(pts)
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -825,11 +837,28 @@ class TransDecoderPredict:
             return short_min_contrast
         if rule == 'inverse':
             return short_min_contrast * short_orf_nt / orf_length
-        if rule == 'taper':
+        if rule in ('taper', 'curve'):
             end = auto_accept_nt if auto_accept_nt != float('inf') else 3 * TAPER_FALLBACK_CODONS
             end = max(end, short_orf_nt + 3)
+            if orf_length >= end:
+                return 0.0
+            if rule == 'curve':
+                lo_end, lo_short = self._curve_at(end / 3), self._curve_at(short_orf_nt / 3)
+                if lo_end > lo_short:
+                    return short_min_contrast * max(0.0, (lo_end - self._curve_at(orf_length / 3)) /
+                                                    (lo_end - lo_short))
             return short_min_contrast * max(0.0, (end - orf_length) / (end - short_orf_nt))
         raise ValueError(f"unknown short ORF rule {rule}")
+
+    def _curve_at(self, codons: float) -> float:
+        """Log prior odds at an ORF length, linearly interpolated in the --short-orf-curve points."""
+        pts = self.short_orf_curve
+        if codons <= pts[0][0]:
+            return pts[0][1]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            if codons <= x1:
+                return y0 + (y1 - y0) * (codons - x0) / (x1 - x0)
+        return pts[-1][1]
 
     def _min_length_auto_accept(self) -> float:
         """ORF length (nt) at or above which an ORF is retained regardless of its coding score."""
