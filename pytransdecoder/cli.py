@@ -214,6 +214,10 @@ Example:
     parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
     parser.add_argument('--decoy-strata', choices=['len', 'len_tx', 'len_tx_type'], default='len_tx_type',
                         dest='decoy_strata', help="Decoy FDR strata (default: %(default)s)")
+    parser.add_argument('--decoy-long-orfs', choices=['none', 'gc', 'decoy'], default='none',
+                        dest='decoy_long_orfs',
+                        help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
+                             "of decoy ORF lengths (default: %(default)s)")
     parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
@@ -311,6 +315,7 @@ def predict_cmd(args):
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
+            decoy_long_orfs=args.decoy_long_orfs,
         )
         predictor.run()
     except Exception as e:
@@ -410,6 +415,10 @@ def create_pipeline_parser():
     parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
     parser.add_argument('--decoy-strata', choices=['len', 'len_tx', 'len_tx_type'], default='len_tx_type',
                         dest='decoy_strata', help="Decoy FDR strata (default: %(default)s)")
+    parser.add_argument('--decoy-long-orfs', choices=['none', 'gc', 'decoy'], default='none',
+                        dest='decoy_long_orfs',
+                        help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
+                             "of decoy ORF lengths (default: %(default)s)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -605,6 +614,7 @@ def pipeline_cmd(args):
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
+            decoy_long_orfs=args.decoy_long_orfs,
         )
         predictor.run()
     except Exception as e:

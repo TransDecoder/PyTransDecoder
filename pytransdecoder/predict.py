@@ -57,6 +57,9 @@ DEFAULT_DECOY_Q = 0.1
 DEFAULT_DECOY_STRATA = 'len_tx_type'
 DECOY_TARGET_NT = 20_000_000  # auto number of shuffles: enough copies for ~20 Mb of decoy sequence
 DECOY_MAX_SHUFFLES = 50
+# decoy rule, ORFs kept on length alone (any coding score): 'none'; 'gc' (GC table, as other rules);
+# 'decoy' (length >= DECOY_LONG_QUANTILE of decoy ORF lengths, the GC table's criterion measured on the input)
+DECOY_LONG_QUANTILE = 0.999
 DEFAULT_SHORT_ORF_RULE = 'cliff'
 TAPER_FALLBACK_CODONS = 300
 
@@ -100,6 +103,7 @@ class TransDecoderPredict:
         decoy_shuffles: int = 0,
         decoy_seed: int = 42,
         decoy_strata: str = DEFAULT_DECOY_STRATA,
+        decoy_long_orfs: str = 'none',
     ):
         """
         Initialize TransDecoder.Predict
@@ -154,6 +158,8 @@ class TransDecoderPredict:
         self.decoy_shuffles = decoy_shuffles
         self.decoy_seed = decoy_seed
         self.decoy_strata = decoy_strata
+        self.decoy_long_orfs = decoy_long_orfs
+        self._decoy_orf_nt = []
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -664,7 +670,15 @@ class TransDecoderPredict:
         decoy_q = None
         if self.short_orf_rule == 'decoy':
             decoy_q = self._decoy_qvalues(cds_scores, hexamer_scores_file)
-            min_length_auto_accept = float('inf')  # length alone never suffices; decoys decide
+            if self.decoy_long_orfs == 'none':
+                min_length_auto_accept = float('inf')  # length alone never suffices; decoys decide
+            elif self.decoy_long_orfs == 'decoy':
+                lens = sorted(self._decoy_orf_nt)
+                min_length_auto_accept = (lens[min(len(lens) - 1, int(DECOY_LONG_QUANTILE * len(lens)))] + 1
+                                          if lens else float('inf'))
+                logger.info("Decoy long-ORF auto-accept: >= %s nt (%g quantile of %d decoy ORF lengths)",
+                            min_length_auto_accept, DECOY_LONG_QUANTILE, len(lens))
+            # 'gc': keep the GC-table auto-accept length computed above
 
         # Frame contrast required of short ORFs
         short_orf_nt = 3 * self.short_orf_length
@@ -722,7 +736,7 @@ class TransDecoderPredict:
                 # Apply selection criteria
                 frame_contrast = scores[0] - max(scores[1], scores[2])
                 if decoy_q is not None:
-                    meets_criteria = (homology_count > 0 or
+                    meets_criteria = (homology_count > 0 or orf_length >= min_length_auto_accept or
                                       (scores[0] > 0 and frame_contrast > 0 and
                                        decoy_q.get(orf_id, 1.0) <= self.decoy_q))
                 else:
@@ -948,6 +962,7 @@ class TransDecoderPredict:
                 for orf in finder.find_all_orfs(shuf, f"decoy{k}_{tid}"):
                     n_decoy += 1
                     cds = orf.sequence.upper()
+                    self._decoy_orf_nt.append(len(cds))
                     s0, c = contrast(cds)
                     if s0 > 0 and c > 0:
                         decoy_scores.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',
