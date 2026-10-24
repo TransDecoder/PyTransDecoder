@@ -51,6 +51,12 @@ DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
 #           (TAPER_FALLBACK_CODONS when there is no auto-accept length)
 #   curve   as taper, but linear in a log prior-odds curve lo(L) (--short-orf-curve: codons, logodds)
 #           instead of in L: C * (lo(end) - lo(L)) / (lo(end) - lo(short_orf_length))
+#   decoy   no length rules: an ORF needs a target-decoy q-value <= --decoy-q, from decoy ORFs in
+#           dinucleotide-shuffled copies of the transcripts (core/decoys.py); no length auto-accept
+DEFAULT_DECOY_Q = 0.1
+DEFAULT_DECOY_STRATA = 'len_tx_type'
+DECOY_TARGET_NT = 20_000_000  # auto number of shuffles: enough copies for ~20 Mb of decoy sequence
+DECOY_MAX_SHUFFLES = 50
 DEFAULT_SHORT_ORF_RULE = 'cliff'
 TAPER_FALLBACK_CODONS = 300
 
@@ -90,6 +96,10 @@ class TransDecoderPredict:
         short_orf_min_contrast: float = DEFAULT_SHORT_ORF_MIN_CONTRAST,
         short_orf_rule: str = DEFAULT_SHORT_ORF_RULE,
         short_orf_curve: Optional[str] = None,
+        decoy_q: float = DEFAULT_DECOY_Q,
+        decoy_shuffles: int = 0,
+        decoy_seed: int = 42,
+        decoy_strata: str = DEFAULT_DECOY_STRATA,
     ):
         """
         Initialize TransDecoder.Predict
@@ -140,6 +150,10 @@ class TransDecoderPredict:
                     if len(x) >= 2 and x[0] != 'codons':
                         pts.append((float(x[0]), float(x[1])))
             self.short_orf_curve = sorted(pts)
+        self.decoy_q = decoy_q
+        self.decoy_shuffles = decoy_shuffles
+        self.decoy_seed = decoy_seed
+        self.decoy_strata = decoy_strata
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -647,6 +661,11 @@ class TransDecoderPredict:
         # Calculate min length for auto-accept based on GC content
         min_length_auto_accept = self._min_length_auto_accept()
 
+        decoy_q = None
+        if self.short_orf_rule == 'decoy':
+            decoy_q = self._decoy_qvalues(cds_scores, hexamer_scores_file)
+            min_length_auto_accept = float('inf')  # length alone never suffices; decoys decide
+
         # Frame contrast required of short ORFs
         short_orf_nt = 3 * self.short_orf_length
         short_min_contrast = 0.0
@@ -702,13 +721,18 @@ class TransDecoderPredict:
                 
                 # Apply selection criteria
                 frame_contrast = scores[0] - max(scores[1], scores[2])
-                meets_criteria = (
-                    homology_count > 0 or
-                    orf_length >= min_length_auto_accept or
-                    (scores[0] > 0 and frame_contrast > 0 and
-                     frame_contrast >= self._required_contrast(orf_length, short_orf_nt, short_min_contrast,
-                                                               min_length_auto_accept))
-                )
+                if decoy_q is not None:
+                    meets_criteria = (homology_count > 0 or
+                                      (scores[0] > 0 and frame_contrast > 0 and
+                                       decoy_q.get(orf_id, 1.0) <= self.decoy_q))
+                else:
+                    meets_criteria = (
+                        homology_count > 0 or
+                        orf_length >= min_length_auto_accept or
+                        (scores[0] > 0 and frame_contrast > 0 and
+                         frame_contrast >= self._required_contrast(orf_length, short_orf_nt,
+                                                                   short_min_contrast, min_length_auto_accept))
+                    )
                 
                 if meets_criteria:
                     candidates.append({
@@ -849,6 +873,96 @@ class TransDecoderPredict:
                                                     (lo_end - lo_short))
             return short_min_contrast * max(0.0, (end - orf_length) / (end - short_orf_nt))
         raise ValueError(f"unknown short ORF rule {rule}")
+
+    def _decoy_qvalues(self, cds_scores: Dict[str, List[float]], hexamer_scores_file: Path) -> Dict[str, float]:
+        """Target-decoy q-value of each eligible candidate ORF (in-frame score > 0, frame contrast > 0)."""
+        import json
+        import math
+        import random
+        from pytransdecoder.core import decoys
+        from pytransdecoder.core.orf_finder import ORFFinder
+        params_file = self.workdir / "longorfs.params.json"
+        if params_file.exists():
+            params = json.loads(params_file.read_text())
+        else:  # LongOrfs from before the params file: infer its settings from its outputs
+            min_aa, minus, all_complete = 10 ** 9, False, True
+            with open(self.cds_file) as fh:
+                for line in fh:
+                    if line.startswith('>'):
+                        minus |= line.rstrip().endswith('(-)')
+                        all_complete &= ' type:complete ' in line
+            with open(self.pep_file) as fh:
+                for _, pep in ((r.id, str(r.seq)) for r in read_fasta(fh)):
+                    min_aa = min(min_aa, len(pep.rstrip('*')))
+            params = {"min_protein_length": min_aa, "genetic_code": self.genetic_code,
+                      "strand_specific": not minus, "complete_orfs_only": all_complete}
+            logger.warning("No longorfs.params.json; decoy ORF settings inferred: %s", params)
+        finder = ORFFinder(min_protein_length=params["min_protein_length"],
+                           allow_5prime_partial=not params["complete_orfs_only"],
+                           allow_3prime_partial=not params["complete_orfs_only"],
+                           forward_strand=True, reverse_strand=not params["strand_specific"],
+                           genetic_code=params["genetic_code"],
+                           complete_orfs_only=params["complete_orfs_only"])
+        hex_scores = {}
+        with open(hexamer_scores_file) as fh:
+            for line in fh:
+                if not line.startswith('#'):
+                    parts = line.rstrip('\n').split('\t')
+                    if len(parts) >= 4:
+                        hex_scores[parts[0]] = float(parts[3])
+        with open(self.transcripts_file) as fh:
+            transcripts = {r.id: str(r.seq).upper() for r in read_fasta(fh)}
+        total_nt = sum(len(x) for x in transcripts.values())
+        n_shuf = self.decoy_shuffles or max(1, min(DECOY_MAX_SHUFFLES, math.ceil(DECOY_TARGET_NT / max(total_nt, 1))))
+
+        def contrast(seq):
+            s0 = round(self._score_cds_via_markov(seq, 5, hex_scores), 2)
+            s1 = round(self._score_cds_via_markov(seq[1:], 5, hex_scores), 2)
+            s2 = round(self._score_cds_via_markov(seq[2:], 5, hex_scores), 2)
+            return s0, s0 - max(s1, s2)
+
+        # targets: eligible LongOrfs candidates
+        info = {}
+        with open(self.cds_file) as fh:
+            for line in fh:
+                if line.startswith('>'):
+                    x = line[1:].split()
+                    info[x[0]] = (x[1].split(':', 1)[1], x[2].rsplit(':', 1)[0])
+        lengths = {}
+        with open(self.cds_file) as fh:
+            for r in read_fasta(fh):
+                lengths[r.id] = len(r.seq) // 3
+        targets = {}
+        for orf_id, sc in cds_scores.items():
+            c = sc[0] - max(sc[1], sc[2])
+            if sc[0] > 0 and c > 0 and orf_id in info:
+                orf_type, tid = info[orf_id]
+                targets[orf_id] = (decoys.stratum(lengths[orf_id], len(transcripts.get(tid, '')),
+                                                  orf_type == 'complete', self.decoy_strata), c)
+        # decoys
+        decoy_scores, n_decoy = [], 0
+        for tid in sorted(transcripts):
+            seq = transcripts[tid]
+            for k in range(n_shuf):
+                shuf = decoys.dinucleotide_shuffle(seq, random.Random(f"{self.decoy_seed}:{tid}:{k}"))
+                for orf in finder.find_all_orfs(shuf, f"decoy{k}_{tid}"):
+                    n_decoy += 1
+                    cds = orf.sequence.upper()
+                    s0, c = contrast(cds)
+                    if s0 > 0 and c > 0:
+                        decoy_scores.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',
+                                                            self.decoy_strata), c))
+        q = decoys.qvalues(targets, decoy_scores, n_shuf)
+        out = self.workdir / "decoy_qvalues.tsv"
+        with open(out, 'w') as fh:
+            fh.write("#orf_id\tstratum\tcontrast\tq\n")
+            for orf_id in sorted(q):
+                fh.write(f"{orf_id}\t{','.join(map(str, targets[orf_id][0]))}\t{targets[orf_id][1]:.2f}\t{q[orf_id]:.5g}\n")
+        logger.info("Decoys: %d shuffle(s) per transcript (seed %d), %d decoy ORFs (%d eligible), strata %s; "
+                    "%d eligible candidates, %d with q <= %g (%s)", n_shuf, self.decoy_seed, n_decoy,
+                    len(decoy_scores), self.decoy_strata, len(targets),
+                    sum(v <= self.decoy_q for v in q.values()), self.decoy_q, out)
+        return q
 
     def _curve_at(self, codons: float) -> float:
         """Log prior odds at an ORF length, linearly interpolated in the --short-orf-curve points."""

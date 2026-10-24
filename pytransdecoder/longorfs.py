@@ -67,6 +67,13 @@ def run_longorfs(
                     gene_id, trans_id = parts[0], parts[1]
                     gene_trans_map[trans_id] = gene_id
     
+    # LongOrfs settings, for Predict's decoy ORFs (same finder settings on shuffled transcripts)
+    import json
+    with open(workdir / "longorfs.params.json", "w") as fh:
+        json.dump({"min_protein_length": min_protein_length, "genetic_code": genetic_code,
+                   "strand_specific": bool(strand_specific),
+                   "complete_orfs_only": bool(complete_orfs_only)}, fh, indent=1)
+
     # Step 1: Compute base frequencies
     if verbose:
         print("\n\n-first extracting base frequencies, we'll need them later.\n", file=sys.stderr)
