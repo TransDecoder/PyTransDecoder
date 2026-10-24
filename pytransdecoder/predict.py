@@ -951,7 +951,8 @@ class TransDecoderPredict:
                     if s0 > 0 and c > 0:
                         decoy_scores.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',
                                                             'len_tx_type'), c))
-        q = decoys.qvalues(targets, decoy_scores, n_shuf)
+        # q-values at the precision written to decoy_qvalues.tsv, which TransDecoder (Perl) selects on
+        q = {k: float(f"{v:.5g}") for k, v in decoys.qvalues(targets, decoy_scores, n_shuf).items()}
         out = self.workdir / "decoy_qvalues.tsv"
         with open(out, 'w') as fh:
             fh.write("#orf_id\tstratum\tcontrast\tq\n")
