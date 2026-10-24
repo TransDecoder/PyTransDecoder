@@ -54,6 +54,9 @@ DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
 #   decoy   no length rules: an ORF needs a target-decoy q-value <= --decoy-q, from decoy ORFs in
 #           dinucleotide-shuffled copies of the transcripts (core/decoys.py); no length auto-accept
 DEFAULT_DECOY_Q = 0.05
+# named q-value cutoffs for the decoy rule (benchmark: evidence E22 of the paper)
+PRECISE_DECOY_Q = 0.01
+SENSITIVE_DECOY_Q = 0.2
 DEFAULT_DECOY_STRATA = 'len_tx_type'
 DECOY_TARGET_NT = 20_000_000  # auto number of shuffles: enough copies for ~20 Mb of decoy sequence
 DECOY_MAX_SHUFFLES = 50

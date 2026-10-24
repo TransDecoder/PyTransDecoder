@@ -9,7 +9,8 @@ from . import __version__
 from .longorfs import run_longorfs, DEFAULT_MIN_PROTEIN_LENGTH
 from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
                       DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST,
-                      DEFAULT_SHORT_ORF_RULE)
+                      DEFAULT_SHORT_ORF_RULE, DEFAULT_DECOY_Q, PRECISE_DECOY_Q,
+                      SENSITIVE_DECOY_Q)
 
 
 def create_longorfs_parser(subparsers):
@@ -83,6 +84,28 @@ Example:
     
     parser.set_defaults(func=longorfs_cmd)
     return parser
+
+
+def _add_qvalue_args(parser):
+    """q-value cutoff of the decoy rule: a number or a named setting."""
+    g = parser.add_mutually_exclusive_group()
+    g.add_argument('--max-qvalue', '--decoy-q', type=float, default=None, dest='decoy_q',
+                   help="For --short-orf-rule decoy: keep ORFs with target-decoy q-value <= this "
+                        f"(default: {DEFAULT_DECOY_Q:g})")
+    g.add_argument('--precise', action='store_true',
+                   help=f"Fewer calls on noncoding sequence, at some loss of short and partial ORFs "
+                        f"(--max-qvalue {PRECISE_DECOY_Q:g})")
+    g.add_argument('--sensitive', action='store_true',
+                   help=f"More short and partial ORFs, at more calls on noncoding sequence "
+                        f"(--max-qvalue {SENSITIVE_DECOY_Q:g})")
+
+
+def _qvalue_cutoff(args) -> float:
+    if args.precise:
+        return PRECISE_DECOY_Q
+    if args.sensitive:
+        return SENSITIVE_DECOY_Q
+    return DEFAULT_DECOY_Q if args.decoy_q is None else args.decoy_q
 
 
 def create_predict_parser(subparsers):
@@ -207,8 +230,7 @@ Example:
     )
     parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
                         help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    parser.add_argument('--decoy-q', type=float, default=0.05, dest='decoy_q',
-                        help="For --short-orf-rule decoy: q-value cutoff (experimental; default: %(default)s)")
+    _add_qvalue_args(parser)
     parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
                         help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
     parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
@@ -220,7 +242,7 @@ Example:
                              "of decoy ORF lengths (default: %(default)s)")
     parser.add_argument('--preset', default=None,
                         help="Preset directory (build-preset): use its coding model, start model and ORF "
-                             "thresholds (at --decoy-q) instead of learning from the input; for small or "
+                             "thresholds (at the q-value cutoff) instead of learning from the input; for small or "
                              "partial transcript sets (experimental)")
     parser.add_argument(
         '-G', '--genetic-code',
@@ -315,7 +337,7 @@ def predict_cmd(args):
             short_orf_min_contrast=args.short_orf_min_contrast,
             short_orf_rule=args.short_orf_rule,
             short_orf_curve=args.short_orf_curve,
-            decoy_q=args.decoy_q,
+            decoy_q=_qvalue_cutoff(args),
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
@@ -413,8 +435,7 @@ def create_pipeline_parser():
                         help="Required frame contrast vs ORF length (experimental; default: %(default)s)")
     parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
                         help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    parser.add_argument('--decoy-q', type=float, default=0.05, dest='decoy_q',
-                        help="For --short-orf-rule decoy: q-value cutoff (experimental; default: %(default)s)")
+    _add_qvalue_args(parser)
     parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
                         help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
     parser.add_argument('--decoy-seed', type=int, default=42, dest='decoy_seed', help="Decoy shuffle seed")
@@ -426,7 +447,7 @@ def create_pipeline_parser():
                              "of decoy ORF lengths (default: %(default)s)")
     parser.add_argument('--preset', default=None,
                         help="Preset directory (build-preset): use its coding model, start model and ORF "
-                             "thresholds (at --decoy-q) instead of learning from the input; for small or "
+                             "thresholds (at the q-value cutoff) instead of learning from the input; for small or "
                              "partial transcript sets (experimental)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
@@ -619,7 +640,7 @@ def pipeline_cmd(args):
             short_orf_min_contrast=args.short_orf_min_contrast,
             short_orf_rule=args.short_orf_rule,
             short_orf_curve=args.short_orf_curve,
-            decoy_q=args.decoy_q,
+            decoy_q=_qvalue_cutoff(args),
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
