@@ -8,7 +8,8 @@ from pathlib import Path
 from . import __version__
 from .longorfs import run_longorfs, DEFAULT_MIN_PROTEIN_LENGTH
 from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
-                      DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST)
+                      DEFAULT_SHORT_ORF_LENGTH, DEFAULT_SHORT_ORF_MIN_CONTRAST,
+                      DEFAULT_SHORT_ORF_RULE)
 
 
 def create_longorfs_parser(subparsers):
@@ -198,6 +199,13 @@ Example:
              f"(default: {DEFAULT_SHORT_ORF_MIN_CONTRAST:g})"
     )
     parser.add_argument(
+        '--short-orf-rule', choices=['cliff', 'fixed', 'inverse', 'taper'], default=DEFAULT_SHORT_ORF_RULE,
+        dest='short_orf_rule',
+        help="Required frame contrast vs ORF length (experimental): cliff = only below --short-orf-length; "
+             "fixed = all lengths; inverse = scaled by short-orf-length/length; taper = falling linearly "
+             f"to 0 at the long-ORF auto-accept length (default: {DEFAULT_SHORT_ORF_RULE})"
+    )
+    parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
         help='Genetic code (default: Standard)'
@@ -288,6 +296,7 @@ def predict_cmd(args):
             start_kozak_weight=args.start_kozak_weight,
             short_orf_length=args.short_orf_length,
             short_orf_min_contrast=args.short_orf_min_contrast,
+            short_orf_rule=args.short_orf_rule,
         )
         predictor.run()
     except Exception as e:
@@ -375,6 +384,9 @@ def create_pipeline_parser():
                         dest='short_orf_min_contrast',
                         help="Frame contrast required of short ORFs, in bases of median coding contrast "
                              "(default: %(default)s)")
+    parser.add_argument('--short-orf-rule', choices=['cliff', 'fixed', 'inverse', 'taper'],
+                        default=DEFAULT_SHORT_ORF_RULE, dest='short_orf_rule',
+                        help="Required frame contrast vs ORF length (experimental; default: %(default)s)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -564,6 +576,7 @@ def pipeline_cmd(args):
             start_kozak_weight=args.start_kozak_weight,
             short_orf_length=args.short_orf_length,
             short_orf_min_contrast=args.short_orf_min_contrast,
+            short_orf_rule=args.short_orf_rule,
         )
         predictor.run()
     except Exception as e:

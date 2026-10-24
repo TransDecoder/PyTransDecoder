@@ -43,6 +43,14 @@ DEFAULT_START_KOZAK_WEIGHT = 17.0
 # negatives, 2026).
 DEFAULT_SHORT_ORF_LENGTH = 100
 DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
+# Shape of the required frame contrast vs ORF length (experimental, benchmark_v2 stringency study):
+#   cliff   C below --short-orf-length codons, none above (release default)
+#   fixed   C at every length below the auto-accept length
+#   inverse C * short_orf_length / L
+#   taper   C at short_orf_length codons, falling linearly to 0 at the auto-accept length
+#           (TAPER_FALLBACK_CODONS when there is no auto-accept length)
+DEFAULT_SHORT_ORF_RULE = 'cliff'
+TAPER_FALLBACK_CODONS = 300
 
 # Stop codons the GC-dependent long-ORF length table was simulated with
 STANDARD_STOP_CODONS = frozenset({"TAA", "TAG", "TGA"})
@@ -78,6 +86,7 @@ class TransDecoderPredict:
         start_kozak_weight: float = DEFAULT_START_KOZAK_WEIGHT,
         short_orf_length: int = DEFAULT_SHORT_ORF_LENGTH,
         short_orf_min_contrast: float = DEFAULT_SHORT_ORF_MIN_CONTRAST,
+        short_orf_rule: str = DEFAULT_SHORT_ORF_RULE,
     ):
         """
         Initialize TransDecoder.Predict
@@ -118,6 +127,7 @@ class TransDecoderPredict:
         self.start_kozak_weight = start_kozak_weight
         self.short_orf_length = short_orf_length
         self.short_orf_min_contrast = short_orf_min_contrast
+        self.short_orf_rule = short_orf_rule
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -635,6 +645,7 @@ class TransDecoderPredict:
                 logger.info("ORFs shorter than %d codons need frame contrast >= %.2f (%g bases x %.4f) "
                             "without homology support", self.short_orf_length, short_min_contrast,
                             self.short_orf_min_contrast, mu)
+                logger.info("Short ORF rule: %s", self.short_orf_rule)
         
         # Parse GFF3 and select best ORFs
         logger.info(f"Selecting best ORFs from {self.gff3_file}")
@@ -683,7 +694,8 @@ class TransDecoderPredict:
                     homology_count > 0 or
                     orf_length >= min_length_auto_accept or
                     (scores[0] > 0 and frame_contrast > 0 and
-                     (orf_length >= short_orf_nt or frame_contrast >= short_min_contrast))
+                     frame_contrast >= self._required_contrast(orf_length, short_orf_nt, short_min_contrast,
+                                                               min_length_auto_accept))
                 )
                 
                 if meets_criteria:
@@ -804,6 +816,21 @@ class TransDecoderPredict:
                     scores[orf_id] = frame_scores
         return scores
     
+    def _required_contrast(self, orf_length, short_orf_nt, short_min_contrast, auto_accept_nt) -> float:
+        """Frame contrast an ORF of orf_length nt needs without homology support (see DEFAULT_SHORT_ORF_RULE)."""
+        rule = self.short_orf_rule
+        if rule == 'cliff':
+            return short_min_contrast if orf_length < short_orf_nt else 0.0
+        if rule == 'fixed':
+            return short_min_contrast
+        if rule == 'inverse':
+            return short_min_contrast * short_orf_nt / orf_length
+        if rule == 'taper':
+            end = auto_accept_nt if auto_accept_nt != float('inf') else 3 * TAPER_FALLBACK_CODONS
+            end = max(end, short_orf_nt + 3)
+            return short_min_contrast * max(0.0, (end - orf_length) / (end - short_orf_nt))
+        raise ValueError(f"unknown short ORF rule {rule}")
+
     def _min_length_auto_accept(self) -> float:
         """ORF length (nt) at or above which an ORF is retained regardless of its coding score."""
         if self.retain_long_orfs_mode != 'dynamic':
