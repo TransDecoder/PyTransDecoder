@@ -53,7 +53,7 @@ DEFAULT_SHORT_ORF_MIN_CONTRAST = 200.0
 #           instead of in L: C * (lo(end) - lo(L)) / (lo(end) - lo(short_orf_length))
 #   decoy   no length rules: an ORF needs a target-decoy q-value <= --decoy-q, from decoy ORFs in
 #           dinucleotide-shuffled copies of the transcripts (core/decoys.py); no length auto-accept
-DEFAULT_DECOY_Q = 0.1
+DEFAULT_DECOY_Q = 0.05
 DEFAULT_DECOY_STRATA = 'len_tx_type'
 DECOY_TARGET_NT = 20_000_000  # auto number of shuffles: enough copies for ~20 Mb of decoy sequence
 DECOY_MAX_SHUFFLES = 50
@@ -104,6 +104,7 @@ class TransDecoderPredict:
         decoy_seed: int = 42,
         decoy_strata: str = DEFAULT_DECOY_STRATA,
         decoy_long_orfs: str = 'none',
+        preset: Optional[str] = None,
     ):
         """
         Initialize TransDecoder.Predict
@@ -160,6 +161,10 @@ class TransDecoderPredict:
         self.decoy_strata = decoy_strata
         self.decoy_long_orfs = decoy_long_orfs
         self._decoy_orf_nt = []
+        self.preset = None
+        if preset:
+            from pytransdecoder.core.presets import Preset
+            self.preset = Preset(preset)
         self._coding_contrast_cache = None
         # Terminal stops excluded from Markov training and scoring
         from pytransdecoder.core.translator import Translator
@@ -213,6 +218,9 @@ class TransDecoderPredict:
         # Create checkpoints directory
         self.checkpoints_dir.mkdir(exist_ok=True)
         
+        if self.preset:
+            self._install_preset()
+
         # Step 1: Get top longest ORFs for training
         logger.info(f"Selecting top {self.top_orfs_train} longest ORFs for training...")
         top_cds_file = self._select_training_orfs()
@@ -668,7 +676,11 @@ class TransDecoderPredict:
         min_length_auto_accept = self._min_length_auto_accept()
 
         decoy_q = None
-        if self.short_orf_rule == 'decoy':
+        if self.preset:
+            decoy_q = self._preset_pass(cds_scores)
+            min_length_auto_accept = self.preset.auto_accept_nt
+            logger.info("Preset long-ORF auto-accept: %s nt", min_length_auto_accept)
+        elif self.short_orf_rule == 'decoy':
             decoy_q = self._decoy_qvalues(cds_scores, hexamer_scores_file)
             if self.decoy_long_orfs == 'none':
                 min_length_auto_accept = float('inf')  # length alone never suffices; decoys decide
@@ -887,6 +899,52 @@ class TransDecoderPredict:
                                                     (lo_end - lo_short))
             return short_min_contrast * max(0.0, (end - orf_length) / (end - short_orf_nt))
         raise ValueError(f"unknown short ORF rule {rule}")
+
+    def _install_preset(self):
+        """Use the preset's training ORFs and coding model instead of learning them from the input."""
+        import shutil
+        p = self.preset
+        logger.info("Preset %s (%s; GC %s%%, genetic code %s): coding model, training ORFs, start model and "
+                    "ORF thresholds from the preset", p.meta.get("name"), p.meta.get("source"),
+                    p.meta.get("gc_pct"), p.meta.get("genetic_code"))
+        if p.meta.get("genetic_code", "").lower() != str(self.genetic_code).lower():
+            logger.warning("Preset genetic code %s differs from -G %s", p.meta.get("genetic_code"), self.genetic_code)
+        shutil.copy(p.training_orfs, self.checkpoints_dir / "top_training_orfs.cds")
+        (self.checkpoints_dir / "training_orfs.ok").write_text("OK")
+        shutil.copy(p.hexamer_scores, self.workdir / "hexamer.scores")
+        (self.checkpoints_dir / "hexamer_scores.ok").write_text("OK")
+
+    def _target_strata(self, cds_scores: Dict[str, List[float]], strata: str) -> Dict[str, Tuple]:
+        """(stratum, frame contrast) of each eligible candidate ORF (in-frame score > 0, contrast > 0)."""
+        from pytransdecoder.core import decoys
+        with open(self.transcripts_file) as fh:
+            tx_len = {r.id: len(r.seq) for r in read_fasta(fh)}
+        info, lengths = {}, {}
+        with open(self.cds_file) as fh:
+            for r in read_fasta(fh):
+                lengths[r.id] = len(r.seq) // 3
+        with open(self.cds_file) as fh:
+            for line in fh:
+                if line.startswith('>'):
+                    x = line[1:].split()
+                    info[x[0]] = (x[1].split(':', 1)[1], x[2].rsplit(':', 1)[0])
+        targets = {}
+        for orf_id, sc in cds_scores.items():
+            c = sc[0] - max(sc[1], sc[2])
+            if sc[0] > 0 and c > 0 and orf_id in info:
+                orf_type, tid = info[orf_id]
+                targets[orf_id] = (decoys.stratum(lengths[orf_id], tx_len.get(tid, 0), orf_type == 'complete',
+                                                  strata), c)
+        return targets
+
+    def _preset_pass(self, cds_scores: Dict[str, List[float]]) -> Dict[str, float]:
+        """Pseudo q-values from the preset thresholds: 0 when an ORF reaches its stratum's threshold."""
+        targets = self._target_strata(cds_scores, self.preset.strata)
+        out = {orf_id: (0.0 if c >= self.preset.threshold(k, self.decoy_q) else 1.0)
+               for orf_id, (k, c) in targets.items()}
+        logger.info("Preset thresholds at q %g (stored level %g): %d of %d eligible candidates pass",
+                    self.decoy_q, self.preset.level(self.decoy_q), sum(v == 0.0 for v in out.values()), len(out))
+        return out
 
     def _decoy_qvalues(self, cds_scores: Dict[str, List[float]], hexamer_scores_file: Path) -> Dict[str, float]:
         """Target-decoy q-value of each eligible candidate ORF (in-frame score > 0, frame contrast > 0)."""
@@ -1151,7 +1209,12 @@ class TransDecoderPredict:
                     "coding score", coding_contrast, self.start_contrast_alpha, self.start_kozak_weight)
 
         transcripts = self._load_transcripts()
-        kozak = self._train_kozak_model(training_orfs_file, transcripts)
+        if self.preset:
+            from pytransdecoder.core import kozak as kozak_mod
+            kozak = kozak_mod.read_model(self.preset.kozak) if self.preset.kozak else None
+            logger.info("Start-context model from preset: %s", self.preset.kozak)
+        else:
+            kozak = self._train_kozak_model(training_orfs_file, transcripts)
 
         num_revised = self._revise_start_sites(
             gff3_file, revised_gff3, transcripts, scores, coding_contrast, kozak

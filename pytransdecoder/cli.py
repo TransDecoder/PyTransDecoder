@@ -207,7 +207,7 @@ Example:
     )
     parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
                         help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    parser.add_argument('--decoy-q', type=float, default=0.1, dest='decoy_q',
+    parser.add_argument('--decoy-q', type=float, default=0.05, dest='decoy_q',
                         help="For --short-orf-rule decoy: q-value cutoff (experimental; default: %(default)s)")
     parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
                         help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
@@ -218,6 +218,10 @@ Example:
                         dest='decoy_long_orfs',
                         help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
                              "of decoy ORF lengths (default: %(default)s)")
+    parser.add_argument('--preset', default=None,
+                        help="Preset directory (build-preset): use its coding model, start model and ORF "
+                             "thresholds (at --decoy-q) instead of learning from the input; for small or "
+                             "partial transcript sets (experimental)")
     parser.add_argument(
         '-G', '--genetic-code',
         default='Standard',
@@ -316,6 +320,7 @@ def predict_cmd(args):
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
             decoy_long_orfs=args.decoy_long_orfs,
+            preset=args.preset,
         )
         predictor.run()
     except Exception as e:
@@ -408,7 +413,7 @@ def create_pipeline_parser():
                         help="Required frame contrast vs ORF length (experimental; default: %(default)s)")
     parser.add_argument('--short-orf-curve', default=None, dest='short_orf_curve',
                         help="For --short-orf-rule curve: TSV of codons and log prior odds (experimental)")
-    parser.add_argument('--decoy-q', type=float, default=0.1, dest='decoy_q',
+    parser.add_argument('--decoy-q', type=float, default=0.05, dest='decoy_q',
                         help="For --short-orf-rule decoy: q-value cutoff (experimental; default: %(default)s)")
     parser.add_argument('--decoy-shuffles', type=int, default=0, dest='decoy_shuffles',
                         help="Shuffled copies per transcript for decoys; 0 = auto (~20 Mb of decoys, max 50)")
@@ -419,6 +424,10 @@ def create_pipeline_parser():
                         dest='decoy_long_orfs',
                         help="Decoy rule: keep ORFs on length alone by none, the GC table, or the 0.999 quantile "
                              "of decoy ORF lengths (default: %(default)s)")
+    parser.add_argument('--preset', default=None,
+                        help="Preset directory (build-preset): use its coding model, start model and ORF "
+                             "thresholds (at --decoy-q) instead of learning from the input; for small or "
+                             "partial transcript sets (experimental)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
@@ -615,6 +624,7 @@ def pipeline_cmd(args):
             decoy_seed=args.decoy_seed,
             decoy_strata=args.decoy_strata,
             decoy_long_orfs=args.decoy_long_orfs,
+            preset=args.preset,
         )
         predictor.run()
     except Exception as e:
@@ -696,6 +706,52 @@ def genome_map_cmd(args):
           f"(BED: {str(out).removesuffix('.gff3') + '.bed'})", file=sys.stderr)
 
 
+def create_build_preset_parser(subparsers):
+    """Create parser for build-preset command"""
+    parser = subparsers.add_parser(
+        'build-preset',
+        help='Build a preset (coding model + ORF thresholds) from a decoy-rule Predict run on a large '
+             'reference transcriptome (experimental)')
+    parser.add_argument('-t', '--transcripts', required=True, type=Path,
+                        help='the reference transcripts FASTA the run was made on')
+    parser.add_argument('--run-dir', type=Path, default=None,
+                        help='directory holding <transcripts>.transdecoder_dir (default: current directory)')
+    parser.add_argument('--name', required=True, help='preset name')
+    parser.add_argument('--source', default='', help='free-text source description (species, release)')
+    parser.add_argument('-o', '--output', required=True, type=Path, help='preset directory to write')
+    parser.set_defaults(func=build_preset_cmd)
+    return parser
+
+
+def build_preset_cmd(args):
+    """Execute build-preset command"""
+    import json
+    from .core.presets import build_preset
+    from .predict import TransDecoderPredict
+    run_dir = args.run_dir or Path.cwd()
+    workdir = run_dir / f"{args.transcripts.name}.transdecoder_dir"
+    params = json.loads((workdir / "longorfs.params.json").read_text())
+    pred = TransDecoderPredict(transcripts_file=str(args.transcripts), output_dir=str(run_dir),
+                               genetic_code=params["genetic_code"])
+    auto = pred._min_length_auto_accept()
+    gc = 0.0
+    with open(args.transcripts) as fh:
+        from .core.fasta import read_fasta
+        n_gc = n = 0
+        for r in read_fasta(fh):
+            s = str(r.seq).upper()
+            n_gc += s.count('G') + s.count('C')
+            n += sum(s.count(b) for b in 'ACGT')
+        gc = 100.0 * n_gc / n if n else 50.0
+    strata = 'len_tx_type'
+    for line in open(workdir / "decoy_qvalues.tsv"):
+        if not line.startswith('#'):
+            strata = {1: 'len', 2: 'len_tx', 3: 'len_tx_type'}[len(line.split('\t')[1].split(','))]
+            break
+    out = build_preset(workdir, args.output, args.name, gc, auto, params["genetic_code"], strata, args.source)
+    print(f"preset written: {out}", file=sys.stderr)
+
+
 def main():
     """Main entry point for CLI"""
     parser = argparse.ArgumentParser(
@@ -721,6 +777,7 @@ def main():
     create_longorfs_parser(subparsers)
     create_predict_parser(subparsers)
     create_genome_map_parser(subparsers)
+    create_build_preset_parser(subparsers)
     
     # Parse arguments
     args = parser.parse_args()
