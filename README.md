@@ -134,6 +134,8 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --retain-multiple-orfs            Report all non-overlapping ORFs passing selection
                                   (default: the best ORF per transcript)
 --no-refine-starts                Skip start codon refinement
+--no-homology-start-assist        Do not let BLASTP/Pfam hits decide 5'-partial vs trimmed starts
+                                  (default: they do whenever hits are supplied)
 --start-contrast-alpha FLOAT      Start refinement: UTR score per base of upstream segment (default: 0.4)
 --start-kozak-weight FLOAT        Start refinement: bases of coding signal per bit of Kozak score (default: 17)
 --max-qvalue FLOAT                Keep ORFs (without homology) with target-decoy q-value <= this
@@ -190,6 +192,18 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
    walkthrough with examples and advice on choosing alpha. The Kozak model is written to the
    work directory as `start_refinement.kozak.tsv` (bits), `.kozak.counts.tsv` and a sequence
    logo, `.kozak.logo.svg`.
+   **With homology hits** (`--retain-blastp-hits` and/or `--retain-pfam-hits`), the hits of the
+   ORF's longest-ORF peptide decide first (PyTransDecoder only; turn off with
+   `--no-homology-start-assist`):
+   - BLASTP, trim: the best hit's subject N-terminus (subject start <= 3) aligns within 5 aa of the
+     first ATG;
+   - BLASTP, keep 5' partial: the alignment starts >= 5 aa upstream of the ATG and the subject
+     continues further N-terminal (subject start > 1);
+   - Pfam, keep 5' partial: a domain envelope starts upstream of the ATG.
+   Where no rule fires, or a trim and a keep call conflict, the coding-vs-UTR rule above decides.
+   Each rule is used only if its hits file was given. Per-ORF evidence and decisions are written
+   to `start_refinement.homology.tsv` in the work directory, and ORFs trimmed by homology carry
+   `start_homology=R2` in the GFF3. See [docs/start_codon_refinement.md](docs/start_codon_refinement.md).
 5. **Output**: Generates final predictions in multiple formats
 
 ## Annotating a Genome from Transcript Structures

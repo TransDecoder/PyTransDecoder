@@ -9,6 +9,7 @@ and PyTransDecoder (v0.2.0 and later).
 | per-base UTR allowance (alpha) | `--start_contrast_alpha` (0.4) | `--start-contrast-alpha` (0.4) |
 | bases per bit of Kozak score | `--start_kozak_weight` (17) | `--start-kozak-weight` (17) |
 | turn refinement off | `--no_refine_starts` | `--no-refine-starts` |
+| homology-assisted decisions | not available | on when hits are supplied; off with `--no-homology-start-assist` |
 
 ## The problem
 
@@ -128,6 +129,32 @@ bits).
 - Refinement is skipped when there are no training ORFs to estimate the typical coding signal, or
   when it is turned off.
 - The procedure is deterministic: the same input always gives the same result.
+
+## Homology-assisted decisions (PyTransDecoder v0.2.0 and later)
+
+When Predict is given homology hits for the LongOrfs peptides (`--retain-blastp-hits`, BLASTP or
+DIAMOND outfmt 6, best hit per ORF; `--retain-pfam-hits`, hmmsearch/hmmscan domtblout), they are
+used first for every open 5' end that has a first in-frame ATG. Let *a* be the ATG's position in
+the ORF's longest-ORF peptide (position 1 is the first codon at the transcript's 5' end):
+
+| rule | evidence | call | fires when |
+|---|---|---|---|
+| R2 | best BLASTP hit | trim to the ATG | subject start <= 3 and the subject's N-terminus maps within 5 aa of the ATG: \|qstart - (sstart - 1) - a\| <= 5 |
+| R1 | best BLASTP hit | keep 5' partial | qstart <= a - 5 and sstart > 1 (the homolog continues N-terminal of the alignment) |
+| R3 | Pfam domains | keep 5' partial | a domain envelope starts at <= a - 1 |
+
+If no rule fires, or R2 fires together with R1 or R3, the coding-vs-UTR rule decides. A rule is
+used only if its hits file was given. `start_refinement.homology.tsv` in the work directory lists,
+for each open 5' end with an ATG, the evidence, the rules that fired, the ab initio decision, the
+final decision and its source; the log reports how often each rule fired. ORFs trimmed by R2 carry
+`start_homology=R2` in the GFF3. `--no-homology-start-assist` restores the ab initio decisions
+(hits are then used for ORF selection only, as before). Without hits the results are unchanged.
+
+On simulated human and Arabidopsis Trinity assemblies (hits from Swiss-Prot without the species' own
+entries), the rules raised exact-ORF F1 by 2 to 9 points, improving complete, 5'-partial,
+3'-partial and internal CDSs alike. The trim rule R2 was correct for >= 99% of the ORFs it fired on.
+On complete transcripts (where every open 5' end is UTR), the keep rules R1 and R3 can keep an end
+open when the homolog's protein begins upstream of the annotated start.
 
 ## Choosing the parameters
 

@@ -209,6 +209,17 @@ Example:
         help='Skip start codon refinement'
     )
     parser.add_argument(
+        '--no-homology-start-assist', '--no_homology_start_assist',
+        action='store_false',
+        dest='homology_start_assist',
+        help="Start refinement: do not use the --retain-blastp-hits / --retain-pfam-hits evidence to "
+             "decide whether a 5'-open ORF keeps its open end or is trimmed to its first ATG (by "
+             "default, when hits are supplied: trim if the best BLASTP hit's subject N-terminus aligns "
+             "within 5 aa of the ATG; keep open if the alignment starts >= 5 aa upstream of the ATG with "
+             "more subject upstream, or a Pfam domain envelope starts upstream of the ATG; otherwise, "
+             "or when the calls conflict, the ab initio rule decides)"
+    )
+    parser.add_argument(
         '--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
         dest='start_contrast_alpha',
         help="Start refinement: UTR score per base of the segment before an open ORF's first in-frame "
@@ -318,6 +329,7 @@ def predict_cmd(args):
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             preset=args.preset,
+            homology_start_assist=args.homology_start_assist,
         )
         predictor.run()
     except Exception as e:
@@ -392,6 +404,10 @@ def create_pipeline_parser():
                         help=argparse.SUPPRESS)  # now the default; accepted for compatibility
     parser.add_argument('--no-refine-starts', action='store_true', dest='no_refine_starts',
                         help='Skip start codon refinement')
+    parser.add_argument('--no-homology-start-assist', '--no_homology_start_assist', action='store_false',
+                        dest='homology_start_assist',
+                        help="Do not use BLAST/Pfam hits to decide 5'-open vs trimmed starts "
+                             "(default: used whenever hits are available)")
     parser.add_argument('--start-contrast-alpha', type=float, default=DEFAULT_START_CONTRAST_ALPHA,
                         dest='start_contrast_alpha',
                         help="Start refinement UTR score per base of segment (default: %(default)s)")
@@ -590,6 +606,7 @@ def pipeline_cmd(args):
             decoy_shuffles=args.decoy_shuffles,
             decoy_seed=args.decoy_seed,
             preset=args.preset,
+            homology_start_assist=args.homology_start_assist,
         )
         predictor.run()
     except Exception as e:

@@ -86,6 +86,7 @@ class TransDecoderPredict:
         decoy_shuffles: int = 0,
         decoy_seed: int = DEFAULT_DECOY_SEED,
         preset: Optional[str] = None,
+        homology_start_assist: bool = True,
     ):
         """
         Initialize TransDecoder.Predict
@@ -112,6 +113,9 @@ class TransDecoderPredict:
             decoy_seed: seed of the decoy shuffles
             preset: preset name or directory: coding model, start model and q-value thresholds from
                 a reference transcriptome instead of the input (small or partial inputs)
+            homology_start_assist: when BLASTP and/or Pfam hits are supplied, let them decide whether
+                a 5'-open ORF keeps its open end or is trimmed to its first ATG (core/homology_starts.py);
+                the ab initio rule decides where no homology rule fires
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -128,6 +132,7 @@ class TransDecoderPredict:
         self.decoy_q = decoy_q
         self.decoy_shuffles = decoy_shuffles
         self.decoy_seed = decoy_seed
+        self.homology_start_assist = homology_start_assist
         self.preset = None
         if preset:
             from pytransdecoder.core.presets import Preset, resolve
@@ -754,26 +759,26 @@ class TransDecoderPredict:
         checkpoint.write_text("OK")
         return output_file
     
-    def _parse_blastp_hits(self) -> Dict[str, str]:
-        """Parse BLASTP hits file (outfmt 6 format)"""
-        hits = {}
+    def _read_blastp_first_hits(self) -> Dict[str, List[str]]:
+        """First (best) outfmt 6 line of each query in the BLASTP hits file, split into fields"""
+        first = {}
         with open(self.retain_blastp_hits) as f:
             for line in f:
                 if line.startswith('#'):
                     continue
                 parts = line.strip().split('\t')
-                if len(parts) >= 12:
-                    query_id = parts[0]
-                    subject_id = parts[1]
-                    evalue = parts[10]
-                    bitscore = parts[11]
-                    if query_id not in hits:
-                        hits[query_id] = f",blast:{subject_id}|{evalue}|{bitscore}"
-        return hits
+                if len(parts) >= 12 and parts[0] not in first:
+                    first[parts[0]] = parts
+        return first
+
+    def _parse_blastp_hits(self) -> Dict[str, str]:
+        """Parse BLASTP hits file (outfmt 6 format)"""
+        return {query_id: f",blast:{parts[1]}|{parts[10]}|{parts[11]}"
+                for query_id, parts in self._read_blastp_first_hits().items()}
     
-    def _parse_pfam_hits(self) -> Dict[str, str]:
-        """Parse Pfam hits file (domtblout format from hmmscan/hmmsearch)"""
-        hits = {}
+    def _read_pfam_domains(self):
+        """Domains of the Pfam hits file (domtblout from hmmscan or hmmsearch), as
+        (orf_id, pfam_name, pfam_acc, domain_evalue, fields) in file order"""
         with open(self.retain_pfam_hits) as f:
             for line in f:
                 if line.startswith('#'):
@@ -782,22 +787,18 @@ class TransDecoderPredict:
                 if len(parts) >= 13:
                     # Try hmmscan format first (pfam_acc in column 1)
                     if parts[1].startswith('PF'):
-                        orf_id = parts[3]
-                        pfam_name = parts[0]
-                        pfam_acc = parts[1]
-                        domain_evalue = parts[12]
+                        yield parts[3], parts[0], parts[1], parts[12], parts
                     # Try hmmsearch format (pfam_acc in column 4)
-                    elif len(parts) >= 13 and parts[4].startswith('PF'):
-                        orf_id = parts[0]
-                        pfam_name = parts[3]
-                        pfam_acc = parts[4]
-                        domain_evalue = parts[12]
-                    else:
-                        continue
-                    
-                    if orf_id not in hits:
-                        hits[orf_id] = ""
-                    hits[orf_id] += f",pfam:{pfam_name}|{pfam_acc}|{domain_evalue}"
+                    elif parts[4].startswith('PF'):
+                        yield parts[0], parts[3], parts[4], parts[12], parts
+
+    def _parse_pfam_hits(self) -> Dict[str, str]:
+        """Parse Pfam hits file (domtblout format from hmmscan/hmmsearch)"""
+        hits = {}
+        for orf_id, pfam_name, pfam_acc, domain_evalue, _ in self._read_pfam_domains():
+            if orf_id not in hits:
+                hits[orf_id] = ""
+            hits[orf_id] += f",pfam:{pfam_name}|{pfam_acc}|{domain_evalue}"
         return hits
     
     def _parse_cds_scores(self, cds_scores_file: Path) -> Dict[str, List[float]]:
@@ -1133,13 +1134,33 @@ class TransDecoderPredict:
         else:
             kozak = self._train_kozak_model(training_orfs_file, transcripts)
 
+        homology = self._homology_start_evidence()
         num_revised = self._revise_start_sites(
-            gff3_file, revised_gff3, transcripts, scores, coding_contrast, kozak
+            gff3_file, revised_gff3, transcripts, scores, coding_contrast, kozak, homology
         )
         logger.info("Revised %s start codon positions", num_revised)
 
         checkpoint.write_text("OK")
         return revised_gff3
+
+    def _homology_start_evidence(self) -> Optional[Dict[str, Dict]]:
+        """BLASTP (qstart, sstart of each ORF's best hit) and Pfam (smallest envelope start) evidence
+        for homology-assisted start refinement; None when no hits were supplied or the assist is off."""
+        if not self.homology_start_assist or not (self.retain_blastp_hits or self.retain_pfam_hits):
+            return None
+        blast, pfam = None, None
+        if self.retain_blastp_hits:
+            blast = {q: (int(p[6]), int(p[8])) for q, p in self._read_blastp_first_hits().items()}
+        if self.retain_pfam_hits:
+            pfam = {}
+            for orf_id, _, _, _, parts in self._read_pfam_domains():
+                env_from = int(parts[19])
+                if orf_id not in pfam or env_from < pfam[orf_id]:
+                    pfam[orf_id] = env_from
+        logger.info("Homology-assisted start refinement: BLASTP %s, Pfam %s",
+                    f"{len(blast)} ORFs with hits" if blast is not None else "not supplied",
+                    f"{len(pfam)} ORFs with domains" if pfam is not None else "not supplied")
+        return {"blast": blast, "pfam": pfam}
 
     def _load_hexamer_scores(self, hexamer_scores_file: Path) -> Dict[str, float]:
         scores = {}
@@ -1225,12 +1246,23 @@ class TransDecoderPredict:
         scores: Dict[str, float],
         coding_contrast: float,
         kozak=None,
+        homology: Optional[Dict[str, Dict]] = None,
     ) -> int:
         """Trim open 5' ends that extend into a UTR to their first in-frame ATG
-        (see _refine_start_codons)."""
+        (see _refine_start_codons). With homology evidence (_homology_start_evidence), the
+        homology rules (core/homology_starts.py) decide where they fire; a per-ORF table is written
+        to start_refinement.homology.tsv in the work directory."""
         from pytransdecoder.core.sequence import reverse_complement
 
         num_revised = 0
+        table = None
+        if homology is not None:
+            from pytransdecoder.core.homology_starts import homology_start_call
+            table = open(self.workdir / "start_refinement.homology.tsv", "w")
+            table.write("orf_id\ttranscript_id\tstrand\tatg_offset_nt\tatg_aa\tblast_qstart\tblast_sstart\t"
+                        "pfam_env_from\trules_fired\tcoding_score\tutr_score\tab_initio_decision\t"
+                        "decision\tsource\n")
+            counts = dict.fromkeys(["R1", "R2", "R3", "trim", "keep", "conflict", "changed"], 0)
         with open(gff3_file) as src, open(revised_gff3_file, "w") as dst:
             for line in src:
                 parts = line.rstrip("\n").split("\t")
@@ -1264,7 +1296,36 @@ class TransDecoderPredict:
                 coding_score = self._frame_contrast(orf[:atg], scores) / coding_contrast
                 kozak_score = self._kozak_score(kozak, oriented, orf_start + atg) if kozak else 0.0
                 utr_score = self.start_contrast_alpha * atg + self.start_kozak_weight * kozak_score
-                if coding_score >= utr_score:
+                homology_rule = None
+                if table is not None:
+                    orf_id = self._parse_attrs(parts[8])["ID"][0]
+                    blast = homology["blast"].get(orf_id) if homology["blast"] is not None else None
+                    env_from = homology["pfam"].get(orf_id) if homology["pfam"] is not None else None
+                    fired, call = homology_start_call(atg // 3 + 1, blast, env_from)
+                    ab_initio_trim = coding_score < utr_score
+                    trim = ab_initio_trim
+                    source = "ab_initio"
+                    for r in fired:
+                        counts[r] += 1
+                    if call == "conflict":
+                        counts["conflict"] += 1
+                        source = "ab_initio(conflict)"
+                    elif call is not None:
+                        counts[call] += 1
+                        trim = call == "trim"
+                        source = "homology"
+                        homology_rule = "+".join(r for r in fired if (r == "R2") == trim)
+                    counts["changed"] += trim != ab_initio_trim
+                    table.write("\t".join(map(str, [
+                        orf_id, seqid, strand, atg, atg // 3 + 1,
+                        blast[0] if blast else ".", blast[1] if blast else ".",
+                        env_from if env_from is not None else ".", ",".join(fired) or ".",
+                        f"{coding_score:.1f}", f"{utr_score:.1f}", "trim" if ab_initio_trim else "keep",
+                        "trim" if trim else "keep", source])) + "\n")
+                    if not trim:
+                        dst.write(line)
+                        continue
+                elif coding_score >= utr_score:
                     dst.write(line)  # upstream segment looks coding: 5' partial
                     continue
 
@@ -1277,10 +1338,20 @@ class TransDecoderPredict:
                 attrs["upstream_coding_score"] = [f"{coding_score:.1f}"]
                 attrs["upstream_utr_score"] = [f"{utr_score:.1f}"]
                 attrs["kozak_score"] = [f"{kozak_score:.2f}"]
+                if homology_rule:
+                    attrs["start_homology"] = [homology_rule]
                 parts[8] = self._format_attrs(attrs)
                 dst.write("\t".join(parts) + "\n")
                 num_revised += 1
 
+        if table is not None:
+            table.close()
+            logger.info("Homology-assisted start refinement: R1 (BLASTP, keep open) fired %d, R2 (BLASTP, "
+                        "trim) %d, R3 (Pfam, keep open) %d; homology decided %d trim / %d keep open, "
+                        "%d conflicts left to the ab initio rule; %d decisions differ from the ab initio "
+                        "rule (table: %s)", counts["R1"], counts["R2"], counts["R3"], counts["trim"],
+                        counts["keep"], counts["conflict"], counts["changed"],
+                        self.workdir / "start_refinement.homology.tsv")
         return num_revised
 
     def _load_transcripts(self) -> Dict[str, str]:
