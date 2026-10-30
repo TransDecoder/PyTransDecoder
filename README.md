@@ -115,6 +115,12 @@ pytransdecoder predict -t transcripts.fasta \
     --retain-pfam-hits pfam.domtblout
 ```
 
+ORFs with a hit are kept even when their coding signal alone would not keep them. Hits to
+transposable-element proteins (or to host proteins with a TE-derived segment) can therefore keep
+short ORFs in TE-containing transcripts. These are kept on purpose; to find and remove them by
+best-hit protein or by repeat overlap, see
+[docs/homology_te_screen.md](docs/homology_te_screen.md).
+
 For the full pipeline entrypoint, you can skip the separate Pfam step and let
 `pyTransdecoder` prepare and search the HMM database for you:
 
