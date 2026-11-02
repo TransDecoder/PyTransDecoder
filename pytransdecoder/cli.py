@@ -106,6 +106,9 @@ def _add_selection_args(parser):
                              "(~20 Mb of decoy sequence, at most 50)")
     parser.add_argument('--decoy-seed', type=int, default=DEFAULT_DECOY_SEED, dest='decoy_seed',
                         help="Seed of the decoy shuffles (default: %(default)s)")
+    parser.add_argument('--cpu', type=int, default=1, dest='cpu',
+                        help="Worker processes for scoring candidate and decoy ORFs; results do not depend "
+                             "on it (default: %(default)s)")
     from .core.presets import bundled_presets
     parser.add_argument('--preset', default=None,
                         help="Use a preset's coding model, start model and q-value thresholds instead of "
@@ -330,6 +333,7 @@ def predict_cmd(args):
             decoy_seed=args.decoy_seed,
             preset=args.preset,
             homology_start_assist=args.homology_start_assist,
+            cpu=args.cpu,
         )
         predictor.run()
     except Exception as e:
@@ -607,6 +611,7 @@ def pipeline_cmd(args):
             decoy_seed=args.decoy_seed,
             preset=args.preset,
             homology_start_assist=args.homology_start_assist,
+            cpu=args.cpu,
         )
         predictor.run()
     except Exception as e:

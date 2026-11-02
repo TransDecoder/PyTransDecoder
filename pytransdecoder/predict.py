@@ -87,6 +87,7 @@ class TransDecoderPredict:
         decoy_seed: int = DEFAULT_DECOY_SEED,
         preset: Optional[str] = None,
         homology_start_assist: bool = True,
+        cpu: int = 1,
     ):
         """
         Initialize TransDecoder.Predict
@@ -116,6 +117,7 @@ class TransDecoderPredict:
             homology_start_assist: when BLASTP and/or Pfam hits are supplied, let them decide whether
                 a 5'-open ORF keeps its open end or is trimmed to its first ATG (core/homology_starts.py);
                 the ab initio rule decides where no homology rule fires
+            cpu: worker processes for scoring candidate and decoy ORFs (output does not depend on it)
         """
         self.transcripts_file = Path(transcripts_file)
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -133,6 +135,7 @@ class TransDecoderPredict:
         self.decoy_shuffles = decoy_shuffles
         self.decoy_seed = decoy_seed
         self.homology_start_assist = homology_start_assist
+        self.cpu = max(1, int(cpu))
         self.preset = None
         if preset:
             from pytransdecoder.core.presets import Preset, resolve
@@ -524,32 +527,18 @@ class TransDecoderPredict:
         
         # Score all ORFs in all 6 frames
         logger.info("Scoring all candidate ORFs...")
-        from pytransdecoder.core.sequence import reverse_complement
         
-        results = []
+        from pytransdecoder.core import parallel
+        accs, seqs = [], []
         with open(self.cds_file) as f:
             for record in read_fasta(f):
-                accession = record.id
-                sequence = str(record.seq).upper()
-                
-                # Use Markov order 5 (hexamers = 6-mers)
-                markov_order = 5
-                
-                # Score forward strand frames
-                score1 = self._score_cds_via_markov(sequence, markov_order, scores)
-                score2 = self._score_cds_via_markov(sequence[1:], markov_order, scores)
-                score3 = self._score_cds_via_markov(sequence[2:], markov_order, scores)
-                
-                # Score reverse strand frames
-                rev_seq = reverse_complement(sequence)
-                score4 = self._score_cds_via_markov(rev_seq, markov_order, scores)
-                score5 = self._score_cds_via_markov(rev_seq[1:], markov_order, scores)
-                score6 = self._score_cds_via_markov(rev_seq[2:], markov_order, scores)
-                
-                results.append((accession, markov_order, len(sequence),
-                              score1, score2, score3, score4, score5, score6))
-        
-        # Write scores file
+                accs.append(record.id)
+                seqs.append(str(record.seq).upper())
+        markov_order = parallel.MARKOV_ORDER
+        six = parallel.score_six_frames(seqs, scores, self.stop_codons, self.cpu)
+        results = [(acc, markov_order, len(seq)) + sc for acc, seq, sc in zip(accs, seqs, six)]
+        del seqs
+
         logger.info(f"Writing scores for {len(results)} ORFs to {output_file}")
         with open(output_file, 'w') as f:
             f.write("#acc\tMarkov_order\tseq_length\tscore_1\tscore_2\tscore_3\tscore_4\tscore_5\tscore_6\n")
@@ -561,45 +550,10 @@ class TransDecoderPredict:
         return output_file
     
     def _score_cds_via_markov(self, sequence: str, markov_order: int, scores: Dict[str, float]) -> float:
-        """
-        Score a sequence using Markov model
-        
-        Args:
-            sequence: DNA sequence to score
-            markov_order: Markov order (5 for hexamers)
-            scores: Dictionary of framed k-mer scores
-            
-        Returns:
-            Total log-likelihood score
-        """
-        seq_length = len(sequence)
-        
-        if seq_length < markov_order + 1:
-            return 0.0
-        
-        total_score = 0.0
-        
-        for i in range(seq_length):
-            frame = i % 3
-            
-            # Use appropriate k-mer size (up to markov_order)
-            markov_use = min(i, markov_order)
-            kmer = sequence[i - markov_use:i + 1]
-            
-            # Skip stop codons at the end
-            if i == seq_length - 3 and frame == 0:
-                codon = sequence[i:i+3]
-                if codon in self.stop_codons:
-                    break
-            
-            # Look up score
-            framed_kmer = f"{kmer}-{frame}"
-            loglikelihood = scores.get(framed_kmer, 0.0)
-            
-            total_score += loglikelihood
-        
-        return total_score
-    
+        """Total framed k-mer log-likelihood of a sequence (core/parallel.score_markov)."""
+        from pytransdecoder.core.parallel import score_markov
+        return score_markov(sequence, markov_order, scores, self.stop_codons)
+
     def _select_best_orfs(self, cds_scores_file: Path, training_orfs_file: Optional[Path] = None,
                           hexamer_scores_file: Optional[Path] = None) -> Path:
         """
@@ -879,8 +833,6 @@ class TransDecoderPredict:
         """Target-decoy q-value of each eligible candidate ORF (in-frame score > 0, frame contrast > 0)."""
         import json
         from pytransdecoder.core import decoys
-        from pytransdecoder.core.prng import Xoshiro128ss
-        from pytransdecoder.core.orf_finder import ORFFinder
         params_file = self.workdir / "longorfs.params.json"
         if params_file.exists():
             params = json.loads(params_file.read_text())
@@ -897,7 +849,7 @@ class TransDecoderPredict:
             params = {"min_protein_length": min_aa, "genetic_code": self.genetic_code,
                       "strand_specific": not minus, "complete_orfs_only": all_complete}
             logger.warning("No longorfs.params.json; decoy ORF settings inferred: %s", params)
-        finder = ORFFinder(min_protein_length=params["min_protein_length"],
+        finder_args = dict(min_protein_length=params["min_protein_length"],
                            allow_5prime_partial=not params["complete_orfs_only"],
                            allow_3prime_partial=not params["complete_orfs_only"],
                            forward_strand=True, reverse_strand=not params["strand_specific"],
@@ -914,12 +866,6 @@ class TransDecoderPredict:
             transcripts = {r.id: str(r.seq).upper() for r in read_fasta(fh)}
         total_nt = sum(len(x) for x in transcripts.values())
         n_shuf = self.decoy_shuffles or max(1, min(DECOY_MAX_SHUFFLES, -(-DECOY_TARGET_NT // max(total_nt, 1))))
-
-        def contrast(seq):
-            s0 = round(self._score_cds_via_markov(seq, 5, hex_scores), 2)
-            s1 = round(self._score_cds_via_markov(seq[1:], 5, hex_scores), 2)
-            s2 = round(self._score_cds_via_markov(seq[2:], 5, hex_scores), 2)
-            return s0, s0 - max(s1, s2)
 
         # targets: eligible LongOrfs candidates
         info = {}
@@ -939,19 +885,11 @@ class TransDecoderPredict:
                 orf_type, tid = info[orf_id]
                 targets[orf_id] = (decoys.stratum(lengths[orf_id], len(transcripts.get(tid, '')),
                                                   orf_type == 'complete', 'len_tx_type'), c)
-        # decoys
-        decoy_scores, n_decoy = [], 0
-        for tid in sorted(transcripts):
-            seq = transcripts[tid]
-            for k in range(n_shuf):
-                shuf = decoys.dinucleotide_shuffle(seq, Xoshiro128ss(f"{self.decoy_seed}:{tid}:{k}"))
-                for orf in finder.find_all_orfs(shuf, f"decoy{k}_{tid}"):
-                    n_decoy += 1
-                    cds = orf.sequence.upper()
-                    s0, c = contrast(cds)
-                    if s0 > 0 and c > 0:
-                        decoy_scores.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',
-                                                            'len_tx_type'), c))
+        # decoys, over transcripts in sorted order (core/parallel.py)
+        from pytransdecoder.core import parallel
+        n_decoy, decoy_scores = parallel.decoy_scores([(tid, transcripts[tid]) for tid in sorted(transcripts)],
+                                                      n_shuf, self.decoy_seed, hex_scores, self.stop_codons,
+                                                      finder_args, self.cpu)
         # q-values at the precision written to decoy_qvalues.tsv, which TransDecoder (Perl) selects on
         q = {k: float(f"{v:.5g}") for k, v in decoys.qvalues(targets, decoy_scores, n_shuf).items()}
         out = self.workdir / "decoy_qvalues.tsv"
