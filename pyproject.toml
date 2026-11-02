@@ -4,18 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytransdecoder"
-version = "0.2.0"
-description = "Python port of TransDecoder - identify candidate coding regions in transcript sequences"
+version = "0.2.1"
+description = "TransDecoder, the original Perl version ported to Python by AI/LLMs with new features integrated"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "BSD-3-Clause"}
 authors = [
-    {name = "TransDecoder Python Port"}
+    {name = "Brian Haas, ported to python by AI/LLMs"}
 ]
 dependencies = [
     "biopython>=1.81",
     "tqdm>=4.65",
 ]
+
+[project.urls]
+Homepage = "https://github.com/TransDecoder/PyTransDecoder"
+Repository = "https://github.com/TransDecoder/PyTransDecoder"
 
 [project.optional-dependencies]
 dev = [

@@ -5,6 +5,12 @@ Python port of [TransDecoder](https://github.com/TransDecoder/TransDecoder) - id
 ## Installation
 
 ```bash
+pip install pytransdecoder
+```
+
+or from a clone of this repository:
+
+```bash
 cd PyTransDecoder
 pip install -e .
 ```
@@ -69,7 +75,7 @@ pytransdecoder predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
 
 This means you can use existing scripts and Makefiles without modification.
 
-Legacy compatibility wrappers for `TransDecoder.LongOrfs` and `TransDecoder.Predict` now live under [`util/`](./util) instead of the repository root.
+Legacy compatibility wrappers for `TransDecoder.LongOrfs` and `TransDecoder.Predict` now live under [`util/`](https://github.com/TransDecoder/PyTransDecoder/tree/main/util) instead of the repository root.
 
 ## Supported Genetic Codes
 
@@ -119,7 +125,7 @@ ORFs with a hit are kept even when their coding signal alone would not keep them
 transposable-element proteins (or to host proteins with a TE-derived segment) can therefore keep
 short ORFs in TE-containing transcripts. These are kept on purpose; to find and remove them by
 best-hit protein or by repeat overlap, see
-[docs/homology_te_screen.md](docs/homology_te_screen.md).
+[docs/homology_te_screen.md](https://github.com/TransDecoder/PyTransDecoder/blob/main/docs/homology_te_screen.md).
 
 For the full pipeline entrypoint, you can skip the separate Pfam step and let
 `pyTransdecoder` prepare and search the HMM database for you:
@@ -194,7 +200,7 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
      the training ORFs).
    If the UTR score is higher, the ORF is trimmed to start at the ATG; otherwise it stays 5'
    partial. Each bit of Kozak score lets the ATG overrule 17 bases of coding signal. See
-   [docs/start_codon_refinement.md](docs/start_codon_refinement.md) for a step-by-step
+   [docs/start_codon_refinement.md](https://github.com/TransDecoder/PyTransDecoder/blob/main/docs/start_codon_refinement.md) for a step-by-step
    walkthrough with examples and advice on choosing alpha. The Kozak model is written to the
    work directory as `start_refinement.kozak.tsv` (bits), `.kozak.counts.tsv` and a sequence
    logo, `.kozak.logo.svg`.
@@ -209,7 +215,7 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
    Where no rule fires, or a trim and a keep call conflict, the coding-vs-UTR rule above decides.
    Each rule is used only if its hits file was given. Per-ORF evidence and decisions are written
    to `start_refinement.homology.tsv` in the work directory, and ORFs trimmed by homology carry
-   `start_homology=R2` in the GFF3. See [docs/start_codon_refinement.md](docs/start_codon_refinement.md).
+   `start_homology=R2` in the GFF3. See [docs/start_codon_refinement.md](https://github.com/TransDecoder/PyTransDecoder/blob/main/docs/start_codon_refinement.md).
 5. **Output**: Generates final predictions in multiple formats
 
 ## Annotating a Genome from Transcript Structures

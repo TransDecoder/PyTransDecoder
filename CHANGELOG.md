@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1 (2026-11-02)
+- Packaging only, for the first release on PyPI (`pip install pytransdecoder`): author, summary and project URL;
+  README links made absolute so they work on PyPI. No code changes; predictions are identical to v0.2.0.
+
 ## v0.2.0 (2026-11-02)
 
 ### New in PyTransDecoder only
