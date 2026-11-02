@@ -48,7 +48,30 @@ class Xoshiro128ss:
                 return r % n
 
     def shuffle(self, items: list) -> None:
-        """Fisher-Yates, in place."""
+        """Fisher-Yates, in place: j = below(i + 1) for i = len-1 .. 1, with next32/below inlined
+        (same integer arithmetic, so the same stream as shuffle_reference)."""
+        s0, s1, s2, s3 = self.s
+        for i in range(len(items) - 1, 0, -1):
+            n = i + 1
+            limit = (4294967296 // n) * n
+            while True:
+                x = (s1 * 5) & M32
+                r = ((((x << 7) | (x >> 25)) & M32) * 9) & M32
+                t = (s1 << 9) & M32
+                s2 ^= s0
+                s3 ^= s1
+                s1 ^= s2
+                s0 ^= s3
+                s2 ^= t
+                s3 = ((s3 << 11) | (s3 >> 21)) & M32
+                if r < limit:
+                    break
+            j = r % n
+            items[i], items[j] = items[j], items[i]
+        self.s[:] = [s0, s1, s2, s3]
+
+    def shuffle_reference(self, items: list) -> None:
+        """Fisher-Yates, in place (the form shuffle() inlines)."""
         for i in range(len(items) - 1, 0, -1):
             j = self.below(i + 1)
             items[i], items[j] = items[j], items[i]

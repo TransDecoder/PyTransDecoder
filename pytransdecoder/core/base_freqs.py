@@ -19,11 +19,12 @@ def compute_base_counts(fasta_file: str, top_strand_only: bool = False) -> Dict[
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
     counts = {base: 0 for base in 'ACGT'}
     for record in read_fasta(fasta_file):
-        for base in str(record.seq).upper():
-            if base in counts:
-                counts[base] += 1
-                if not top_strand_only:
-                    counts[complement[base]] += 1
+        seq = str(record.seq).upper()
+        for base in 'ACGT':
+            k = seq.count(base)
+            counts[base] += k
+            if not top_strand_only:
+                counts[complement[base]] += k
     return counts
 
 

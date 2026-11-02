@@ -19,6 +19,7 @@ MARKOV_ORDER = 5
 _HEX: Dict[str, float] = {}
 _STOPS: FrozenSet[str] = frozenset()
 _FINDER_ARGS: dict = {}
+_TABLE = None  # core/markov_fast.MarkovTable of _HEX, or None (reference loop)
 
 
 def score_markov(sequence: str, markov_order: int, scores: Dict[str, float], stop_codons) -> float:
@@ -39,12 +40,16 @@ def score_markov(sequence: str, markov_order: int, scores: Dict[str, float], sto
 
 
 def _init_worker(hex_scores, stop_codons, finder_args):
-    global _HEX, _STOPS, _FINDER_ARGS
+    global _HEX, _STOPS, _FINDER_ARGS, _TABLE
+    from pytransdecoder.core.markov_fast import compile_table
     _HEX, _STOPS, _FINDER_ARGS = hex_scores, stop_codons, finder_args
+    _TABLE = compile_table(hex_scores, stop_codons)
 
 
 def _score_six_frames(sequence: str) -> Tuple[float, ...]:
     rev = reverse_complement(sequence)
+    if _TABLE is not None:
+        return _TABLE.six_frames(sequence, rev)
     return tuple(score_markov(s, MARKOV_ORDER, _HEX, _STOPS)
                  for s in (sequence, sequence[1:], sequence[2:], rev, rev[1:], rev[2:]))
 
@@ -67,9 +72,12 @@ def _decoy_chunk(args):
             for orf in finder.find_all_orfs(shuf, f"decoy{k}_{tid}"):
                 n_decoy += 1
                 cds = orf.sequence.upper()
-                s0 = round(score_markov(cds, MARKOV_ORDER, _HEX, _STOPS), 2)
-                s1 = round(score_markov(cds[1:], MARKOV_ORDER, _HEX, _STOPS), 2)
-                s2 = round(score_markov(cds[2:], MARKOV_ORDER, _HEX, _STOPS), 2)
+                if _TABLE is not None:
+                    s0, s1, s2 = (round(x, 2) for x in _TABLE.forward_frames(cds))
+                else:
+                    s0 = round(score_markov(cds, MARKOV_ORDER, _HEX, _STOPS), 2)
+                    s1 = round(score_markov(cds[1:], MARKOV_ORDER, _HEX, _STOPS), 2)
+                    s2 = round(score_markov(cds[2:], MARKOV_ORDER, _HEX, _STOPS), 2)
                 c = s0 - max(s1, s2)
                 if s0 > 0 and c > 0:
                     out.append((decoys.stratum(len(cds) // 3, len(seq), orf.orf_type == 'complete',

@@ -55,13 +55,11 @@ def dinucleotide_shuffle(seq: str, rng: Xoshiro128ss) -> str:
         if v in last:
             out.append(last[v])
         order[v] = out
-    pos = defaultdict(int)
+    nxt_of = {v: iter(o).__next__ for v, o in order.items()}  # each edge list consumed in order
     res, u = [seq[0]], seq[0]
     for _ in range(n - 1):
-        w = order[u][pos[u]]
-        pos[u] += 1
-        res.append(w)
-        u = w
+        u = nxt_of[u]()
+        res.append(u)
     return "".join(res)
 
 

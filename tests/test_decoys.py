@@ -56,3 +56,17 @@ def test_preset_roundtrip(tmp_path):
     assert p.auto_accept_nt == 726
     with gzip.open(p.hexamer_scores, "rt") as fh:
         assert fh.read().startswith("AAAAAA")
+
+
+def test_inlined_shuffle_matches_reference():
+    import random
+    from pytransdecoder.core.prng import Xoshiro128ss
+    rng = random.Random(2)
+    for k in range(300):
+        items = list(range(rng.randint(0, 3000)))
+        a, b = Xoshiro128ss(f"s{k}"), Xoshiro128ss(f"s{k}")
+        x, y = items[:], items[:]
+        a.shuffle(x)
+        b.shuffle_reference(y)
+        assert x == y and a.s == b.s
+        assert a.next32() == b.next32()

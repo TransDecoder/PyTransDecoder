@@ -78,6 +78,9 @@ class Translator:
         self.genetic_code_name = genetic_code
         self.table_id = self.GENETIC_CODE_MAP[code_name]
         self.codon_table = CodonTable.unambiguous_dna_by_id[self.table_id]
+        # codon -> amino acid, filled from Biopython one codon at a time (Biopython translates
+        # each codon independently, so joining memoised codons gives the same protein)
+        self._codon_memo = {}
     
     def get_stop_codons(self) -> List[str]:
         """
@@ -108,15 +111,34 @@ class Translator:
     
     def translate(self, sequence: str, frame: int = 0) -> str:
         """
-        Translate nucleotide sequence to protein.
-        
+        Translate nucleotide sequence to protein (as Biopython's Seq.translate, to_stop=False;
+        a trailing partial codon is dropped).
+
         Args:
             sequence: DNA/RNA sequence
             frame: Reading frame offset (0, 1, or 2)
-        
+
         Returns:
             Protein sequence (stops are represented as *)
         """
+        seq = sequence[frame:].upper()
+        n = len(seq) - len(seq) % 3
+        memo = self._codon_memo
+        try:
+            return ''.join([memo[seq[i:i + 3]] for i in range(0, n, 3)])
+        except KeyError:
+            pass
+        for i in range(0, n, 3):
+            codon = seq[i:i + 3]
+            if codon not in memo:
+                try:
+                    memo[codon] = str(Seq(codon).translate(table=self.table_id, to_stop=False))
+                except Exception:
+                    return self._translate_reference(sequence, frame)
+        return ''.join([memo[seq[i:i + 3]] for i in range(0, n, 3)])
+
+    def _translate_reference(self, sequence: str, frame: int = 0) -> str:
+        """Whole-sequence Biopython translation (the form translate() reproduces codon by codon)."""
         # Adjust for frame
         seq = sequence[frame:].upper()
         

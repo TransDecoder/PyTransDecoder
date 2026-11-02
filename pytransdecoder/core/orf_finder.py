@@ -4,6 +4,8 @@ ORF (Open Reading Frame) finder
 Replicates the core algorithm from Longest_orf.pm
 """
 
+import bisect
+import re
 from typing import List, Dict, Tuple
 from .models import ORF
 from .translator import Translator
@@ -54,6 +56,9 @@ class ORFFinder:
         self.translator = Translator(genetic_code)
         self.stop_codons = set(self.translator.get_stop_codons())
         self.start_codons = set(self.translator.get_start_codons(allow_non_met_starts))
+        # overlapping matches of any stop / start codon (positions in all three frames)
+        self._stop_re = re.compile("(?=(" + "|".join(sorted(map(re.escape, self.stop_codons))) + "))")
+        self._start_re = re.compile("(?=(" + "|".join(sorted(map(re.escape, self.start_codons))) + "))")
     
     def find_all_orfs(self, sequence: str, seq_id: str) -> List[ORF]:
         """
@@ -91,13 +96,21 @@ class ORFFinder:
         sequence = sequence.upper()
         orfs = []
         
+        # Codon positions in all frames from one scan each (ascending), split by frame
+        stop_pos = [[], [], []]
+        for m in self._stop_re.finditer(sequence):
+            stop_pos[m.start() % 3].append(m.start())
+        start_pos = [[], [], []]
+        for m in self._start_re.finditer(sequence):
+            start_pos[m.start() % 3].append(m.start())
+
         # Find stops and starts for each frame
         for frame in range(3):
             # Find all stop codons in this frame
-            stops, real_stops = self._find_stops_in_frame(sequence, frame)
+            stops, real_stops = self._find_stops_in_frame(sequence, frame, stop_pos[frame])
             
             # Find all start codons in this frame (passing real_stops to avoid starts at stop positions)
-            starts = self._find_starts_in_frame(sequence, frame, real_stops)
+            starts = self._find_starts_in_frame(sequence, frame, real_stops, start_pos[frame])
             
             # Build ORFs from start-stop pairs
             orfs.extend(
@@ -108,7 +121,7 @@ class ORFFinder:
         
         return orfs
     
-    def _find_stops_in_frame(self, sequence: str, frame: int) -> Tuple[List[int], set]:
+    def _find_stops_in_frame(self, sequence: str, frame: int, positions: List[int] = None) -> Tuple[List[int], set]:
         """
         Find all stop codon positions in a specific frame.
         
@@ -117,14 +130,10 @@ class ORFFinder:
                 - all_stops: List of all stop positions (real + implicit)
                 - real_stop_set: Set of positions that are actual stop codons
         """
-        stops = []
-        real_stops = set()
-        
-        for i in range(frame, len(sequence) - 2, 3):
-            codon = sequence[i:i+3]
-            if codon in self.stop_codons:
-                stops.append(i)
-                real_stops.add(i)
+        if positions is None:  # stop codons at frame, frame+3, ... (ascending)
+            positions = [i for i in range(frame, len(sequence) - 2, 3) if sequence[i:i+3] in self.stop_codons]
+        stops = list(positions)
+        real_stops = set(positions)
         
         # Add implicit stops at end for 3' partials (NOT real stop codons)
         # Perl adds seq_length, seq_length-1, seq_length-2 as implicit stops
@@ -137,7 +146,8 @@ class ORFFinder:
         
         return stops, real_stops
     
-    def _find_starts_in_frame(self, sequence: str, frame: int, real_stops: set) -> List[int]:
+    def _find_starts_in_frame(self, sequence: str, frame: int, real_stops: set,
+                              positions: List[int] = None) -> List[int]:
         """
         Find all start codon positions in a specific frame.
         
@@ -157,10 +167,9 @@ class ORFFinder:
             starts.append(frame)
         
         # Find explicit start codons
-        for i in range(frame, len(sequence) - 2, 3):
-            codon = sequence[i:i+3]
-            if codon in self.start_codons:
-                starts.append(i)
+        if positions is None:
+            positions = [i for i in range(frame, len(sequence) - 2, 3) if sequence[i:i+3] in self.start_codons]
+        starts.extend(positions)
         
         return starts
     
@@ -189,6 +198,11 @@ class ORFFinder:
         """
         orfs = []
         last_used_stop = -1  # Track the last stop position used in this frame
+        # stops = real stop positions (ascending, all in this frame) + implicit end positions;
+        # every start is in this frame too, so the first listed stop after a start is the first
+        # real stop after it (bisect), else the first matching implicit position
+        n_real = len(real_stops)
+        real_sorted = stops[:n_real]
         
         # Iterate through starts in order
         for start_pos in starts:
@@ -199,11 +213,15 @@ class ORFFinder:
             
             # Find the first valid stop after this start (Perl's algorithm)
             valid_stop = None
-            for stop_pos in stops:
-                if (stop_pos > start_pos and 
-                    (stop_pos - start_pos) % 3 == 0):
-                    valid_stop = stop_pos
-                    break  # Take first valid stop (replicates Perl's 'last')
+            k = bisect.bisect_right(real_sorted, start_pos)
+            if k < n_real and (real_sorted[k] - start_pos) % 3 == 0:
+                valid_stop = real_sorted[k]
+            else:  # the original scan; stops before index k are <= start_pos and cannot match
+                for stop_pos in stops[k:]:
+                    if (stop_pos > start_pos and
+                            (stop_pos - start_pos) % 3 == 0):
+                        valid_stop = stop_pos
+                        break  # Take first valid stop (replicates Perl's 'last')
             
             if valid_stop is None:
                 continue

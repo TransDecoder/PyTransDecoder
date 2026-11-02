@@ -300,6 +300,8 @@ class TransDecoderPredict:
         Returns:
             List of non-redundant SeqRecord objects
         """
+        from collections import Counter
+        from itertools import chain
         from pytransdecoder.core.translator import Translator
         
         WMER_SIZE = 5
@@ -319,10 +321,8 @@ class TransDecoderPredict:
             protein = translator.translate(sequence, frame=0)
             
             # Get spaced 5-mers for this protein (spaced by WMER_SIZE)
-            wmers_spaced = {}
-            for i in range(0, len(protein) - WMER_SIZE + 1, WMER_SIZE):
-                wmer = protein[i:i + WMER_SIZE]
-                wmers_spaced[wmer] = 1
+            wmers_spaced = dict.fromkeys(protein[i:i + WMER_SIZE]
+                                         for i in range(0, len(protein) - WMER_SIZE + 1, WMER_SIZE))
             
             num_unique_wmers = len(wmers_spaced)
             if num_unique_wmers == 0:
@@ -336,11 +336,9 @@ class TransDecoderPredict:
                 continue
             
             # Check if this protein is too similar to already captured ones
-            prots_seen = {}
-            for wmer in wmers_spaced:
-                if wmer in captured_wmers:
-                    for prot_acc in captured_wmers[wmer]:
-                        prots_seen[prot_acc] = prots_seen.get(prot_acc, 0) + 1
+            # counts in encounter order (as the original nested loop), so max() breaks ties alike
+            prots_seen = Counter(chain.from_iterable(captured_wmers[w] for w in wmers_spaced
+                                                     if w in captured_wmers))
             
             proxy_per_id = 0
             if prots_seen:
@@ -354,16 +352,12 @@ class TransDecoderPredict:
                 # Keep this ORF - it's unique enough
                 
                 # Recompute wmers as overlapping (not spaced) for storage
-                wmers_overlapping = {}
-                for i in range(len(protein) - WMER_SIZE + 1):
-                    wmer = protein[i:i + WMER_SIZE]
-                    wmers_overlapping[wmer] = 1
+                wmers_overlapping = dict.fromkeys(protein[i:i + WMER_SIZE]
+                                                  for i in range(len(protein) - WMER_SIZE + 1))
                 
                 # Store wmers for this protein
                 for wmer in wmers_overlapping:
-                    if wmer not in captured_wmers:
-                        captured_wmers[wmer] = []
-                    captured_wmers[wmer].append(acc)
+                    captured_wmers.setdefault(wmer, []).append(acc)
                 
                 retained_orfs.append(record)
             else:
@@ -400,34 +394,28 @@ class TransDecoderPredict:
         
         # Parse training ORFs and count framed k-mers
         logger.info("Counting framed k-mers in training ORFs...")
-        framed_kmers = {}  # key: "kmer-frame", value: count
-        
+        # For Markov orders 0-5 (1-mers to 6-mers), the k-mer ending at each position i >= order,
+        # with frame i % 3, up to a terminal in-frame stop codon (positions from it on are not
+        # counted), plus FRAME-<f> position counts. Integer counts, so the order of counting does
+        # not matter (the scores below are computed over the sorted counts).
+        from collections import Counter
+        counts = Counter()
+        sfx = ("-0", "-1", "-2")
         with open(training_orfs_file) as f:
             for record in read_fasta(f):
                 sequence = str(record.seq).upper()
                 seq_len = len(sequence)
-                
-                # Count k-mers for Markov orders 0-5 (producing 1-mers to 6-mers)
+                tail_stop = seq_len % 3 == 0 and sequence[seq_len - 3:] in self.stop_codons
                 for markov_order in range(6):
-                    for i in range(markov_order, seq_len):
-                        frame = i % 3
-                        
-                        # Skip stop codons at the end
-                        if (i == seq_len - 3 and frame == 0):
-                            codon = sequence[i:i+3]
-                            if codon in self.stop_codons:
-                                break
-                        
-                        # Count frame positions (needed for Markov chain)
-                        if markov_order == 0:
-                            key = f"FRAME-{frame}"
-                            framed_kmers[key] = framed_kmers.get(key, 0) + 1
-                        
-                        # Count k-mer in this frame
-                        if i >= markov_order:
-                            kmer = sequence[i - markov_order:i + 1]
-                            key = f"{kmer}-{frame}"
-                            framed_kmers[key] = framed_kmers.get(key, 0) + 1
+                    end = seq_len - 3 if (tail_stop and seq_len - 3 >= markov_order) else seq_len
+                    if markov_order == 0:
+                        for fr in range(3):
+                            n_fr = len(range(fr, end, 3))
+                            if n_fr:
+                                counts[f"FRAME-{fr}"] += n_fr
+                    counts.update([sequence[i - markov_order:i + 1] + sfx[i % 3]
+                                   for i in range(markov_order, end)])
+        framed_kmers = dict(counts)  # key: "kmer-frame", value: count
         
         logger.info(f"Counted {len(framed_kmers)} unique framed k-mers")
         
@@ -550,8 +538,17 @@ class TransDecoderPredict:
         return output_file
     
     def _score_cds_via_markov(self, sequence: str, markov_order: int, scores: Dict[str, float]) -> float:
-        """Total framed k-mer log-likelihood of a sequence (core/parallel.score_markov)."""
+        """Total framed k-mer log-likelihood of a sequence (core/parallel.score_markov; the NumPy
+        form in core/markov_fast gives identical values)."""
         from pytransdecoder.core.parallel import score_markov
+        if markov_order == 5:
+            cache = self.__dict__.setdefault('_markov_tables', {})
+            hit = cache.get(id(scores))
+            if hit is None or hit[0] is not scores or hit[1] != len(scores):
+                from pytransdecoder.core.markov_fast import compile_table
+                hit = cache[id(scores)] = (scores, len(scores), compile_table(scores, self.stop_codons))
+            if hit[2] is not None:
+                return hit[2].score(sequence)
         return score_markov(sequence, markov_order, scores, self.stop_codons)
 
     def _select_best_orfs(self, cds_scores_file: Path, training_orfs_file: Optional[Path] = None,
@@ -862,8 +859,7 @@ class TransDecoderPredict:
                     parts = line.rstrip('\n').split('\t')
                     if len(parts) >= 4:
                         hex_scores[parts[0]] = float(parts[3])
-        with open(self.transcripts_file) as fh:
-            transcripts = {r.id: str(r.seq).upper() for r in read_fasta(fh)}
+        transcripts = self._load_transcripts()
         total_nt = sum(len(x) for x in transcripts.values())
         n_shuf = self.decoy_shuffles or max(1, min(DECOY_MAX_SHUFFLES, -(-DECOY_TARGET_NT // max(total_nt, 1))))
 
@@ -1293,10 +1289,15 @@ class TransDecoderPredict:
         return num_revised
 
     def _load_transcripts(self) -> Dict[str, str]:
+        """Transcript sequences (upper case) by id, read once per run; callers must not modify it."""
+        cached = self.__dict__.get('_transcripts_cache')
+        if cached is not None:
+            return cached
         transcripts = {}
         with open(self.transcripts_file) as handle:
             for record in read_fasta(handle):
                 transcripts[record.id] = str(record.seq).upper()
+        self._transcripts_cache = transcripts
         return transcripts
 
     def _parse_attrs(self, attrs_str: str) -> Dict[str, List[str]]:
@@ -1378,6 +1379,11 @@ class TransDecoderPredict:
         from pytransdecoder.core.sequence import reverse_complement
         from pytransdecoder.core.translator import Translator
 
+        cached = self.__dict__.get('_final_models_cache')
+        if cached is not None and cached[0] == gff3_file:
+            yield from cached[1]
+            return
+        models = []
         translator = Translator(self.genetic_code)
         transcripts = self._load_transcripts()
         for feature in parse_gff3(gff3_file):
@@ -1395,7 +1401,9 @@ class TransDecoderPredict:
             model = CodingModel(seqid=feature['seqid'], strand=strand, exons=[(1, len(seq))],
                                 cds_lend=start, cds_rend=end, model_id=attrs.get('ID', [''])[0],
                                 name=self._orf_com_name(attrs, strand, orf_type), extra_attrs=extra)
-            yield attrs.get('Parent', [''])[0], model
+            models.append((attrs.get('Parent', [''])[0], model))
+        self._final_models_cache = (gff3_file, models)
+        yield from models
 
     def _write_final_gff3(self, src_gff3: Path, out_gff3: Path):
         """
@@ -1493,10 +1501,7 @@ class TransDecoderPredict:
         translator = Translator(self.genetic_code)
         
         # Load transcript sequences
-        transcripts = {}
-        with open(self.transcripts_file) as f:
-            for record in read_fasta(f):
-                transcripts[record.id] = str(record.seq).upper()
+        transcripts = self._load_transcripts()
         
         # Extract sequences
         with open(output_file, 'w') as out:
