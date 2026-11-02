@@ -47,8 +47,8 @@ This creates a directory `transcripts.fasta.transdecoder_dir/` with:
 
 ```
 -t, --transcripts PATH          Input transcripts FASTA file [required]
--m, --min-protein-length INT    Minimum protein length (default: 50 aa; ORFs under 100 codons
-                                must also pass Predict's short-ORF frame-contrast test)
+-m, --min-protein-length INT    Minimum protein length (default: 50 aa; Predict's target-decoy
+                                test, not this cutoff, controls chance ORFs)
 -G, --genetic-code TEXT         Genetic code (default: Standard)
 -S, --strand-specific           Only analyze top strand
 -O, --output-dir PATH           Output directory

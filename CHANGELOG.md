@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0 (unreleased)
+## v0.2.0 (2026-11-02)
 
 ### New in PyTransDecoder only
 - **Homology-assisted start refinement.** When Predict is given `--retain-blastp-hits` and/or
