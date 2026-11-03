@@ -158,6 +158,8 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --decoy-seed INT                  Seed of the decoy shuffles (default: 42)
 --preset NAME|DIR                 Models and thresholds from a preset instead of the input
                                   (recommended below ~1,000 transcripts or for mostly partial sets)
+--cpu INT                         Worker processes for scoring candidate and decoy ORFs
+                                  (default: 1); the output does not depend on it
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```
@@ -282,6 +284,7 @@ diff ../TransDecoder/test.fasta.transdecoder_dir/longest_orfs.pep \
 
 - Python 3.8+
 - BioPython >= 1.81
+- NumPy >= 1.21
 - tqdm >= 4.65
 
 **Note**: Ported by Claude.io Sonnet 4.5 under guidance by bhaas. Jan 24, 2026.

@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0 (2026-11-02)
+Faster, with identical predictions: every output file is byte-identical to v0.2.1, at any `--cpu`.
+- **`--cpu N`** (`predict` and `pyTransdecoder`): candidate and decoy ORFs are scored in N worker processes.
+  Work is split and reassembled in input order, and each decoy shuffle is seeded per transcript, so results
+  do not depend on N.
+- **Faster single-process steps**, each computing the same values in the same order:
+  - NumPy Markov scoring (additions in the reference order; any non-standard score table uses the original loop);
+  - codon-memoised translation built from Biopython's own results;
+  - a one-pass codon scan and bisect stop lookup in the ORF finder;
+  - faster k-mer counting, redundancy filtering, base counts, reverse complement and decoy shuffles;
+  - transcripts and final models read once per run.
+- Typical wall time (LongOrfs + Predict), on our benchmark inputs: 1.75-3.45x faster than v0.2.1 with
+  `--cpu 1`, 5-10x faster with `--cpu 8` (e.g. a 429k-transcript GM12878 Trinity assembly: 30 min -> 3.7 min).
+- New dependency: NumPy (>= 1.21).
+- Biopython's "partial codon" warning is no longer printed during translation (output unchanged).
+
 ## v0.2.1 (2026-11-02)
 - Packaging only, for the first release on PyPI (`pip install pytransdecoder`): author, summary and project URL;
   README links made absolute so they work on PyPI. No code changes; predictions are identical to v0.2.0.
