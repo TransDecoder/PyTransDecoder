@@ -1,11 +1,14 @@
 # Changelog
 
-## Unreleased (devel)
+## v0.4.0 (2026-11-03)
+Faster LongOrfs, with identical output: every output file is byte-identical to v0.3.0 (and v0.2.1), at any `--cpu`.
 - **`longorfs --cpu N`** (and `pyTransdecoder --cpu N` now also applies to LongOrfs): ORF extraction in N
   worker processes, chunks of transcripts written back in input order; output files identical at any N.
   The input is read once (base counts are summed per chunk, exactly). With `--cpu 1` the input is streamed
   as before; with N > 1 it is held in memory. Inputs with repeated accessions fall back to one process
   (their `.pN` numbering continues across copies).
+- LongOrfs with `--cpu 8`: median 3.4x faster than v0.3.0 on our benchmark inputs (a 429k-transcript Trinity
+  assembly: 62 s -> 15 s).
 
 ## v0.3.0 (2026-11-02)
 Faster, with identical predictions: every output file is byte-identical to v0.2.1, at any `--cpu`.
