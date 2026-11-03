@@ -60,6 +60,7 @@ This creates a directory `transcripts.fasta.transdecoder_dir/` with:
 -O, --output-dir PATH           Output directory
 --gene-trans-map PATH           Gene-to-transcript mapping file
 --complete-orfs-only            Only output complete ORFs
+--cpu INT                       Worker processes (default: 1); the output does not depend on it
 -v, --verbose                   Verbose output
 ```
 
@@ -158,8 +159,9 @@ pyTransdecoder -t transcripts.fasta --pfam-search-db Pfam-A.hmm
 --decoy-seed INT                  Seed of the decoy shuffles (default: 42)
 --preset NAME|DIR                 Models and thresholds from a preset instead of the input
                                   (recommended below ~1,000 transcripts or for mostly partial sets)
---cpu INT                         Worker processes for scoring candidate and decoy ORFs
-                                  (default: 1); the output does not depend on it
+--cpu INT                         Worker processes for scoring candidate and decoy ORFs, and in
+                                  pyTransdecoder also for LongOrfs (default: 1); the output does
+                                  not depend on it
 -G, --genetic-code TEXT           Genetic code (default: Standard)
 -v, --verbose                     Verbose output
 ```

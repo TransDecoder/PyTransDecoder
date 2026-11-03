@@ -56,14 +56,14 @@ class FastaWriter:
             sequence: Sequence string
             wrap: Line width for wrapping (0 = no wrap)
         """
-        if not header.startswith('>'):
-            header = '>' + header
-        
-        self.file.write(header + '\n')
-        
-        if wrap > 0:
-            # Wrap sequence
-            for i in range(0, len(sequence), wrap):
-                self.file.write(sequence[i:i+wrap] + '\n')
-        else:
-            self.file.write(sequence + '\n')
+        self.file.write(fasta_entry(header, sequence, wrap))
+
+
+def fasta_entry(header: str, sequence: str, wrap: int = 60) -> str:
+    """One FASTA record as text: header line (a '>' is added if missing), then the sequence
+    in lines of `wrap` characters (0 = one line)."""
+    if not header.startswith('>'):
+        header = '>' + header
+    if wrap > 0:
+        return header + '\n' + ''.join(sequence[i:i + wrap] + '\n' for i in range(0, len(sequence), wrap))
+    return header + '\n' + sequence + '\n'

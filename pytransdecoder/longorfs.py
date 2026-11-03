@@ -7,14 +7,12 @@ Phase 1 of TransDecoder pipeline.
 import sys
 from pathlib import Path
 from typing import Optional, Dict
-from collections import defaultdict
 from .core.fasta import read_fasta
 from tqdm import tqdm
 
 from .core.orf_finder import ORFFinder
-from .core.models import ORF
-from .core.writers import GFF3Writer, FastaWriter
-from .core.base_freqs import compute_base_counts, write_base_frequencies
+from .core.writers import fasta_entry
+from .core.base_freqs import write_base_frequencies
 
 # Minimum ORF length (aa). Predict's decoy q-values (stratified by ORF length) decide how much coding
 # evidence short ORFs need.
@@ -29,7 +27,8 @@ def run_longorfs(
     output_dir: Optional[Path] = None,
     gene_trans_map_file: Optional[Path] = None,
     complete_orfs_only: bool = False,
-    verbose: bool = False
+    verbose: bool = False,
+    cpu: int = 1
 ):
     """
     Extract long ORFs from transcripts (Phase 1).
@@ -43,6 +42,7 @@ def run_longorfs(
         gene_trans_map_file: Gene to transcript mapping file
         complete_orfs_only: Only output complete ORFs
         verbose: Verbose output
+        cpu: Worker processes for ORF extraction (output does not depend on it)
     """
     
     # Set up output directory
@@ -74,20 +74,13 @@ def run_longorfs(
                    "strand_specific": bool(strand_specific),
                    "complete_orfs_only": bool(complete_orfs_only)}, fh, indent=1)
 
-    # Step 1: Compute base frequencies
-    if verbose:
-        print("\n\n-first extracting base frequencies, we'll need them later.\n", file=sys.stderr)
-    
-    base_freqs_file = workdir / "base_freqs.dat"
-    base_counts = compute_base_counts(str(transcripts_file), strand_specific)
-    write_base_frequencies(base_counts, str(base_freqs_file))
-    
-    # Step 2: Extract ORFs
-    if verbose:
-        print("\n\n- extracting ORFs from transcripts.\n", file=sys.stderr)
-    
-    # Initialize ORF finder
-    orf_finder = ORFFinder(
+    # Output files
+    prefix = workdir / "longest_orfs"
+    cds_file = prefix.with_suffix('.cds')
+    gff3_file = prefix.with_suffix('.gff3')
+    pep_file = prefix.with_suffix('.pep')
+
+    finder_args = dict(
         min_protein_length=min_protein_length,
         allow_5prime_partial=not complete_orfs_only,
         allow_3prime_partial=not complete_orfs_only,
@@ -96,81 +89,52 @@ def run_longorfs(
         genetic_code=genetic_code,
         complete_orfs_only=complete_orfs_only
     )
-    
-    # Output files
-    prefix = workdir / "longest_orfs"
-    cds_file = prefix.with_suffix('.cds')
-    gff3_file = prefix.with_suffix('.gff3')
-    pep_file = prefix.with_suffix('.pep')
-    
-    # Count total transcripts for progress bar
-    total_transcripts = sum(1 for _ in read_fasta(transcripts_file))
-    
+    settings = (finder_args, gene_trans_map, genetic_code, strand_specific)
+    cpu = max(1, int(cpu))
+
+    if verbose:
+        print("\n\n- extracting ORFs from transcripts.\n", file=sys.stderr)
+
+    if cpu == 1:
+        # one pass over the input, streamed (a counting pass for the progress bar only when verbose)
+        total_transcripts = sum(1 for _ in read_fasta(transcripts_file)) if verbose else None
+        chunks = _batches(((r.id, str(r.seq)) for r in read_fasta(transcripts_file)), SERIAL_BATCH)
+    else:
+        records = [(r.id, str(r.seq)) for r in read_fasta(transcripts_file)]
+        total_transcripts = len(records)
+        # Model IDs are <acc>.p1, .p2, ... numbered within a transcript; IDs of different accessions
+        # never coincide (the last '.p' of an ID starts its numeric suffix), so chunks can be numbered
+        # independently. A repeated accession continues the numbering of its earlier copy, so inputs
+        # with repeated accessions are processed in one chunk.
+        n_repeated = total_transcripts - len({acc for acc, _ in records})
+        if n_repeated:
+            print(f"Warning: {n_repeated} repeated transcript accessions; extracting ORFs in a single "
+                  f"process", file=sys.stderr)
+            chunks, cpu = [records], 1
+        else:
+            chunks = _chunks_by_size(records, cpu * 16)
+        del records
+
     if verbose:
         print(f"-total transcripts to examine: {total_transcripts}\n", file=sys.stderr)
-    
-    # Process transcripts
-    model_counter = 0
-    trans_counter = 0
-    seen_prot_ids = set()
-    
-    with GFF3Writer(gff3_file) as gff_writer, \
-         FastaWriter(cds_file) as cds_writer, \
-         FastaWriter(pep_file) as pep_writer:
-        
-        progress = tqdm(
-            read_fasta(transcripts_file),
-            total=total_transcripts,
-            desc="Processing transcripts",
-            disable=not verbose,
-            file=sys.stderr
-        )
-        
-        for record in progress:
-            trans_counter += 1
-            
-            acc = record.id
-            sequence = str(record.seq)
-            
-            # Find all ORFs
-            orfs = orf_finder.find_all_orfs(sequence, acc)
-            
-            # Process each ORF
-            for orf in orfs:
-                model_counter += 1
-                
-                # Generate unique model ID
-                pcounter = 1
-                model_id = f"{acc}.p{pcounter}"
-                while model_id in seen_prot_ids:
-                    pcounter += 1
-                    model_id = f"{acc}.p{pcounter}"
-                seen_prot_ids.add(model_id)
-                
-                # Generate gene ID
-                if acc in gene_trans_map:
-                    gene_id = gene_trans_map[acc]
-                else:
-                    gene_id = f"GENE.{acc}"
-                
-                gene_id = f"{gene_id}~~{model_id}"
-                
-                # Update ORF with IDs
-                orf.model_id = model_id
-                orf.gene_id = gene_id
-                orf.description = f"ORF type:{orf.orf_type} ({orf.strand})"
-                
-                # Write outputs
-                gff_writer.write_orf(orf)
-                
-                # Write CDS
-                cds_header = f">{model_id} type:{orf.orf_type} {acc}:{orf.start}-{orf.end}({orf.strand})"
-                cds_writer.write_sequence(cds_header, orf.sequence)
-                
-                # Write protein
-                pep_header = f">{model_id} type:{orf.orf_type} gc:{genetic_code} {acc}:{orf.start}-{orf.end}({orf.strand})"
-                pep_writer.write_sequence(pep_header, orf.protein)
-    
+
+    base_counts = {base: 0 for base in 'ACGT'}
+    progress = tqdm(total=total_transcripts, desc="Processing transcripts", disable=not verbose,
+                    file=sys.stderr)
+    with open(gff3_file, 'w') as gff_fh, open(cds_file, 'w') as cds_fh, open(pep_file, 'w') as pep_fh:
+        gff_fh.write("##gff-version 3\n")
+        for n, counts, gff, cds, pep in _map_chunks(chunks, settings, cpu):
+            for base in 'ACGT':
+                base_counts[base] += counts[base]
+            gff_fh.write(gff)
+            cds_fh.write(cds)
+            pep_fh.write(pep)
+            progress.update(n)
+    progress.close()
+
+    # Base frequencies (the per-chunk counts are integers, so their sum is exact)
+    write_base_frequencies(base_counts, str(workdir / "base_freqs.dat"))
+
     # Print summary
     if verbose:
         print(f"\n\n#################################", file=sys.stderr)
@@ -178,3 +142,106 @@ def run_longorfs(
         print(f"##################################", file=sys.stderr)
         print(f"\n\tUse file: {pep_file}  for Pfam and/or BlastP searches to enable homology-based coding region identification.\n\n", file=sys.stderr)
         print(f"\tThen, run TransDecoder.Predict\n\n", file=sys.stderr)
+
+
+# -- ORF extraction of chunks of transcripts (in this process or in worker processes) -------------
+
+_SETTINGS = None
+_SEEN_PROT_IDS: set = set()
+SERIAL_BATCH = 2000  # transcripts per batch when streaming with --cpu 1
+
+
+def _init_worker(settings):
+    """Settings, and one set of issued model IDs per process for the whole run."""
+    global _SETTINGS, _SEEN_PROT_IDS
+    _SETTINGS = settings
+    _SEEN_PROT_IDS = set()
+
+
+def _extract_chunk(records):
+    """(n transcripts, base counts, gff3 text, cds text, pep text) of an iterable of (acc, sequence),
+    numbering model IDs as the original single loop does."""
+    finder_args, gene_trans_map, genetic_code, strand_specific = _SETTINGS
+    orf_finder = ORFFinder(**finder_args)
+    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    counts = {base: 0 for base in 'ACGT'}
+    gff, cds, pep = [], [], []
+    seen_prot_ids = _SEEN_PROT_IDS
+    n = 0
+    for acc, sequence in records:
+        n += 1
+        # base counts, as core.base_freqs.compute_base_counts
+        useq = sequence.upper()
+        for base in 'ACGT':
+            k = useq.count(base)
+            counts[base] += k
+            if not strand_specific:
+                counts[complement[base]] += k
+
+        for orf in orf_finder.find_all_orfs(sequence, acc):
+            # Generate unique model ID
+            pcounter = 1
+            model_id = f"{acc}.p{pcounter}"
+            while model_id in seen_prot_ids:
+                pcounter += 1
+                model_id = f"{acc}.p{pcounter}"
+            seen_prot_ids.add(model_id)
+
+            gene_id = gene_trans_map.get(acc, f"GENE.{acc}")
+            gene_id = f"{gene_id}~~{model_id}"
+
+            orf.model_id = model_id
+            orf.gene_id = gene_id
+            orf.description = f"ORF type:{orf.orf_type} ({orf.strand})"
+
+            gff.append(orf.to_gff3() + "\n")
+            cds.append(fasta_entry(
+                f">{model_id} type:{orf.orf_type} {acc}:{orf.start}-{orf.end}({orf.strand})", orf.sequence))
+            pep.append(fasta_entry(
+                f">{model_id} type:{orf.orf_type} gc:{genetic_code} {acc}:{orf.start}-{orf.end}({orf.strand})",
+                orf.protein))
+    return n, counts, "".join(gff), "".join(cds), "".join(pep)
+
+
+def _batches(it, size):
+    """Consecutive lists of up to `size` items of an iterator."""
+    from itertools import islice
+    while True:
+        b = list(islice(it, size))
+        if not b:
+            return
+        yield b
+
+
+def _chunks_by_size(records, n_chunks):
+    """Consecutive chunks of roughly equal total sequence length (order preserved)."""
+    total = sum(len(s) for _, s in records) or 1
+    target = total / n_chunks
+    chunks, cur, acc = [], [], 0
+    for rec in records:
+        cur.append(rec)
+        acc += len(rec[1])
+        if acc >= target:
+            chunks.append(cur)
+            cur, acc = [], 0
+    if cur:
+        chunks.append(cur)
+    return chunks
+
+
+def _map_chunks(chunks, settings, cpu):
+    """_extract_chunk results in chunk order."""
+    if cpu <= 1:
+        _init_worker(settings)
+        try:
+            for c in chunks:
+                yield _extract_chunk(c)
+        finally:
+            _init_worker(None)  # release the ID set
+        return
+    from concurrent.futures import ProcessPoolExecutor
+    import multiprocessing as mp
+    ctx = mp.get_context("fork") if "fork" in mp.get_all_start_methods() else None
+    with ProcessPoolExecutor(max_workers=cpu, mp_context=ctx, initializer=_init_worker,
+                             initargs=(settings,)) as ex:
+        yield from ex.map(_extract_chunk, chunks)

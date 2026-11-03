@@ -80,6 +80,10 @@ Example:
         help='Show version and exit'
     )
     
+    parser.add_argument('--cpu', type=int, default=1, dest='cpu',
+                        help="Worker processes for ORF extraction; the output does not depend on it "
+                             "(default: %(default)s)")
+
     parser.set_defaults(func=longorfs_cmd)
     return parser
 
@@ -107,8 +111,8 @@ def _add_selection_args(parser):
     parser.add_argument('--decoy-seed', type=int, default=DEFAULT_DECOY_SEED, dest='decoy_seed',
                         help="Seed of the decoy shuffles (default: %(default)s)")
     parser.add_argument('--cpu', type=int, default=1, dest='cpu',
-                        help="Worker processes for scoring candidate and decoy ORFs; results do not depend "
-                             "on it (default: %(default)s)")
+                        help="Worker processes for scoring candidate and decoy ORFs (pyTransdecoder: also for "
+                             "extracting ORFs); results do not depend on it (default: %(default)s)")
     from .core.presets import bundled_presets
     parser.add_argument('--preset', default=None,
                         help="Use a preset's coding model, start model and q-value thresholds instead of "
@@ -279,7 +283,8 @@ def longorfs_cmd(args):
             output_dir=args.output_dir,
             gene_trans_map_file=args.gene_trans_map,
             complete_orfs_only=args.complete_orfs_only,
-            verbose=args.verbose
+            verbose=args.verbose,
+            cpu=args.cpu
         )
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -496,7 +501,8 @@ def pipeline_cmd(args):
             output_dir=args.output_dir,
             gene_trans_map_file=args.gene_trans_map,
             complete_orfs_only=args.complete_orfs_only,
-            verbose=args.verbose
+            verbose=args.verbose,
+            cpu=args.cpu
         )
     except Exception as e:
         print(f"Error during LongOrfs phase: {e}", file=sys.stderr)
