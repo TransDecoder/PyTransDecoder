@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.1 (2026-11-04)
 - External programs are checked when a run starts. `diamond` (or `makeblastdb`/`blastp`), `hmmsearch`/`hmmpress`,
   `gffread` and `samtools` are needed only by some options (`--blast-search-pep`, `--pfam-search-db`,
   `--genome/--gtf`, BAM `--structures`). If one is not on `PATH`, `pyTransdecoder` and `genome-map` now stop

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytransdecoder"
-version = "0.4.0"
+version = "0.4.1"
 description = "TransDecoder, the original Perl version ported to Python by AI/LLMs with new features integrated"
 readme = "README.md"
 requires-python = ">=3.8"
