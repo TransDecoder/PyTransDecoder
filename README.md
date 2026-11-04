@@ -15,6 +15,23 @@ cd PyTransDecoder
 pip install -e .
 ```
 
+`pip` installs everything needed to predict coding regions from transcripts (`pytransdecoder longorfs` /
+`predict`, and `pyTransdecoder -t`). A few options also run external programs, which pip cannot install.
+They are found on `PATH` and checked when the run starts, so a missing one stops the run immediately
+with a message naming it:
+
+| Option | Program(s) | bioconda package |
+|---|---|---|
+| `pyTransdecoder --blast-search-pep` (default `--blast-tool diamond`) | `diamond` | `diamond` |
+| `pyTransdecoder --blast-search-pep --blast-tool blastp` | `makeblastdb`, `blastp` | `blast` |
+| `pyTransdecoder --pfam-search-db` | `hmmsearch` (and `hmmpress` if the database is not yet pressed) | `hmmer` |
+| `pyTransdecoder --genome --gtf` | `gffread` | `gffread` |
+| `--structures` given as a `.bam` file (`pyTransdecoder`, `genome-map`) | `samtools` | `samtools` |
+
+For example: `conda install -c bioconda diamond hmmer`. Homology hits made separately (any BLAST-like
+outfmt 6 search, `hmmsearch` or `hmmscan` `--domtblout`) can always be passed to `predict` with
+`--retain-blastp-hits` / `--retain-pfam-hits`, with no external program needed by PyTransDecoder itself.
+
 ## Quick Start
 
 Use `pyTransdecoder` as the primary interface when you want the standard end-to-end pipeline:
@@ -288,5 +305,6 @@ diff ../TransDecoder/test.fasta.transdecoder_dir/longest_orfs.pep \
 - BioPython >= 1.81
 - NumPy >= 1.21
 - tqdm >= 4.65
+- Optional external programs for some options: see the table under [Installation](#installation)
 
 **Note**: Ported by Claude.io Sonnet 4.5 under guidance by bhaas. Jan 24, 2026.

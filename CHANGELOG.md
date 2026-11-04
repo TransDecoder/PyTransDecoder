@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+- External programs are checked when a run starts. `diamond` (or `makeblastdb`/`blastp`), `hmmsearch`/`hmmpress`,
+  `gffread` and `samtools` are needed only by some options (`--blast-search-pep`, `--pfam-search-db`,
+  `--genome/--gtf`, BAM `--structures`). If one is not on `PATH`, `pyTransdecoder` and `genome-map` now stop
+  before any work, with one message listing what is missing and the bioconda package that provides it.
+  Previously the run failed with a Python traceback after LongOrfs had finished.
+- README: table of the external programs each option needs. `--retain-pfam-hits` help: both `hmmsearch` and
+  `hmmscan` `--domtblout` are read (as before).
+- Predictions unchanged.
+
 ## v0.4.0 (2026-11-03)
 Faster LongOrfs, with identical output: every output file is byte-identical to v0.3.0 (and v0.2.1), at any `--cpu`.
 - **`longorfs --cpu N`** (and `pyTransdecoder --cpu N` now also applies to LongOrfs): ORF extraction in N

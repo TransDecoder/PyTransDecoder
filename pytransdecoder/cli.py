@@ -6,6 +6,7 @@ import sys
 import argparse
 from pathlib import Path
 from . import __version__
+from .external_tools import require_programs, structures_need_samtools
 from .longorfs import run_longorfs, DEFAULT_MIN_PROTEIN_LENGTH
 from .predict import (DEFAULT_START_CONTRAST_ALPHA, DEFAULT_START_KOZAK_WEIGHT,
                       DEFAULT_DECOY_Q, PRECISE_DECOY_Q, SENSITIVE_DECOY_Q, DEFAULT_DECOY_SEED)
@@ -188,7 +189,7 @@ Example:
         '--retain-pfam-hits', '--retain_pfam_hits',
         type=Path,
         dest='retain_pfam_hits',
-        help='Pfam domain hits file from hmmscan'
+        help='Pfam domain hits file (--domtblout from hmmsearch or hmmscan)'
     )
     parser.add_argument(
         '--retain-blastp-hits', '--retain_blastp_hits',
@@ -450,6 +451,25 @@ def pipeline_cmd(args):
     if args.structures is not None and not args.structures.exists():
         print(f"Error: structures file not found: {args.structures}", file=sys.stderr)
         sys.exit(1)
+
+    # External programs the chosen options run: check them all now, before any work starts
+    needed = []
+    if genome_mode:
+        needed.append(('gffread', '--genome/--gtf'))
+    if args.structures is not None and structures_need_samtools(args.structures):
+        needed.append(('samtools', '--structures with a BAM file'))
+    if args.blast_search_pep:
+        reason = f'--blast-search-pep with --blast-tool {args.blast_tool}'
+        if args.blast_tool == 'diamond':
+            needed.append(('diamond', reason))
+        else:
+            needed += [('makeblastdb', reason), ('blastp', reason)]
+    if args.pfam_search_db:
+        needed.append(('hmmsearch', '--pfam-search-db'))
+        if not all(Path(str(args.pfam_search_db) + ext).exists() for ext in ('.h3f', '.h3i', '.h3m', '.h3p')):
+            needed.append(('hmmpress', 'pressing the --pfam-search-db database, which has no .h3? index files yet'))
+    require_programs(needed)
+
     if genome_mode:
         if args.genome is None or args.gtf is None:
             print("Error: --genome and --gtf must be provided together", file=sys.stderr)
@@ -692,6 +712,8 @@ def genome_map_cmd(args):
         if not f.exists():
             print(f"Error: file not found: {f}", file=sys.stderr)
             sys.exit(1)
+    if structures_need_samtools(args.structures):
+        require_programs([('samtools', '--structures with a BAM file')])
     out = args.output or Path(str(args.orfs).removesuffix('.gff3') + '.genome.gff3')
     n_done, n_total = genome_run(args.orfs, args.structures, args.transcripts, out, args.format,
                                  unstranded_as='+' if args.unstranded_as == 'plus' else '-')
